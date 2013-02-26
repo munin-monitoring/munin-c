@@ -24,7 +24,7 @@ char* spoolfetch_dir = "";
 
 int handle_connection();
 
-int find_plugin_with_basename(char *cmdline, char *plugin_dir, char *plugin_basename) {
+static int find_plugin_with_basename(char *cmdline, char *plugin_dir, char *plugin_basename) {
        DIR* dirp = opendir(plugin_dir);
        struct dirent* dp;
        int found = 0;
