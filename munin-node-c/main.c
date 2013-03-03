@@ -207,6 +207,7 @@ int handle_connection() {
 		} else {
 			printf("# unknown cmd: %s\n", cmd);
 		}
+		/* Flushing everyting to avoid deadlocks */
 		fflush(NULL);
 	}
 
