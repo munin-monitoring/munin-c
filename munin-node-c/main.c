@@ -114,7 +114,7 @@ int main(int argc, char *argv[]) {
 		/* close socket after dup() */
 		close(sock_accept);
 
-		stdin = stdout = fdopen(0, "r+");
+		stdin = stdout = fdopen(0, "rb+");
 
 		if (handle_connection()) break;
 	}
