@@ -1,1 +1,16 @@
 *.o
+cpu
+load
+open_inodes
+threads
+fw_packets
+cpu
+processes
+uptime
+entropy
+interrupts
+open_files
+swap
+forks
+if_err_eth0
+munin-plugins-c
