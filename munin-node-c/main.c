@@ -122,8 +122,10 @@ int main(int argc, char *argv[]) {
 
 int handle_connection() {
 	char line[LINE_MAX];
+	char output[4096];
 
-	printf("# munin node at %s\n", host);
+	sprintf(output, "# munin node at %s\n", host);
+	puts(output);
 	while (fgets(line, LINE_MAX, stdin) != NULL) {
 		char* cmd;
 		char* arg;
