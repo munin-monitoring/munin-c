@@ -114,6 +114,9 @@ int main(int argc, char *argv[]) {
 		/* close socket after dup() */
 		close(sock_accept);
 
+		stdin = fdopen(0, "r");
+		stdout = fdopen(1, "w");
+
 		if (handle_connection()) break;
 	}
 
@@ -124,8 +127,7 @@ int handle_connection() {
 	char line[LINE_MAX];
 	char output[4096];
 
-	sprintf(output, "# munin node at %s\n", host);
-	puts(output);
+	printf("# munin node at %s\n", host);
 	while (fgets(line, LINE_MAX, stdin) != NULL) {
 		char* cmd;
 		char* arg;
