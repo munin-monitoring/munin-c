@@ -114,8 +114,7 @@ int main(int argc, char *argv[]) {
 		/* close socket after dup() */
 		close(sock_accept);
 
-		stdin = fdopen(0, "r");
-		stdout = fdopen(1, "w");
+		stdin = stdout = fdopen(0, "r+");
 
 		if (handle_connection()) break;
 	}
@@ -125,7 +124,6 @@ int main(int argc, char *argv[]) {
 
 int handle_connection() {
 	char line[LINE_MAX];
-	char output[4096];
 
 	printf("# munin node at %s\n", host);
 	while (fgets(line, LINE_MAX, stdin) != NULL) {
@@ -166,8 +164,8 @@ int handle_connection() {
 					printf("%s ", plugin_filename);
 				}
 			}
-			printf("\n");
 			closedir(dirp);
+			printf("%s", "\n");
 		} else if (
 				strcmp(cmd, "config") == 0 ||
 				strcmp(cmd, "fetch") == 0
@@ -179,7 +177,7 @@ int handle_connection() {
 				continue;
 			}
 			if(arg[0] == '.' || strchr(arg, '/')) {
-				printf("# invalid plugin character");
+				printf("# invalid plugin character\n");
 				continue;
 			}
 			snprintf(cmdline, LINE_MAX, "%s/%s", plugin_dir, arg);
@@ -209,6 +207,7 @@ int handle_connection() {
 		} else {
 			printf("# unknown cmd: %s\n", cmd);
 		}
+		fflush(NULL);
 	}
 
 	return 0;
