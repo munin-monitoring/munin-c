@@ -108,8 +108,8 @@ int main(int argc, char *argv[]) {
 	/* Accept a connection. */
 	while ((sock_accept = accept(sock_listen, (struct sockaddr*) &client, &client_len)) != -1) { 
 		/* connect the accept socket to stdio */
-		dup2(0, sock_accept);
-		dup2(1, sock_accept);
+		dup2(sock_accept, 0);
+		dup2(sock_accept, 1);
 
 		/* close socket after dup() */
 		close(sock_accept);
