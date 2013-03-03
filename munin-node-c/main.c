@@ -106,6 +106,9 @@ int main(int argc, char *argv[]) {
 		dup2(0, sock_accept);
 		dup2(1, sock_accept);
 
+		/* close socket after dup() */
+		close(sock_accept);
+
 		if (handle_connection()) break;
 	}
 
