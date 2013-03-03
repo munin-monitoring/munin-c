@@ -12,6 +12,7 @@
 
 
 char VERSION[] = "1.0.0";
+const int yes = 1; 
 
 int verbose = 0;
 
@@ -90,6 +91,10 @@ int main(int argc, char *argv[]) {
 	server.sin_family = AF_INET;
 	server.sin_port = htons(port);
 	server.sin_addr.s_addr = INADDR_ANY;
+
+	if (setsockopt(sock_listen, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) { 
+		perror("setsockopt");
+	}
 
 	if (bind(sock_listen, (struct sockaddr*) &server, sizeof(server)) < 0) {
 		return(3);
