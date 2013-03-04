@@ -33,7 +33,7 @@ int cpu(int argc, char **argv) {
 						ncpu++;
 					if(buff[3] == ' ') {
 						s = strtok(buff+4, " \t");
-						for(extinfo=0;strtok(NULL, " \t");extinfo++)
+						for(extinfo=1;strtok(NULL, " \t");extinfo++)
 							;
 					}
 				}
