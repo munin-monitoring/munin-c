@@ -7,15 +7,21 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <dirent.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 
 
 char VERSION[] = "1.0.0";
+const int yes = 1; 
 
 int verbose = 0;
 
 char* host = "";
+unsigned short port = 0;
 char* plugin_dir = "plugins";
 char* spoolfetch_dir = "";
+
+int handle_connection();
 
 int main(int argc, char *argv[]) {
 
@@ -23,9 +29,16 @@ int main(int argc, char *argv[]) {
 	extern int opterr;
 	int optarg_len;
 
-	char format[] = "vd:h:s:";
+	char format[] = "vd:h:s:p:";
 
-	char line[LINE_MAX];
+	struct sockaddr_in server;
+	struct sockaddr_in client;
+
+	socklen_t client_len = sizeof(client);
+
+	int sock_listen;
+	int sock_accept;
+
 
 	opterr = 1;
 
@@ -49,6 +62,9 @@ int main(int argc, char *argv[]) {
 			spoolfetch_dir = (char *) malloc(optarg_len + 1);
 			strcpy(spoolfetch_dir, optarg);
 			break;
+		case 'p':
+			port = atoi(optarg);
+			break;
 	}
 
 	/* get default hostname if not precised */
@@ -56,6 +72,58 @@ int main(int argc, char *argv[]) {
 		host = (char *) malloc(HOST_NAME_MAX + 1);
 		gethostname(host, HOST_NAME_MAX);
 	}
+
+	if (! port) {
+		/* use a 1-shot stdin/stdout */
+		return handle_connection();
+	}
+
+	/* port is set, listen to this port and
+           handle clients, one at a time */
+
+	/* Get a socket for accepting connections. */
+	if ((sock_listen = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+		return(2);
+	}
+
+	/* Bind the socket to the server address. */
+	memset(&server, 0, sizeof(&server));
+	server.sin_family = AF_INET;
+	server.sin_port = htons(port);
+	server.sin_addr.s_addr = INADDR_ANY;
+
+	if (setsockopt(sock_listen, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) { 
+		perror("setsockopt");
+	}
+
+	if (bind(sock_listen, (struct sockaddr*) &server, sizeof(server)) < 0) {
+		return(3);
+	}
+
+	/* Listen for connections. Specify the backlog as 1. */
+	if (listen(sock_listen, 1) != 0) {
+		return(4);
+	}
+
+	/* Accept a connection. */
+	while ((sock_accept = accept(sock_listen, (struct sockaddr*) &client, &client_len)) != -1) { 
+		/* connect the accept socket to stdio */
+		dup2(sock_accept, 0);
+		dup2(sock_accept, 1);
+
+		/* close socket after dup() */
+		close(sock_accept);
+
+		stdin = stdout = fdopen(0, "rb+");
+
+		if (handle_connection()) break;
+	}
+
+	return 5;
+}
+
+int handle_connection() {
+	char line[LINE_MAX];
 
 	printf("# munin node at %s\n", host);
 	while (fgets(line, LINE_MAX, stdin) != NULL) {
@@ -96,8 +164,8 @@ int main(int argc, char *argv[]) {
 					printf("%s ", plugin_filename);
 				}
 			}
-			printf("\n");
 			closedir(dirp);
+			printf("%s", "\n");
 		} else if (
 				strcmp(cmd, "config") == 0 ||
 				strcmp(cmd, "fetch") == 0
@@ -109,7 +177,7 @@ int main(int argc, char *argv[]) {
 				continue;
 			}
 			if(arg[0] == '.' || strchr(arg, '/')) {
-				printf("# invalid plugin character");
+				printf("# invalid plugin character\n");
 				continue;
 			}
 			snprintf(cmdline, LINE_MAX, "%s/%s", plugin_dir, arg);
@@ -139,6 +207,8 @@ int main(int argc, char *argv[]) {
 		} else {
 			printf("# unknown cmd: %s\n", cmd);
 		}
+		/* Flushing everyting to avoid deadlocks */
+		fflush(NULL);
 	}
 
 	return 0;
