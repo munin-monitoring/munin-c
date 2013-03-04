@@ -151,6 +151,10 @@ int main(int argc, char *argv[]) {
 	/* Accept a connection. */
 	while ((sock_accept = accept(sock_listen, (struct sockaddr*) &client, &client_len)) != -1) { 
 		/* connect the accept socket to stdio */
+		if (stdin != stdout) {
+			fclose(stdout);
+		}
+		fclose(stdin);
 		dup2(sock_accept, 0);
 		dup2(sock_accept, 1);
 
