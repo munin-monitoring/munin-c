@@ -9,6 +9,7 @@
 #include <dirent.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 
 
 char VERSION[] = "1.0.0";
@@ -18,6 +19,7 @@ int verbose = 0;
 
 char* host = "";
 unsigned short port = 0;
+char* ip_bind_as_str = NULL;
 char* plugin_dir = "plugins";
 char* spoolfetch_dir = "";
 
@@ -28,6 +30,8 @@ int main(int argc, char *argv[]) {
 	int optch;
 	extern int opterr;
 	int optarg_len;
+
+	char* buf;
 
 	char format[] = "vd:h:s:p:";
 
@@ -63,7 +67,15 @@ int main(int argc, char *argv[]) {
 			strcpy(spoolfetch_dir, optarg);
 			break;
 		case 'p':
-			port = atoi(optarg);
+			optarg_len = strlen(optarg);
+			buf = strtok(optarg, ":");
+			if (buf) {
+				ip_bind_as_str = (char *) malloc(optarg_len + 1);
+				strcpy(ip_bind_as_str, optarg);
+				port = atoi(strtok(NULL, ":"));
+			} else {
+				port = atoi(optarg);
+			}
 			break;
 	}
 
@@ -90,7 +102,12 @@ int main(int argc, char *argv[]) {
 	memset(&server, 0, sizeof(&server));
 	server.sin_family = AF_INET;
 	server.sin_port = htons(port);
-	server.sin_addr.s_addr = INADDR_ANY;
+
+	if (! ip_bind_as_str) {
+		server.sin_addr.s_addr = INADDR_ANY;
+	} else {
+		server.sin_addr.s_addr = inet_addr(ip_bind_as_str);
+	}
 
 	if (setsockopt(sock_listen, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) { 
 		perror("setsockopt");
