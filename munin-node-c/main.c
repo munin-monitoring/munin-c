@@ -147,8 +147,6 @@ int handle_connection() {
 		char* cmd;
 		char* arg;
 
-		line[LINE_MAX-1] = '\0';
-
 		cmd = strtok(line, " \t\n");
 		if(cmd == NULL)
 			arg = NULL;
