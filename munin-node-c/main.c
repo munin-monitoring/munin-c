@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
 
 	char* buf;
 
-	char format[] = "evd:h:s:p:";
+	char format[] = "evd:h:s:l:";
 
 	struct sockaddr_in server;
 	struct sockaddr_in client;
@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
 			spoolfetch_dir = (char *) malloc(optarg_len + 1);
 			strcpy(spoolfetch_dir, optarg);
 			break;
-		case 'p':
+		case 'l':
 			optarg_len = strlen(optarg);
 			buf = strtok(optarg, ":");
 			if (buf) {
