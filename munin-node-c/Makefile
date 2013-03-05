@@ -18,7 +18,7 @@ plugins: plugins/.munin-plugins-c.installed
 plugins/.munin-plugins-c.installed:
 	mkdir -p plugins
 	cd ../munin-plugins-c && $(MAKE)
-	cd plugins && for i in $$(find ../../munin-plugins-c -type l); do cp $$i $$i.exe; mv $$i.exe .; done
+	cd plugins && for i in $$(find ../../munin-plugins-c -type l); do ln -s $$i; done
 	touch plugins/.munin-plugins-c.installed
 
 .PHONY: all clean plugins
