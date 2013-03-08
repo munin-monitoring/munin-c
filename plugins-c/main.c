@@ -17,7 +17,7 @@ int swap(int argc, char **argv);
 int threads(int argc, char **argv);
 int uptime(int argc, char **argv);
 
-int busybox(int argc, char **argv) {
+static int busybox(int argc, char **argv) {
 	if(argc < 2)
 		return fail("missing parameter");
 	if(0 != strcmp(argv[1], "listplugins"))

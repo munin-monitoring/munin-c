@@ -11,16 +11,16 @@
 #include <netinet/in.h>
 
 
-const int yes = 1; 
+static const int yes = 1;
 
-int verbose = 0;
+static int verbose = 0;
 
-char* host = "";
-unsigned short port = 0;
-char* plugin_dir = PLUGINDIR;
-char* spoolfetch_dir = "";
+static char* host = "";
+static unsigned short port = 0;
+static char* plugin_dir = PLUGINDIR;
+static char* spoolfetch_dir = "";
 
-int handle_connection();
+static int handle_connection();
 
 int main(int argc, char *argv[]) {
 
@@ -121,7 +121,7 @@ int main(int argc, char *argv[]) {
 	return 5;
 }
 
-int handle_connection() {
+static int handle_connection() {
 	char line[LINE_MAX];
 
 	printf("# munin node at %s\n", host);
