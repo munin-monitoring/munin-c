@@ -17,7 +17,7 @@ int verbose = 0;
 
 char* host = "";
 unsigned short port = 0;
-char* plugin_dir = "plugins";
+char* plugin_dir = PLUGINDIR;
 char* spoolfetch_dir = "";
 
 int handle_connection();

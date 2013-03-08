@@ -5,6 +5,8 @@ pkglibexec_PROGRAMS = munin-plugins-c
 LINKS = cpu entropy forks fw_packets interrupts if_err_eth0 load	\
       open_files open_inodes processes swap threads uptime
 
+AM_CPPFLAGS = -DPLUGINDIR=\"$(pkglibexecdir)\"
+
 munin_node_c_SOURCES = node/main.c
 munin_plugins_c_SOURCES = \
 	plugins-c/common.c \
