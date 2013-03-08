@@ -1,4 +1,4 @@
-AC_INIT([munin-c], [0], [https://github.com/munin-monitoring/munin-c/issues], , [https://github.com/munin-monitoring/munin-c])
+AC_INIT([munin-c], [m4_esyscmd_s([git describe --always])], [https://github.com/munin-monitoring/munin-c/issues], , [https://github.com/munin-monitoring/munin-c])
 AC_CONFIG_AUX_DIR([build])
 
 AM_INIT_AUTOMAKE([foreign subdir-objects])
