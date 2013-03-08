@@ -9,19 +9,61 @@
 #include <dirent.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 
 
 char VERSION[] = "1.0.0";
 const int yes = 1; 
 
 int verbose = 0;
+int extension_stripping = 0;
 
 char* host = "";
 unsigned short port = 0;
+char* ip_bind_as_str = NULL;
 char* plugin_dir = "plugins";
 char* spoolfetch_dir = "";
 
 int handle_connection();
+
+static int find_plugin_with_basename(char *cmdline, char *plugin_dir, char *plugin_basename) {
+       DIR* dirp = opendir(plugin_dir);
+       struct dirent* dp;
+       int found = 0;
+
+       /* Empty cmdline */
+       cmdline[0] = '\0';
+
+       while ((dp = readdir(dirp)) != NULL) {
+               char* plugin_filename = dp->d_name;
+               int plugin_basename_len = strlen(plugin_basename);
+
+               if (plugin_filename[0] == '.') {
+                       /* No dotted plugin */
+                       continue;
+               }
+
+               if (strncmp(plugin_filename, plugin_basename, plugin_basename_len) != 0) {
+                       /* Does not start with base */
+                       continue;
+               }
+
+               if (plugin_filename[plugin_basename_len] != '\0' && plugin_filename[plugin_basename_len] != '.') {
+                       /* Does not end the string or start an extension */
+                       continue;
+               }
+
+               snprintf(cmdline, LINE_MAX, "%s/%s", plugin_dir, plugin_filename);
+               if (access(cmdline, X_OK) == 0) {
+                       /* Found it */
+                       found ++;
+                       break;
+               }
+       }
+       closedir(dirp);
+
+       return found;
+}
 
 int main(int argc, char *argv[]) {
 
@@ -29,7 +71,9 @@ int main(int argc, char *argv[]) {
 	extern int opterr;
 	int optarg_len;
 
-	char format[] = "vd:h:s:p:";
+	char* buf;
+
+	char format[] = "evd:h:s:l:";
 
 	struct sockaddr_in server;
 	struct sockaddr_in client;
@@ -44,6 +88,9 @@ int main(int argc, char *argv[]) {
 
 	while ((optch = getopt(argc, argv, format)) != -1)
 	switch (optch) {
+		case 'e':
+			extension_stripping ++;
+			break;
 		case 'v':
 			verbose ++;
 			break;
@@ -62,8 +109,16 @@ int main(int argc, char *argv[]) {
 			spoolfetch_dir = (char *) malloc(optarg_len + 1);
 			strcpy(spoolfetch_dir, optarg);
 			break;
-		case 'p':
-			port = atoi(optarg);
+		case 'l':
+			optarg_len = strlen(optarg);
+			buf = strtok(optarg, ":");
+			if (buf) {
+				ip_bind_as_str = (char *) malloc(optarg_len + 1);
+				strcpy(ip_bind_as_str, optarg);
+				port = atoi(strtok(NULL, ":"));
+			} else {
+				port = atoi(optarg);
+			}
 			break;
 	}
 
@@ -90,7 +145,12 @@ int main(int argc, char *argv[]) {
 	memset(&server, 0, sizeof(&server));
 	server.sin_family = AF_INET;
 	server.sin_port = htons(port);
-	server.sin_addr.s_addr = INADDR_ANY;
+
+	if (! ip_bind_as_str) {
+		server.sin_addr.s_addr = INADDR_ANY;
+	} else {
+		server.sin_addr.s_addr = inet_addr(ip_bind_as_str);
+	}
 
 	if (setsockopt(sock_listen, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) { 
 		perror("setsockopt");
@@ -108,6 +168,10 @@ int main(int argc, char *argv[]) {
 	/* Accept a connection. */
 	while ((sock_accept = accept(sock_listen, (struct sockaddr*) &client, &client_len)) != -1) { 
 		/* connect the accept socket to stdio */
+		if (stdin != stdout) {
+			fclose(stdout);
+		}
+		fclose(stdin);
 		dup2(sock_accept, 0);
 		dup2(sock_accept, 1);
 
@@ -129,8 +193,6 @@ int handle_connection() {
 	while (fgets(line, LINE_MAX, stdin) != NULL) {
 		char* cmd;
 		char* arg;
-
-		line[LINE_MAX-1] = '\0';
 
 		cmd = strtok(line, " \t\n");
 		if(cmd == NULL)
@@ -161,6 +223,13 @@ int handle_connection() {
 
 				snprintf(cmdline, LINE_MAX, "%s/%s", plugin_dir, plugin_filename);
 				if (access(cmdline, X_OK) == 0) {
+					if(extension_stripping) {
+						/* Strip after the last . */
+						char *last_dot_idx = strrchr(plugin_filename, '.');
+						if (last_dot_idx != NULL) {
+							*last_dot_idx = '\0';
+						}
+					}
 					printf("%s ", plugin_filename);
 				}
 			}
@@ -180,7 +249,10 @@ int handle_connection() {
 				printf("# invalid plugin character\n");
 				continue;
 			}
-			snprintf(cmdline, LINE_MAX, "%s/%s", plugin_dir, arg);
+			if (! extension_stripping || find_plugin_with_basename(cmdline, plugin_dir, arg) == 0) {
+				/* extension_stripping failed, using the plain method */
+				snprintf(cmdline, LINE_MAX, "%s/%s", plugin_dir, arg);
+			}
 			if (access(cmdline, X_OK) == -1) {
 				printf("# unknown plugin: %s\n", arg);
 				continue;
