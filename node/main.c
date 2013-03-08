@@ -11,7 +11,6 @@
 #include <netinet/in.h>
 
 
-char VERSION[] = "1.0.0";
 const int yes = 1; 
 
 int verbose = 0;
