@@ -12,19 +12,18 @@
 #include <arpa/inet.h>
 
 
-char VERSION[] = "1.0.0";
-const int yes = 1; 
+static const int yes = 1;
 
-int verbose = 0;
-int extension_stripping = 0;
+static int verbose = 0;
+static int extension_stripping = 0;
 
-char* host = "";
-unsigned short port = 0;
-char* ip_bind_as_str = NULL;
-char* plugin_dir = "plugins";
-char* spoolfetch_dir = "";
+static char* host = "";
+static unsigned short port = 0;
+static char* ip_bind_as_str = NULL;
+static char* plugin_dir = PLUGINDIR;
+static char* spoolfetch_dir = "";
 
-int handle_connection();
+static int handle_connection();
 
 static int find_plugin_with_basename(char *cmdline, char *plugin_dir, char *plugin_basename) {
        DIR* dirp = opendir(plugin_dir);
@@ -186,7 +185,7 @@ int main(int argc, char *argv[]) {
 	return 5;
 }
 
-int handle_connection() {
+static int handle_connection() {
 	char line[LINE_MAX];
 
 	printf("# munin node at %s\n", host);
