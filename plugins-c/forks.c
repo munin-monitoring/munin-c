@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Helmut Grohne <helmut@subdivi.de> - All rights reserved.
+ * Copyright (C) 2008-2013 Helmut Grohne <helmut@subdivi.de> - All rights reserved.
  *
  * This copyrighted material is made available to anyone wishing to use,
  * modify, copy, or redistribute it subject to the terms and conditions
