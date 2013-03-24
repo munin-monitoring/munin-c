@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
 
 	char* buf;
 
-	char format[] = "evd:h:s:l:";
+	char format[] = "evd:H:s:l:";
 
 	struct sockaddr_in server;
 	struct sockaddr_in client;
@@ -107,7 +107,7 @@ int main(int argc, char *argv[]) {
 			plugin_dir = (char *) malloc(optarg_len + 1);
 			strcpy(plugin_dir, optarg);
 			break;
-		case 'h':
+		case 'H':
 			optarg_len = strlen(optarg);
 			host = (char *) malloc(optarg_len + 1);
 			strcpy(host, optarg);
