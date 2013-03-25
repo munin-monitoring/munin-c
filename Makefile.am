@@ -3,7 +3,7 @@ pkglibexecdir = $(libexecdir)/$(PACKAGE)
 pkglibexec_PROGRAMS = munin-plugins-c
 
 LINKS = cpu entropy forks fw_packets interrupts if_err_eth0 load	\
-      open_files open_inodes processes swap threads uptime
+      open_files open_inodes processes swap threads uptime memory
 
 AM_CPPFLAGS = -DPLUGINDIR=\"$(pkglibexecdir)\"
 
@@ -24,6 +24,7 @@ munin_plugins_c_SOURCES = \
 	plugins-c/processes.c \
 	plugins-c/swap.c \
 	plugins-c/threads.c \
+	plugins-c/memory.c \
 	plugins-c/uptime.c
 
 all-local: $(pkglibexec_PROGRAMS)

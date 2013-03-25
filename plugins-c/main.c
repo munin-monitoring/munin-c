@@ -68,6 +68,8 @@ int main(int argc, char **argv) {
 				return load(argc, argv);
 			break;
 		case 'm':
+			if(!strcmp(progname, "memory"))
+				return memory(argc, argv);
 			if(!strcmp(progname, "munin-plugins-c"))
 				return busybox(argc, argv);
 			break;
