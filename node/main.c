@@ -150,7 +150,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	/* Bind the socket to the server address. */
-	memset(&server, 0, sizeof(&server));
+	memset(&server, 0, sizeof(server));
 	server.sin_family = AF_INET;
 	server.sin_port = htons(port);
 
