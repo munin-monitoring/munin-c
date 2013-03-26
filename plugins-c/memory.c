@@ -81,10 +81,10 @@ int memory(int argc, char **argv) {
 	FILE *f;
 	char buff[256];
 
-	long mem_total = 0;
-	long mem_free  = 0;
-	long swap_total = 0;
-	long swap_free  = 0;
+	long mem_total = -1;
+	long mem_free  = -1;
+	long swap_total = -1;
+	long swap_free  = -1;
 
 	if(argc > 1) {
 		if(!strcmp(argv[1], "config")) {
@@ -118,37 +118,27 @@ int memory(int argc, char **argv) {
 
 	while(fgets(buff, 256, f)) {
 		char key[256];
-		char keyn[256];
 		long value;
-		if (!sscanf(buff, "%s %ld", key, &value) ) {
-			printf("# Cannot parse '%s'\n", buff);
-			continue;
+		if (!sscanf(buff, "%s %ld", key, &value)) {
+			fclose(f);
+			return fail("cannot parse " PROC_MEMINFO " line");
 		}
 
-		if(!strncmp(key, "MemTotal:", 256)) {
+		if(!strcmp(key, "MemTotal:"))
 			mem_total = value * 1024;
-			continue;
-		}
-
-		if(!strncmp(key, "MemFree:", 256)) {
+		else if(!strcmp(key, "MemFree:"))
 			mem_free = value * 1024;
-			continue;
-		}
-
-		if(!strncmp(key, "SwapTotal:", 256)) {
+		else if(!strcmp(key, "SwapTotal:"))
 			swap_total = value * 1024;
-			continue;
-		}
-
-		if(!strncmp(key, "SwapFree:", 256)) {
+		else if(!strcmp(key, "SwapFree:"))
 			swap_free = value * 1024;
-			continue;
-		}
-	
 	}
 	fclose(f);
+	if(mem_total < 0 || mem_free < 0 || swap_total < 0 || swap_free < 0)
+		return fail("missing fileds in " PROC_MEMINFO);
 
 	printf("apps.value %ld\n", mem_total - mem_free);
 	printf("free.value %ld\n", mem_free);
 	printf("swap.value %ld\n", swap_total - swap_free);
+	return 0;
 }
