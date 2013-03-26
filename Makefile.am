@@ -4,6 +4,7 @@ pkglibexec_PROGRAMS = munin-plugins-c
 
 LINKS = cpu entropy forks fw_packets interrupts if_err_eth0 load	\
       open_files open_inodes processes swap threads uptime memory
+CFLAGS += -W -Wall -Wextra
 
 AM_CPPFLAGS = -DPLUGINDIR=\"$(pkglibexecdir)\"
 
