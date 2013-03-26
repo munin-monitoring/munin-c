@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include "common.h"
 
 extern char **environ;
 
@@ -35,7 +36,8 @@ int getenvint(const char *name, int defvalue) {
 	return atoi(value);
 }
 
-const char *getenv_composed(const char *name1, const char *name2) {
+/*@null@*/ /*@observer@*/ const char *getenv_composed(const char *name1,
+		const char *name2) {
 	char **p;
 	size_t len1 = strlen(name1), len2 = strlen(name2);
 	for(p = environ; *p; ++p) {
