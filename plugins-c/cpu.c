@@ -39,8 +39,8 @@ int cpu(int argc, char **argv) {
 				if(!strncmp(buff, "cpu", 3)) {
 					if(isdigit(buff[3]))
 						ncpu++;
-					if(buff[3] == ' ') {
-						s = strtok(buff+4, " \t");
+					if(buff[3] == ' ' && 0 == extinfo) {
+						strtok(buff+4, " \t");
 						for(extinfo=1;strtok(NULL, " \t");extinfo++)
 							;
 					}
