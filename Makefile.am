@@ -8,6 +8,8 @@ CFLAGS += -W -Wall -Wextra
 
 AM_CPPFLAGS = -DPLUGINDIR=\"$(pkglibexecdir)\"
 
+dist_doc_DATA = gpl-2.0.txt gpl-3.0.txt
+
 munin_node_c_SOURCES = node/main.c
 munin_plugins_c_SOURCES = \
 	plugins-c/common.c \
