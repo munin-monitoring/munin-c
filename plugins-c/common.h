@@ -10,14 +10,31 @@
 
 #define PROC_STAT "/proc/stat"
 
+/** Write yes to stdout and return 0. The intended use is give an autoconf
+ * response like "return writeyes();".
+ * @returns a success state to be passed on as the return value from main */
 int writeyes(void);
+/** Answer an autoconf request by checking the readability of the given file.
+ */
 int autoconf_check_readable(const char *);
-int getenvint(const char *, int);
+/** Obtain an integer value from the environment. In the absence of the
+ * variable the given defaultvalue is returned.  */
+int getenvint(const char *, int defaultvalue);
+/** Return the value of the environment variable referred to by the
+ * concatenation of the given strings.  */
 /*@null@*/ /*@observer@*/ const char *getenv_composed(const char *,
 		const char *);
-void print_warning(const char *);
-void print_critical(const char *);
-void print_warncrit(const char *);
-int fail(const char *);
+/** Print a name.warning line using the "name_warning" or "warning" environment
+ * variables. */
+void print_warning(const char *name);
+/** Print a name.critical line using the "name_critical" or "critical"
+ * environment variables. */
+void print_critical(const char *name);
+/** Print both name.warning and name.critical lines using environment
+ * variables. */
+void print_warncrit(const char *name);
+/** Fail by printing the given message and a newline to stderr.
+ * @returns a failure state to be passed on as the return value from main */
+int fail(const char *message);
 
 #endif
