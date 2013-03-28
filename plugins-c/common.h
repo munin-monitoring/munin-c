@@ -14,25 +14,32 @@
  * response like "return writeyes();".
  * @returns a success state to be passed on as the return value from main */
 int writeyes(void);
+
 /** Answer an autoconf request by checking the readability of the given file.
  */
 int autoconf_check_readable(const char *);
+
 /** Obtain an integer value from the environment. In the absence of the
  * variable the given defaultvalue is returned.  */
 int getenvint(const char *, int defaultvalue);
+
 /** Return the value of the environment variable referred to by the
  * concatenation of the given strings.  */
 /*@null@*/ /*@observer@*/ const char *getenv_composed(const char *,
 		const char *);
+
 /** Print a name.warning line using the "name_warning" or "warning" environment
  * variables. */
 void print_warning(const char *name);
+
 /** Print a name.critical line using the "name_critical" or "critical"
  * environment variables. */
 void print_critical(const char *name);
+
 /** Print both name.warning and name.critical lines using environment
  * variables. */
 void print_warncrit(const char *name);
+
 /** Fail by printing the given message and a newline to stderr.
  * @returns a failure state to be passed on as the return value from main */
 int fail(const char *message);
