@@ -22,6 +22,7 @@
 
 
 static const int yes = 1;
+static const int no = 0;
 
 static int verbose = 0;
 static int extension_stripping = 0;
@@ -194,8 +195,48 @@ int main(int argc, char *argv[]) {
 	return 5;
 }
 
+/* Setting munin specific vars */
+static void setenvvars_system() {
+	/* Some locales use "," as decimal separator.
+	 * This can mess up a lot of plugins. */
+	setenv("LC_ALL", "C", yes);
+
+	/* LC_ALL should be enough, but some plugins don't
+	 * follow specs (#1014) */
+	setenv("LANG", "C", yes);
+
+	/* PATH should be *very* sane by default. Can be
+	 * overrided via config file if needed
+	 * (Closes #863 and #1128).  */
+	setenv("PATH", "/usr/sbin:/usr/bin:/sbin:/bin", yes);
+}
+
+/* Setting munin specific vars */
+static void setenvvars_munin() {
+	/* munin-node will override this with the IP of the
+	 * connecting master */
+	setenv("MUNIN_MASTER_IP", "", no);
+
+	/* Tell plugins about supported capabilities */
+	setenv("MUNIN_CAP_MULTIGRAPH", "1", no);
+
+	/* We only have one user, so using a fixed path */
+	setenv("MUNIN_PLUGSTATE", "/var/tmp", no);
+	setenv("MUNIN_STATEFILE", "/dev/null", no);
+}
+
+/* Setting user configured vars */
+static void setenvvars_conf() {
+	/* TODO - add plugin conf parsing */
+}
+
 static int handle_connection() {
 	char line[LINE_MAX];
+
+	/* Prepare plugin env vars */
+	setenvvars_system();
+	setenvvars_munin();
+	setenvvars_conf();
 
 	printf("# munin node at %s\n", host);
 	while (fgets(line, LINE_MAX, stdin) != NULL) {
