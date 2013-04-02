@@ -1,0 +1,5 @@
+#! /bin/sh
+echo "ENV:"
+export
+
+echo "ARGS:" "$@"
