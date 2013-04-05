@@ -32,6 +32,7 @@ static unsigned short port = 0;
 static char* ip_bind_as_str = NULL;
 static char* plugin_dir = PLUGINDIR;
 static char* spoolfetch_dir = "";
+static char* client_ip = NULL;
 
 static int handle_connection();
 
@@ -139,6 +140,7 @@ int main(int argc, char *argv[]) {
 
 	if (! port) {
 		/* use a 1-shot stdin/stdout */
+		client_ip = "-";
 		return handle_connection();
 	}
 
@@ -189,6 +191,7 @@ int main(int argc, char *argv[]) {
 
 		stdin = stdout = fdopen(0, "rb+");
 
+		client_ip = inet_ntoa(client.sin_addr);
 		if (handle_connection()) break;
 	}
 
@@ -215,7 +218,9 @@ static void setenvvars_system() {
 static void setenvvars_munin() {
 	/* munin-node will override this with the IP of the
 	 * connecting master */
-	setenv("MUNIN_MASTER_IP", "", no);
+	if (client_ip && client_ip[0] != '\0') {
+		setenv("MUNIN_MASTER_IP", client_ip, no);
+	}
 
 	/* Tell plugins about supported capabilities */
 	setenv("MUNIN_CAP_MULTIGRAPH", "1", no);
