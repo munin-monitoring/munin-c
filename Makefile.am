@@ -10,25 +10,25 @@ AM_CPPFLAGS = -DPLUGINDIR=\"$(pkglibexecdir)\"
 
 dist_doc_DATA = gpl-2.0.txt gpl-3.0.txt
 
-munin_node_c_SOURCES = node/main.c
+munin_node_c_SOURCES = src/node/main.c
 munin_plugins_c_SOURCES = \
-	plugins-c/common.c \
-	plugins-c/common.h \
-	plugins-c/cpu.c \
-	plugins-c/entropy.c \
-	plugins-c/forks.c \
-	plugins-c/fw_packets.c \
-	plugins-c/if_err_.c \
-	plugins-c/interrupts.c \
-	plugins-c/load.c \
-	plugins-c/main.c \
-	plugins-c/open_files.c \
-	plugins-c/open_inodes.c \
-	plugins-c/processes.c \
-	plugins-c/swap.c \
-	plugins-c/threads.c \
-	plugins-c/memory.c \
-	plugins-c/uptime.c
+	src/plugins/common.c \
+	src/plugins/common.h \
+	src/plugins/cpu.c \
+	src/plugins/entropy.c \
+	src/plugins/forks.c \
+	src/plugins/fw_packets.c \
+	src/plugins/if_err_.c \
+	src/plugins/interrupts.c \
+	src/plugins/load.c \
+	src/plugins/main.c \
+	src/plugins/open_files.c \
+	src/plugins/open_inodes.c \
+	src/plugins/processes.c \
+	src/plugins/swap.c \
+	src/plugins/threads.c \
+	src/plugins/memory.c \
+	src/plugins/uptime.c
 
 all-local: $(pkglibexec_PROGRAMS)
 	$(MKDIR_P) plugins
