@@ -10,5 +10,5 @@ AC_PROG_CC_C_O
 
 AC_PROG_LN_S
 
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile src/node/Makefile src/plugins/Makefile])
 AC_OUTPUT

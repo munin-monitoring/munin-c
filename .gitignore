@@ -11,6 +11,4 @@
 /config.status
 /configure
 /munin-c-*.tar.*
-/munin-node-c
-/munin-plugins-c
 /plugins/
