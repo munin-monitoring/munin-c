@@ -75,6 +75,8 @@ static int find_plugin_with_basename(char *cmdline, char *plugin_dir, char *plug
        return found;
 }
 
+static void setenvvars_system(void);
+
 int main(int argc, char *argv[]) {
 
 	int optch;
@@ -128,6 +130,9 @@ int main(int argc, char *argv[]) {
 		host = (char *) malloc(HOST_NAME_MAX + 1);
 		gethostname(host, HOST_NAME_MAX);
 	}
+
+	/* Prepare static plugin env vars once for all */
+	setenvvars_system();
 
 	if (! port) {
 		/* use a 1-shot stdin/stdout */
@@ -229,8 +234,7 @@ static void setenvvars_conf() {
 static int handle_connection() {
 	char line[LINE_MAX];
 
-	/* Prepare plugin env vars */
-	setenvvars_system();
+	/* Prepare per connection plugin env vars */
 	setenvvars_munin();
 	setenvvars_conf();
 
