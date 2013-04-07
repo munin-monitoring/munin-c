@@ -36,17 +36,18 @@ static char* client_ip = NULL;
 
 static int handle_connection();
 
-static int find_plugin_with_basename(char *cmdline, char *plugin_dir, char *plugin_basename) {
+static int find_plugin_with_basename(/*@out@*/ char *cmdline,
+		const char *plugin_dir, const char *plugin_basename) {
        DIR* dirp = opendir(plugin_dir);
        struct dirent* dp;
        int found = 0;
+       size_t plugin_basename_len = strlen(plugin_basename);
 
        /* Empty cmdline */
        cmdline[0] = '\0';
 
        while ((dp = readdir(dirp)) != NULL) {
                char* plugin_filename = dp->d_name;
-               int plugin_basename_len = strlen(plugin_basename);
 
                if (plugin_filename[0] == '.') {
                        /* No dotted plugin */
@@ -75,11 +76,12 @@ static int find_plugin_with_basename(char *cmdline, char *plugin_dir, char *plug
        return found;
 }
 
+static void setenvvars_system(void);
+
 int main(int argc, char *argv[]) {
 
 	int optch;
 	extern int opterr;
-	int optarg_len;
 
 	char* buf;
 
@@ -105,26 +107,18 @@ int main(int argc, char *argv[]) {
 			verbose ++;
 			break;
 		case 'd':
-			optarg_len = strlen(optarg);
-			plugin_dir = (char *) malloc(optarg_len + 1);
-			strcpy(plugin_dir, optarg);
+			plugin_dir = strdup(optarg);
 			break;
 		case 'H':
-			optarg_len = strlen(optarg);
-			host = (char *) malloc(optarg_len + 1);
-			strcpy(host, optarg);
+			host = strdup(optarg);
 			break;
 		case 's':
-			optarg_len = strlen(optarg);
-			spoolfetch_dir = (char *) malloc(optarg_len + 1);
-			strcpy(spoolfetch_dir, optarg);
+			spoolfetch_dir = strdup(optarg);
 			break;
 		case 'l':
-			optarg_len = strlen(optarg);
 			buf = strtok(optarg, ":");
 			if (buf) {
-				ip_bind_as_str = (char *) malloc(optarg_len + 1);
-				strcpy(ip_bind_as_str, optarg);
+				ip_bind_as_str = strdup(optarg);
 				port = atoi(strtok(NULL, ":"));
 			} else {
 				port = atoi(optarg);
@@ -133,14 +127,22 @@ int main(int argc, char *argv[]) {
 	}
 
 	/* get default hostname if not precised */
-	if (! strlen(host)) {
+	if ('\0' == *host) {
 		host = (char *) malloc(HOST_NAME_MAX + 1);
 		gethostname(host, HOST_NAME_MAX);
 	}
 
+	/* Prepare static plugin env vars once for all */
+	setenvvars_system();
+
 	if (! port) {
 		/* use a 1-shot stdin/stdout */
 		client_ip = "-";
+		client_len = sizeof(client);
+		if(0 == getpeername(STDIN_FILENO, (struct sockaddr*)&client,
+					&client_len))
+			if(client.sin_family == AF_INET)
+				client_ip = inet_ntoa(client.sin_addr);
 		return handle_connection();
 	}
 
@@ -238,13 +240,12 @@ static void setenvvars_conf() {
 static int handle_connection() {
 	char line[LINE_MAX];
 
-	/* Prepare plugin env vars */
-	setenvvars_system();
+	/* Prepare per connection plugin env vars */
 	setenvvars_munin();
 	setenvvars_conf();
 
 	printf("# munin node at %s\n", host);
-	while (fgets(line, LINE_MAX, stdin) != NULL) {
+	while (fflush(stdout), fgets(line, LINE_MAX, stdin) != NULL) {
 		char* cmd;
 		char* arg;
 
@@ -288,7 +289,7 @@ static int handle_connection() {
 				}
 			}
 			closedir(dirp);
-			printf("%s", "\n");
+			putchar('\n');
 		} else if (
 				strcmp(cmd, "config") == 0 ||
 				strcmp(cmd, "fetch") == 0
@@ -324,7 +325,7 @@ static int handle_connection() {
 			printf(".\n");
 		} else if (strcmp(cmd, "cap") == 0) {
 			printf("cap ");
-			if (strlen(spoolfetch_dir)) {
+			if ('\0' != *spoolfetch_dir) {
 				printf("spool ");
 			}
 			printf("\n");
@@ -333,8 +334,6 @@ static int handle_connection() {
 		} else {
 			printf("# unknown cmd: %s\n", cmd);
 		}
-		/* Flushing everyting to avoid deadlocks */
-		fflush(NULL);
 	}
 
 	return 0;
