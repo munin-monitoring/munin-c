@@ -46,7 +46,7 @@ static int find_plugin_with_basename(/*@out@*/ char *cmdline,
        /* Empty cmdline */
        cmdline[0] = '\0';
 
-       while ((dp = readdir(dirp)) != NULL) {
+       while (dirp != NULL && (dp = readdir(dirp)) != NULL) {
                char* plugin_filename = dp->d_name;
 
                if (plugin_filename[0] == '.') {
@@ -267,7 +267,7 @@ static int handle_connection() {
 		} else if (strcmp(cmd, "list") == 0) {
 			DIR* dirp = opendir(plugin_dir);
 			struct dirent* dp;
-			while ((dp = readdir(dirp)) != NULL) {
+			while (dirp != NULL && (dp = readdir(dirp)) != NULL) {
 				char cmdline[LINE_MAX];
 				char* plugin_filename = dp->d_name;;
 
