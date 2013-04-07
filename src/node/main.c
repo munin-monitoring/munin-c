@@ -50,7 +50,6 @@ static void oom_handler() {
 static void* xmalloc(size_t size) {
 	void* ptr;
 
-	assert(size != 0);
 	assert(size < MAX_ALLOC_SIZE);
 
 	ptr = malloc(size);
