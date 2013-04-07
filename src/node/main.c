@@ -137,6 +137,11 @@ int main(int argc, char *argv[]) {
 	if (! port) {
 		/* use a 1-shot stdin/stdout */
 		client_ip = "-";
+		client_len = sizeof(client);
+		if(0 == getpeername(STDIN_FILENO, (struct sockaddr*)&client,
+					&client_len))
+			if(client.sin_family == AF_INET)
+				client_ip = inet_ntoa(client.sin_addr);
 		return handle_connection();
 	}
 
