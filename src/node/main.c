@@ -40,13 +40,13 @@ static int find_plugin_with_basename(char *cmdline, char *plugin_dir, char *plug
        DIR* dirp = opendir(plugin_dir);
        struct dirent* dp;
        int found = 0;
+       int plugin_basename_len = strlen(plugin_basename);
 
        /* Empty cmdline */
        cmdline[0] = '\0';
 
        while ((dp = readdir(dirp)) != NULL) {
                char* plugin_filename = dp->d_name;
-               int plugin_basename_len = strlen(plugin_basename);
 
                if (plugin_filename[0] == '.') {
                        /* No dotted plugin */
