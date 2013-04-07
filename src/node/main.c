@@ -266,6 +266,9 @@ static void setenvvars_munin() {
 	/* We only have one user, so using a fixed path */
 	setenv("MUNIN_PLUGSTATE", "/var/tmp", no);
 	setenv("MUNIN_STATEFILE", "/dev/null", no);
+
+	/* That's where plugins should live */
+	setenv("MUNIN_LIBDIR", "/usr/share/munin", no);
 }
 
 /* Setting user configured vars */
