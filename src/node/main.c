@@ -36,11 +36,12 @@ static char* client_ip = NULL;
 
 static int handle_connection();
 
-static int find_plugin_with_basename(char *cmdline, char *plugin_dir, char *plugin_basename) {
+static int find_plugin_with_basename(/*@out@*/ char *cmdline,
+		const char *plugin_dir, const char *plugin_basename) {
        DIR* dirp = opendir(plugin_dir);
        struct dirent* dp;
        int found = 0;
-       int plugin_basename_len = strlen(plugin_basename);
+       size_t plugin_basename_len = strlen(plugin_basename);
 
        /* Empty cmdline */
        cmdline[0] = '\0';
@@ -126,7 +127,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	/* get default hostname if not precised */
-	if (! strlen(host)) {
+	if ('\0' == *host) {
 		host = (char *) malloc(HOST_NAME_MAX + 1);
 		gethostname(host, HOST_NAME_MAX);
 	}
@@ -288,7 +289,7 @@ static int handle_connection() {
 				}
 			}
 			closedir(dirp);
-			printf("%s", "\n");
+			putchar('\n');
 		} else if (
 				strcmp(cmd, "config") == 0 ||
 				strcmp(cmd, "fetch") == 0
@@ -324,7 +325,7 @@ static int handle_connection() {
 			printf(".\n");
 		} else if (strcmp(cmd, "cap") == 0) {
 			printf("cap ");
-			if (strlen(spoolfetch_dir)) {
+			if ('\0' != *spoolfetch_dir) {
 				printf("spool ");
 			}
 			printf("\n");
