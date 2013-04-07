@@ -79,7 +79,6 @@ int main(int argc, char *argv[]) {
 
 	int optch;
 	extern int opterr;
-	int optarg_len;
 
 	char* buf;
 
@@ -105,26 +104,18 @@ int main(int argc, char *argv[]) {
 			verbose ++;
 			break;
 		case 'd':
-			optarg_len = strlen(optarg);
-			plugin_dir = (char *) malloc(optarg_len + 1);
-			strcpy(plugin_dir, optarg);
+			plugin_dir = strdup(optarg);
 			break;
 		case 'H':
-			optarg_len = strlen(optarg);
-			host = (char *) malloc(optarg_len + 1);
-			strcpy(host, optarg);
+			host = strdup(optarg);
 			break;
 		case 's':
-			optarg_len = strlen(optarg);
-			spoolfetch_dir = (char *) malloc(optarg_len + 1);
-			strcpy(spoolfetch_dir, optarg);
+			spoolfetch_dir = strdup(optarg);
 			break;
 		case 'l':
-			optarg_len = strlen(optarg);
 			buf = strtok(optarg, ":");
 			if (buf) {
-				ip_bind_as_str = (char *) malloc(optarg_len + 1);
-				strcpy(ip_bind_as_str, optarg);
+				ip_bind_as_str = strdup(optarg);
 				port = atoi(strtok(NULL, ":"));
 			} else {
 				port = atoi(optarg);
