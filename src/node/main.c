@@ -57,7 +57,7 @@ static void* xmalloc(size_t size) {
 	return ptr;
 }
 
-char* xstrdup(const char* s) {
+static char* xstrdup(const char* s) {
 	char* new_str;
 
 	assert(s != NULL);
@@ -74,10 +74,15 @@ static int find_plugin_with_basename(/*@out@*/ char *cmdline,
        int found = 0;
        size_t plugin_basename_len = strlen(plugin_basename);
 
+       if (dirp == NULL) {
+               perror("Cannot open plugin dir");
+               return(found);
+       }
+
        /* Empty cmdline */
        cmdline[0] = '\0';
 
-       while (dirp != NULL && (dp = readdir(dirp)) != NULL) {
+       while ((dp = readdir(dirp)) != NULL) {
                char* plugin_filename = dp->d_name;
 
                if (plugin_filename[0] == '.') {
@@ -297,8 +302,12 @@ static int handle_connection() {
 			return(0);
 		} else if (strcmp(cmd, "list") == 0) {
 			DIR* dirp = opendir(plugin_dir);
+			if (dirp == NULL) {
+				printf("# Cannot open plugin dir\n");
+               			return(0);
+       			}
 			struct dirent* dp;
-			while (dirp != NULL && (dp = readdir(dirp)) != NULL) {
+			while ((dp = readdir(dirp)) != NULL) {
 				char cmdline[LINE_MAX];
 				char* plugin_filename = dp->d_name;;
 
