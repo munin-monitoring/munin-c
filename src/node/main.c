@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <limits.h>
 #include <stdlib.h>
+#include <assert.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <dirent.h>
@@ -35,6 +36,37 @@ static char* spoolfetch_dir = "";
 static char* client_ip = NULL;
 
 static int handle_connection();
+
+static void oom_handler() {
+	static const char* OOM_MSG = "Out of memory\n";
+
+	/* write w/o return check. we are torched anyway */
+	write(STDIN_FILENO, OOM_MSG, sizeof(OOM_MSG)-1);
+	abort();
+}
+
+/* an allocation bigger than MAX_ALLOC_SIZE is bogus */
+#define MAX_ALLOC_SIZE (16 * 1024 * 1024)
+static void* xmalloc(size_t size) {
+	void* ptr;
+
+	assert(size != 0);
+	assert(size < MAX_ALLOC_SIZE);
+
+	ptr = malloc(size);
+	if (ptr == NULL) oom_handler();
+	return ptr;
+}
+
+char* xstrdup(const char* s) {
+	char* new_str;
+
+	assert(s != NULL);
+	assert(strlen(s) < MAX_ALLOC_SIZE);
+	new_str = strdup(s);
+	if (new_str == NULL) oom_handler();
+	return new_str;
+}
 
 static int find_plugin_with_basename(/*@out@*/ char *cmdline,
 		const char *plugin_dir, const char *plugin_basename) {
@@ -107,18 +139,18 @@ int main(int argc, char *argv[]) {
 			verbose ++;
 			break;
 		case 'd':
-			plugin_dir = strdup(optarg);
+			plugin_dir = xstrdup(optarg);
 			break;
 		case 'H':
-			host = strdup(optarg);
+			host = xstrdup(optarg);
 			break;
 		case 's':
-			spoolfetch_dir = strdup(optarg);
+			spoolfetch_dir = xstrdup(optarg);
 			break;
 		case 'l':
 			buf = strtok(optarg, ":");
 			if (buf) {
-				ip_bind_as_str = strdup(optarg);
+				ip_bind_as_str = xstrdup(optarg);
 				port = atoi(strtok(NULL, ":"));
 			} else {
 				port = atoi(optarg);
@@ -128,7 +160,7 @@ int main(int argc, char *argv[]) {
 
 	/* get default hostname if not precised */
 	if ('\0' == *host) {
-		host = (char *) malloc(HOST_NAME_MAX + 1);
+		host = (char *) xmalloc(HOST_NAME_MAX + 1);
 		gethostname(host, HOST_NAME_MAX);
 	}
 
