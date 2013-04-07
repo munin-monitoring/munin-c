@@ -244,7 +244,7 @@ static int handle_connection() {
 	setenvvars_conf();
 
 	printf("# munin node at %s\n", host);
-	while (fgets(line, LINE_MAX, stdin) != NULL) {
+	while (fflush(stdout), fgets(line, LINE_MAX, stdin) != NULL) {
 		char* cmd;
 		char* arg;
 
@@ -333,8 +333,6 @@ static int handle_connection() {
 		} else {
 			printf("# unknown cmd: %s\n", cmd);
 		}
-		/* Flushing everyting to avoid deadlocks */
-		fflush(NULL);
 	}
 
 	return 0;
