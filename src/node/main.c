@@ -69,47 +69,47 @@ static char* xstrdup(const char* s) {
 
 static int find_plugin_with_basename(/*@out@*/ char *cmdline,
 		const char *plugin_dir, const char *plugin_basename) {
-       DIR* dirp = opendir(plugin_dir);
-       struct dirent* dp;
-       int found = 0;
-       size_t plugin_basename_len = strlen(plugin_basename);
+	DIR* dirp = opendir(plugin_dir);
+	struct dirent* dp;
+	int found = 0;
+	size_t plugin_basename_len = strlen(plugin_basename);
 
-       if (dirp == NULL) {
-               perror("Cannot open plugin dir");
-               return(found);
-       }
+	if (dirp == NULL) {
+		perror("Cannot open plugin dir");
+		return(found);
+	}
 
-       /* Empty cmdline */
-       cmdline[0] = '\0';
+	/* Empty cmdline */
+	cmdline[0] = '\0';
 
-       while ((dp = readdir(dirp)) != NULL) {
-               char* plugin_filename = dp->d_name;
+	while ((dp = readdir(dirp)) != NULL) {
+		char* plugin_filename = dp->d_name;
 
-               if (plugin_filename[0] == '.') {
-                       /* No dotted plugin */
-                       continue;
-               }
+		if (plugin_filename[0] == '.') {
+			/* No dotted plugin */
+			continue;
+		}
 
-               if (strncmp(plugin_filename, plugin_basename, plugin_basename_len) != 0) {
-                       /* Does not start with base */
-                       continue;
-               }
+		if (strncmp(plugin_filename, plugin_basename, plugin_basename_len) != 0) {
+			/* Does not start with base */
+			continue;
+		}
 
-               if (plugin_filename[plugin_basename_len] != '\0' && plugin_filename[plugin_basename_len] != '.') {
-                       /* Does not end the string or start an extension */
-                       continue;
-               }
+		if (plugin_filename[plugin_basename_len] != '\0' && plugin_filename[plugin_basename_len] != '.') {
+			/* Does not end the string or start an extension */
+			continue;
+		}
 
-               snprintf(cmdline, LINE_MAX, "%s/%s", plugin_dir, plugin_filename);
-               if (access(cmdline, X_OK) == 0) {
-                       /* Found it */
-                       found ++;
-                       break;
-               }
-       }
-       closedir(dirp);
+		snprintf(cmdline, LINE_MAX, "%s/%s", plugin_dir, plugin_filename);
+		if (access(cmdline, X_OK) == 0) {
+			/* Found it */
+			found ++;
+			break;
+		}
+	}
+	closedir(dirp);
 
-       return found;
+	return found;
 }
 
 static void setenvvars_system(void);
@@ -183,7 +183,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	/* port is set, listen to this port and
-           handle clients, one at a time */
+	handle clients, one at a time */
 
 	/* Get a socket for accepting connections. */
 	if ((sock_listen = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -304,8 +304,8 @@ static int handle_connection() {
 			DIR* dirp = opendir(plugin_dir);
 			if (dirp == NULL) {
 				printf("# Cannot open plugin dir\n");
-               			return(0);
-       			}
+				return(0);
+			}
 			struct dirent* dp;
 			while ((dp = readdir(dirp)) != NULL) {
 				char cmdline[LINE_MAX];
