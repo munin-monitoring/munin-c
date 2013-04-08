@@ -164,7 +164,7 @@ int main(int argc, char *argv[]) {
 
 	/* get default hostname if not precised */
 	if ('\0' == *host) {
-		host = (char *) xmalloc(HOST_NAME_MAX + 1);
+		host = xmalloc(HOST_NAME_MAX + 1);
 		gethostname(host, HOST_NAME_MAX);
 	}
 
