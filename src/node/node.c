@@ -24,6 +24,8 @@
 #include <stdbool.h>
 #include <pwd.h>
 #include <grp.h>
+#include <fnmatch.h>
+#include <ctype.h>
 
 #if !(defined(HAVE_WORKING_VFORK) || defined(S_SPLINT_S))
   #define vfork fork
@@ -273,9 +275,13 @@ char* trim(char* s)
 	return s;
 }
 
-static int match_wildcard(const char* haystack, const char* needle);
-static int set_value(struct s_plugin_conf* conf, const char* key, const char* value);
+static int set_value(struct s_plugin_conf* conf, const char* key, const char* value) {
+}
 
+static void end_before_first(char* s, char c) {
+	s = strchr(s, c);
+	if (s != NULL) *s = '\0';
+}
 
 static struct s_plugin_conf* parse_plugin_conf(FILE* f, const char* plugin, struct s_plugin_conf* conf) {
 	/* read from file */
@@ -290,16 +296,14 @@ static struct s_plugin_conf* parse_plugin_conf(FILE* f, const char* plugin, stru
 		}
 
 		if (line_trimmed[0] == '[') {
-
-			/* remove everything after the first ] */
-			char* c = line_trimmed;
-			while (*c != '\0' && *c != ']') { 
-				c++;
-			}
-			*c = '\0';
+			line_trimmed++;
+			end_before_first(line_trimmed, ']');
 		
 			/* Try the key */
-			is_relevant = match_wildcard(plugin, line_trimmed+1);
+			{
+				int fnmatch_flags = FNM_NOESCAPE | FNM_PATHNAME;
+				int res = fnmatch(line_trimmed, plugin, fnmatch_flags);
+			 }	
 			
 			/* Next line */
 			continue;
