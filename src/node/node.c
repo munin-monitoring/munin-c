@@ -295,7 +295,10 @@ static void set_value(struct s_plugin_conf* conf, const char* key, const char* v
 
 	if (dst_env == NULL) {
 		/* Allocate one */
-		assert(conf->size < MAX_ENV_NB);
+		if(conf->size < MAX_ENV_NB) {
+			fprintf(stderr, "ran out of internal env space\n");
+			abort();
+		}
 		conf->size ++;
 
 		dst_env = conf->env + (conf->size - 1);
