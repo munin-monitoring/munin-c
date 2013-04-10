@@ -379,8 +379,14 @@ static void setenvvars_conf(char* current_plugin_name) {
 	}
 
 	struct s_plugin_conf pconf;
-	pconf.uid = geteuid();
-	pconf.gid = getegid();
+
+	/* default is nobody:nobody */
+	{
+		struct passwd* pswd = getpwnam("nobody");
+		pconf.uid = pswd->pw_uid;
+		struct group* grp = getgrnam("nobody");
+		pconf.gid = grp->gr_gid;
+	}
 
 	struct dirent* dp;
 	while ((dp = readdir(dirp)) != NULL) {
@@ -413,11 +419,11 @@ static void setenvvars_conf(char* current_plugin_name) {
 
 	/* setuid/gid */
 	if (geteuid() == 0) {
-		/* We *are* root. Proceed if something changed */
-		if (getegid() != pconf.gid) setgid(pconf.gid);
+		/* We *are* root */
+		setgid(pconf.gid);
 
 		/* Change UID *after* GID, otherwise cannot change anymore */
-		if (geteuid() != pconf.uid) setuid(pconf.uid);
+		setuid(pconf.uid);
 	}
 }
 
