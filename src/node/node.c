@@ -332,7 +332,15 @@ static struct s_plugin_conf* parse_plugin_conf(FILE* f, const char* plugin, stru
 			{
 				int fnmatch_flags = FNM_NOESCAPE | FNM_PATHNAME;
 				int res = fnmatch(line_trimmed, plugin, fnmatch_flags);
-			 }	
+				if (res == 0) {
+					is_relevant = 1;
+				} else if (res == FNM_NOMATCH) {
+					is_relevant = 0;
+				} else {
+					perror("fnmatch() error");
+					abort();
+				}
+			}
 			
 			/* Next line */
 			continue;
