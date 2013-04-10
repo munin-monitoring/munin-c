@@ -221,21 +221,6 @@ static void setenvvars_munin() {
 	setenv("MUNIN_LIBDIR", "/usr/share/munin", no);
 }
 
-#define MAX_ENV_NAME_SZ 64
-#define MAX_ENV_VALUE_SZ 256
-struct s_env {
-	int size;
-	char name[MAX_ENV_NAME_SZ];
-	char value[MAX_ENV_VALUE_SZ];
-};
-
-#define MAX_ENV_SZ 256
-struct s_plugin_conf {
-	uid_t uid; 
-	gid_t gid;
-	struct s_env env[MAX_ENV_SZ];
-};
-
 /* in-place */
 char* ltrim(char* s) {
 	while (isspace(*s)) {
@@ -275,7 +260,51 @@ char* trim(char* s)
 	return s;
 }
 
-static int set_value(struct s_plugin_conf* conf, const char* key, const char* value) {
+#define MAX_ENV_BUF_SZ 256
+struct s_env {
+	/* buffer will hold a C string : "KEY=VALUE", use the key_len to know where the "=" is */
+	size_t key_len;
+	char buffer[MAX_ENV_BUF_SZ];
+};
+
+#define MAX_ENV_NB 256
+struct s_plugin_conf {
+	uid_t uid;
+	gid_t gid;
+	size_t size;
+	struct s_env env[MAX_ENV_NB];
+};
+
+static void set_value(struct s_plugin_conf* conf, const char* key, const char* value) {
+	size_t i;
+	size_t key_len = strlen(key);
+
+	struct s_env* dst_env = NULL;
+	/* Search for the corresponding env */
+	for (i = 0; i < conf->size; i ++) {
+		struct s_env* env = conf->env + i;
+
+		if (key_len != env->key_len) continue;
+
+		/* this cmp works since keys have the same length */
+		if (strncmp(key, env->buffer, env->key_len)) continue;
+
+		/* Found the key */
+		dst_env = env;
+	}
+
+	if (dst_env == NULL) {
+		/* Allocate one */
+		assert(conf->size < MAX_ENV_NB);
+		conf->size ++;
+
+		dst_env = conf->env + (conf->size - 1);
+		dst_env->key_len = key_len;
+
+	}
+
+	/* Save the environment */
+	snprintf(dst_env->buffer, MAX_ENV_BUF_SZ, "%s=%s", key, value);
 }
 
 static void end_before_first(char* s, char c) {
