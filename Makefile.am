@@ -1,8 +1,8 @@
 pkglibexecdir = $(libexecdir)/$(PACKAGE)
 
-SUBDIRS = src/node src/plugins
+ACLOCAL_AMFLAGS = -I m4
 
-CFLAGS += -W -Wall -Wextra
+SUBDIRS = src/node src/plugins
 
 dist_doc_DATA = gpl-2.0.txt gpl-3.0.txt
 
