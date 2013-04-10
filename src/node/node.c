@@ -369,8 +369,56 @@ static struct s_plugin_conf* parse_plugin_conf(FILE* f, const char* plugin, stru
 }
 
 /* Setting user configured vars */
-static void setenvvars_conf() {
+static void setenvvars_conf(char* current_plugin_name) {
+	const char* pluginconf_dir = "/etc/munin/plugin-conf.d";
 	/* TODO - add plugin conf parsing */
+	DIR* dirp = opendir(pluginconf_dir);
+	if (dirp == NULL) {
+		printf("# Cannot open plugin config dir\n");
+		return;
+	}
+
+	struct s_plugin_conf pconf;
+	pconf.uid = geteuid();
+	pconf.gid = getegid();
+
+	struct dirent* dp;
+	while ((dp = readdir(dirp)) != NULL) {
+		char cmdline[LINE_MAX];
+		char* plugin_filename = dp->d_name;;
+
+		if (plugin_filename[0] == '.') {
+			/* No dotted plugin */
+			continue;
+		}
+
+		snprintf(cmdline, LINE_MAX, "%s/%s", pluginconf_dir, plugin_filename);
+		FILE* f = fopen(cmdline, "r");
+		if (f == NULL) {
+			/* Ignore open failures */
+			continue;
+		}
+
+		parse_plugin_conf(f, current_plugin_name, &pconf);
+
+		fclose(f);
+	}
+
+	/* Set env after whole parsing */
+	size_t i;
+	for (i = 0; i < pconf.size; i ++) {
+		struct s_env* env = pconf.env + i;
+		putenv(env->buffer);
+	}
+
+	/* setuid/gid */
+	if (geteuid() == 0) {
+		/* We *are* root. Proceed if something changed */
+		if (getegid() != pconf.gid) setgid(pconf.gid);
+
+		/* Change UID *after* GID, otherwise cannot change anymore */
+		if (geteuid() != pconf.uid) setuid(pconf.uid);
+	}
 }
 
 static int handle_connection() {
@@ -378,7 +426,6 @@ static int handle_connection() {
 
 	/* Prepare per connection plugin env vars */
 	setenvvars_munin();
-	setenvvars_conf();
 
 	printf("# munin node at %s\n", host);
 	while (fflush(stdout), fgets(line, LINE_MAX, stdin) != NULL) {
@@ -452,7 +499,9 @@ static int handle_connection() {
 				printf("# unknown plugin: %s\n", arg);
 				continue;
 			}
-			if(0 == (pid = vfork())) {
+			if(0 == (pid = fork())) {
+				/* Now is the time to set environnement */
+				setenvvars_conf(arg);
 				execl(cmdline, arg, cmd, NULL);
 				/* according to vfork(2) we must use _exit */
 				_exit(1);
