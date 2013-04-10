@@ -303,7 +303,7 @@ static void set_value(struct s_plugin_conf* conf, const char* key, const char* v
 
 	}
 
-	/* Save the environment */
+	/* Save the environment in setenv() format */
 	snprintf(dst_env->buffer, MAX_ENV_BUF_SZ, "%s=%s", key, value);
 }
 
@@ -348,8 +348,9 @@ static struct s_plugin_conf* parse_plugin_conf(FILE* f, const char* plugin, stru
 		} else if (strcmp(key, "group")) {
 			struct group* grp = getgrnam(value);
 			conf->gid = grp->gr_gid;
-		} else {
-			set_value(conf, key, value);
+		} else if (strncmp(key, "env.", strlen("env."))) {
+			char *env_key = key + strlen("env.");
+			set_value(conf, env_key, value);
 		}
 	}
 
