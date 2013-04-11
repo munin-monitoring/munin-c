@@ -21,6 +21,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#ifndef HOST_NAME_MAX
+  #define HOST_NAME_MAX 256
+#endif
 
 static const int yes = 1;
 static const int no = 0;
