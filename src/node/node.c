@@ -382,6 +382,7 @@ static void setenvvars_conf(char* current_plugin_name) {
 
 	{
 	struct s_plugin_conf pconf;
+	pconf.size = 0;
 
 	/* default is nobody:nobody */
 	{
