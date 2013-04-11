@@ -10,7 +10,7 @@ AC_PROG_CC_C_O
 
 AC_PROG_LN_S
 
-CC_CHECK_CFLAGS_APPEND([-Wall -Wextra -Werror -pedantic])
+CC_CHECK_CFLAGS_APPEND([-Wall -Wextra -Werror -pedantic -Wno-format])
 
 AC_CONFIG_FILES([Makefile src/node/Makefile src/plugins/Makefile])
 AC_OUTPUT
