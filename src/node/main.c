@@ -29,8 +29,6 @@ static int verbose = 0;
 static int extension_stripping = 0;
 
 static char* host = "";
-static unsigned short port = 0;
-static char* ip_bind_as_str = NULL;
 static char* plugin_dir = PLUGINDIR;
 static char* spoolfetch_dir = "";
 static char* client_ip = NULL;
@@ -119,18 +117,11 @@ int main(int argc, char *argv[]) {
 	int optch;
 	extern int opterr;
 
-	char* buf;
-
 	char format[] = "evd:H:s:l:";
 
-	struct sockaddr_in server;
 	struct sockaddr_in client;
 
 	socklen_t client_len = sizeof(client);
-
-	int sock_listen;
-	int sock_accept;
-
 
 	opterr = 1;
 
@@ -151,15 +142,6 @@ int main(int argc, char *argv[]) {
 		case 's':
 			spoolfetch_dir = xstrdup(optarg);
 			break;
-		case 'l':
-			buf = strtok(optarg, ":");
-			if (buf) {
-				ip_bind_as_str = xstrdup(optarg);
-				port = atoi(strtok(NULL, ":"));
-			} else {
-				port = atoi(optarg);
-			}
-			break;
 	}
 
 	/* get default hostname if not precised */
@@ -171,69 +153,14 @@ int main(int argc, char *argv[]) {
 	/* Prepare static plugin env vars once for all */
 	setenvvars_system();
 
-	if (! port) {
-		/* use a 1-shot stdin/stdout */
-		client_ip = "-";
-		client_len = sizeof(client);
-		if(0 == getpeername(STDIN_FILENO, (struct sockaddr*)&client,
-					&client_len))
-			if(client.sin_family == AF_INET)
-				client_ip = inet_ntoa(client.sin_addr);
-		return handle_connection();
-	}
-
-	/* port is set, listen to this port and
-	handle clients, one at a time */
-
-	/* Get a socket for accepting connections. */
-	if ((sock_listen = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-		return(2);
-	}
-
-	/* Bind the socket to the server address. */
-	memset(&server, 0, sizeof(server));
-	server.sin_family = AF_INET;
-	server.sin_port = htons(port);
-
-	if (! ip_bind_as_str) {
-		server.sin_addr.s_addr = INADDR_ANY;
-	} else {
-		server.sin_addr.s_addr = inet_addr(ip_bind_as_str);
-	}
-
-	if (setsockopt(sock_listen, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) { 
-		perror("setsockopt");
-	}
-
-	if (bind(sock_listen, (struct sockaddr*) &server, sizeof(server)) < 0) {
-		return(3);
-	}
-
-	/* Listen for connections. Specify the backlog as 1. */
-	if (listen(sock_listen, 1) != 0) {
-		return(4);
-	}
-
-	/* Accept a connection. */
-	while ((sock_accept = accept(sock_listen, (struct sockaddr*) &client, &client_len)) != -1) { 
-		/* connect the accept socket to stdio */
-		if (stdin != stdout) {
-			fclose(stdout);
-		}
-		fclose(stdin);
-		dup2(sock_accept, 0);
-		dup2(sock_accept, 1);
-
-		/* close socket after dup() */
-		close(sock_accept);
-
-		stdin = stdout = fdopen(0, "rb+");
-
-		client_ip = inet_ntoa(client.sin_addr);
-		if (handle_connection()) break;
-	}
-
-	return 5;
+	/* use a 1-shot stdin/stdout */
+	client_ip = "-";
+	client_len = sizeof(client);
+	if(0 == getpeername(STDIN_FILENO, (struct sockaddr*)&client,
+				&client_len))
+		if(client.sin_family == AF_INET)
+			client_ip = inet_ntoa(client.sin_addr);
+	return handle_connection();
 }
 
 /* Setting munin specific vars */
