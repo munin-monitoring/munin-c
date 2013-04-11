@@ -5,6 +5,7 @@
  * modify, copy, or redistribute it subject to the terms and conditions
  * of the GNU General Public License v.2 or v.3.
  */
+#include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -16,7 +17,7 @@
 int swap(int argc, char **argv) {
 	FILE *f;
 	char buff[256];
-	int in, out;
+	bool in, out;
 	if(argc > 1) {
 		if(!strcmp(argv[1], "config")) {
 			puts("graph_title Swap in/out\n"
@@ -41,21 +42,21 @@ int swap(int argc, char **argv) {
 			return autoconf_check_readable(PROC_STAT);
 	}
 	if(!access(PROC_VMSTAT, F_OK)) {
-		in=out=0;
+		in = out = false;
 		if(!(f=fopen(PROC_VMSTAT, "r")))
 			return fail("cannot open " PROC_VMSTAT);
 		while(fgets(buff, 256, f)) {
 			if(!in && !strncmp(buff, "pswpin ", 7)) {
-				++in;
+				in = true;
 				printf("swap_in.value %s", buff+7);
 			}
 			else if(!out && !strncmp(buff, "pswpout ", 8)) {
-				++out;
+				out = true;
 				printf("swap_out.value %s", buff+8);
 			}
 		}
 		fclose(f);
-		if(!(in*out))
+		if(!(in && out))
 			return fail("no usable data on " PROC_VMSTAT);
 		return 0;
 	} else {

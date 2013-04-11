@@ -6,6 +6,7 @@
  * modify, copy, or redistribute it subject to the terms and conditions
  * of the GNU General Public License v.2 or v.3.
  */
+#include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -27,12 +28,13 @@ static int print_stat_value(const char* field_name, const char* stat_value, int 
 int cpu(int argc, char **argv) {
 	FILE *f;
 	char buff[256], *s;
-	int ncpu=0, extinfo=0, scaleto100=0, hz;
+	int ncpu=0, extinfo=0, hz;
+	bool scaleto100 = false;
 	if(argc > 1) {
 		if(!strcmp(argv[1], "config")) {
 			s = getenv("scaleto100");
 			if(s && !strcmp(s, "yes"))
-				scaleto100=1;
+				scaleto100 = true;
 
 			if(!(f=fopen(PROC_STAT, "r")))
 				return fail("cannot open " PROC_STAT);
