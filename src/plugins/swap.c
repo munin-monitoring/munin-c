@@ -11,6 +11,8 @@
 #include "common.h"
 #include "plugins.h"
 
+#define PROC_VMSTAT "/proc/vmstat"
+
 int swap(int argc, char **argv) {
 	FILE *f;
 	char buff[256];
@@ -38,10 +40,10 @@ int swap(int argc, char **argv) {
 		if(!strcmp(argv[1], "autoconf"))
 			return autoconf_check_readable(PROC_STAT);
 	}
-	if(!access("/proc/vmstat", F_OK)) {
+	if(!access(PROC_VMSTAT, F_OK)) {
 		in=out=0;
-		if(!(f=fopen("/proc/vmstat", "r")))
-			return fail("cannot open /proc/vmstat");
+		if(!(f=fopen(PROC_VMSTAT, "r")))
+			return fail("cannot open " PROC_VMSTAT);
 		while(fgets(buff, 256, f)) {
 			if(!in && !strncmp(buff, "pswpin ", 7)) {
 				++in;
@@ -54,7 +56,7 @@ int swap(int argc, char **argv) {
 		}
 		fclose(f);
 		if(!(in*out))
-			return fail("no usable data on /proc/vmstat");
+			return fail("no usable data on " PROC_VMSTAT);
 		return 0;
 	} else {
 		if(!(f=fopen(PROC_STAT, "r")))

@@ -10,6 +10,8 @@
 #include "common.h"
 #include "plugins.h"
 
+#define PROC_UPTIME "/proc/uptime"
+
 int uptime(int argc, char **argv) {
 	FILE *f;
 	float uptime;
@@ -26,11 +28,11 @@ int uptime(int argc, char **argv) {
 		if(!strcmp(argv[1], "autoconf"))
 			return writeyes();
 	}
-	if(!(f=fopen("/proc/uptime", "r")))
-		return fail("cannot open /proc/uptime");
+	if(!(f=fopen(PROC_UPTIME, "r")))
+		return fail("cannot open " PROC_UPTIME);
 	if(1 != fscanf(f, "%f", &uptime)) {
 		fclose(f);
-		return fail("cannot read from /proc/uptime");
+		return fail("cannot read from " PROC_UPTIME);
 	}
 	fclose(f);
 	printf("uptime.value %.2f\n", uptime/86400);
