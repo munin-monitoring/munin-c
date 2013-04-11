@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
 				"[argv0 argv1 ...]\n", argv[0]);
 		return 1;
 	}
-
+	
 	memset(&server, 0, sizeof(server));
 	server.sin_family = AF_INET;
 	assert(argv[1] != NULL);
@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 	if(setsockopt(sock_listen, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes))
-			== -1) {
+			== -1) { 
 		perror("failed to set SO_REUSEADDR on socket");
 	}
 	if(bind(sock_listen, (struct sockaddr*)&server, sizeof(server)) < 0) {
