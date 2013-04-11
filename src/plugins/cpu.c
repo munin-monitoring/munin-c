@@ -6,12 +6,14 @@
  * modify, copy, or redistribute it subject to the terms and conditions
  * of the GNU General Public License v.2 or v.3.
  */
+#include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <ctype.h>
 #include <stdlib.h>
 #include "common.h"
+#include "plugins.h"
 
 #define SYSWARNING 30
 #define SYSCRITICAL 50
@@ -19,19 +21,20 @@
 
 /* TODO: port support for env.foo_warning and env.foo_critical from mainline plugin */
 
-static int print_stat_value(const char* field_name, const char* stat_value, int hz) {
-	return printf("%s.value %llu\n", field_name, strtoull(stat_value, NULL, 0) * 100 / hz);
+static int print_stat_value(const char* field_name, const char* stat_value, int hz_) {
+	return printf("%s.value %llu\n", field_name, strtoull(stat_value, NULL, 0) * 100 / hz_);
 }
 
 int cpu(int argc, char **argv) {
 	FILE *f;
 	char buff[256], *s;
-	int ncpu=0, extinfo=0, scaleto100=0, hz;
+	int ncpu=0, extinfo=0, hz_;
+	bool scaleto100 = false;
 	if(argc > 1) {
 		if(!strcmp(argv[1], "config")) {
 			s = getenv("scaleto100");
 			if(s && !strcmp(s, "yes"))
-				scaleto100=1;
+				scaleto100 = true;
 
 			if(!(f=fopen(PROC_STAT, "r")))
 				return fail("cannot open " PROC_STAT);
@@ -148,37 +151,37 @@ int cpu(int argc, char **argv) {
 	}
 	if(!(f=fopen(PROC_STAT, "r")))
 		return fail("cannot open " PROC_STAT);
-	hz = getenvint("HZ", 100);
+	hz_ = getenvint("HZ", 100);
 	while(fgets(buff, 256, f)) {
 		if(!strncmp(buff, "cpu ", 4)) {
 			fclose(f);
 			if(!(s = strtok(buff+4, " \t")))
 				break;
-			print_stat_value("user", s, hz);
+			print_stat_value("user", s, hz_);
 			if(!(s = strtok(NULL, " \t")))
 				break;
-			print_stat_value("nice", s, hz);
+			print_stat_value("nice", s, hz_);
 			if(!(s = strtok(NULL, " \t")))
 				break;
-			print_stat_value("system", s, hz);
+			print_stat_value("system", s, hz_);
 			if(!(s = strtok(NULL, " \t")))
 				break;
-			print_stat_value("idle", s, hz);
+			print_stat_value("idle", s, hz_);
 			if(!(s = strtok(NULL, " \t")))
 				return 0;
-			print_stat_value("iowait", s, hz);
+			print_stat_value("iowait", s, hz_);
 			if(!(s = strtok(NULL, " \t")))
 				return 0;
-			print_stat_value("irq", s, hz);
+			print_stat_value("irq", s, hz_);
 			if(!(s = strtok(NULL, " \t")))
 				return 0;
-			print_stat_value("softirq", s, hz);
+			print_stat_value("softirq", s, hz_);
 			if(!(s = strtok(NULL, " \t")))
 				return 0;
-			print_stat_value("steal", s, hz);
+			print_stat_value("steal", s, hz_);
 			if(!(s = strtok(NULL, " \t")))
 				return 0;
-			print_stat_value("guest", s, hz);
+			print_stat_value("guest", s, hz_);
 			return 0;
 		}
 	}

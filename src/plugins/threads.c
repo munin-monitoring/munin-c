@@ -12,6 +12,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include "common.h"
+#include "plugins.h"
 
 int threads(int argc, char **argv) {
 	FILE *f;
@@ -24,7 +25,7 @@ int threads(int argc, char **argv) {
 	if(argc > 1) {
 		if(!strcmp(argv[1], "autoconf")) {
 			i = getpid();
-			sprintf(buff, "/proc/%d/status", i);
+			snprintf(buff, sizeof(buff), "/proc/%d/status", i);
 			if(NULL == (f = fopen(buff, "r")))
 				return fail("failed to open /proc/$$/status");
 			while(fgets(buff, 256, f))

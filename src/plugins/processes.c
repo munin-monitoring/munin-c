@@ -11,6 +11,7 @@
 #include <dirent.h>
 #include <ctype.h>
 #include "common.h"
+#include "plugins.h"
 
 /* TODO: The upstream plugin does way more nowawdays. */
 

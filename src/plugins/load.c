@@ -9,6 +9,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "common.h"
+#include "plugins.h"
 
 #define PROC_LOADAVG "/proc/loadavg"
 
