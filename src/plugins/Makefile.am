@@ -2,6 +2,7 @@ pkglibexec_PROGRAMS = munin-plugins-c
 munin_plugins_c_SOURCES = \
 	common.c \
 	common.h \
+	plugins.h \
 	cpu.c \
 	entropy.c \
 	forks.c \
