@@ -299,14 +299,16 @@ static void set_value(struct s_plugin_conf* conf, const char* key, const char* v
 			fprintf(stderr, "ran out of internal env space\n");
 			abort();
 		}
+
+		/* ptr arithmetic is done with int, not with size_t */
+		dst_env = conf->env;
+		dst_env += (int) conf->size;
+
 		conf->size ++;
-
-		dst_env = conf->env + (conf->size - 1);
-		dst_env->key_len = key_len;
-
 	}
 
 	/* Save the environment in setenv() format */
+	dst_env->key_len = key_len;
 	snprintf(dst_env->buffer, MAX_ENV_BUF_SZ, "%s=%s", key, value);
 }
 
