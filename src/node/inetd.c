@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
 			dup2(sock_accept, 0);
 			dup2(sock_accept, 1);
 			close(sock_accept);
-			execvp(argv[2], argv + 3);
+			execvp(argv[2], argv + 2);
 			/* according to vfork(2) we must use _exit */
 			_exit(1);
 		} else {
