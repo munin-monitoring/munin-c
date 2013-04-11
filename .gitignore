@@ -2,6 +2,8 @@
 *.o
 .deps
 .dirstamp
+tags
+TAGS
 /Makefile
 /Makefile.in
 /aclocal.m4
