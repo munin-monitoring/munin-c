@@ -11,6 +11,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "common.h"
+#include "plugins.h"
 
 #define PROC_NET_DEV "/proc/net/dev"
 

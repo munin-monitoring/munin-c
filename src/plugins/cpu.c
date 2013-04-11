@@ -12,6 +12,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include "common.h"
+#include "plugins.h"
 
 #define SYSWARNING 30
 #define SYSCRITICAL 50

@@ -12,6 +12,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include "common.h"
+#include "plugins.h"
 
 int threads(int argc, char **argv) {
 	FILE *f;

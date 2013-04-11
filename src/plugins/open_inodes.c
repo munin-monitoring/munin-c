@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include "common.h"
+#include "plugins.h"
 
 #define FS_INODE_NR "/proc/sys/fs/inode-nr"
 

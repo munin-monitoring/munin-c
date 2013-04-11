@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <ctype.h>
 #include "common.h"
+#include "plugins.h"
 
 #define PROC_NET_SNMP "/proc/net/snmp"
 

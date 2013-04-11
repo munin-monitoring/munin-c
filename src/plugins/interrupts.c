@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include "common.h"
+#include "plugins.h"
 
 int interrupts(int argc, char **argv) {
 	FILE *f;

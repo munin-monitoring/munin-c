@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "common.h"
+#include "plugins.h"
 
 int uptime(int argc, char **argv) {
 	FILE *f;

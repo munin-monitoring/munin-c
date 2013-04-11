@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include "common.h"
+#include "plugins.h"
 
 #define FS_FILE_NR "/proc/sys/fs/file-nr"
 

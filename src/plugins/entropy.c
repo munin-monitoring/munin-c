@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include "common.h"
+#include "plugins.h"
 
 #define ENTROPY_AVAIL "/proc/sys/kernel/random/entropy_avail"
 
