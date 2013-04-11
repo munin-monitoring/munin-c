@@ -354,13 +354,13 @@ static struct s_plugin_conf* parse_plugin_conf(FILE* f, const char* plugin, stru
 		char* key = trim(strtok(line_trimmed, "="));
 		char* value = trim(strtok(NULL, "="));
 		
-		if (strcmp(key, "user")) {
+		if (0 == strcmp(key, "user")) {
 			struct passwd* pswd = getpwnam(value);
 			conf->uid = pswd->pw_uid;
-		} else if (strcmp(key, "group")) {
+		} else if (0 == strcmp(key, "group")) {
 			struct group* grp = getgrnam(value);
 			conf->gid = grp->gr_gid;
-		} else if (strncmp(key, "env.", strlen("env."))) {
+		} else if (0 == strncmp(key, "env.", strlen("env."))) {
 			char *env_key = key + strlen("env.");
 			set_value(conf, env_key, value);
 		}
