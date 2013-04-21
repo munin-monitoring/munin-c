@@ -353,8 +353,9 @@ static struct s_plugin_conf* parse_plugin_conf(FILE* f, const char* plugin, stru
 
 		{
 		/* Parse the line, and add it to the current conf */
-		char* key = trim(strtok(line_trimmed, "="));
-		char* value = trim(strtok(NULL, "="));
+		char* key = trim(strtok(line_trimmed, " "));
+		/* Everything after the first " " is value */
+		char* value = trim(key + 1);
 		
 		if (0 == strcmp(key, "user")) {
 			struct passwd* pswd = getpwnam(value);
