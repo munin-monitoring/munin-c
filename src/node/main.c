@@ -21,6 +21,10 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#if !(defined(HAVE_WORKING_VFORK) || defined(S_SPLINT_S))
+  #define vfork fork
+#endif
+
 #ifndef HOST_NAME_MAX
   #define HOST_NAME_MAX 256
 #endif

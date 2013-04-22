@@ -18,6 +18,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#if !(defined(HAVE_WORKING_VFORK) || defined(S_SPLINT_S))
+  #define vfork fork
+#endif
+
 int main(int argc, char *argv[]) {
 	static const int yes = 1;
 	char *s;
