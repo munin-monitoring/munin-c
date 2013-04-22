@@ -5,11 +5,14 @@
  * modify, copy, or redistribute it subject to the terms and conditions
  * of the GNU General Public License v.2 or v.3.
  */
+#include <errno.h>
 #include <string.h>
 #include <stdio.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
 #include <ctype.h>
+#include <unistd.h>
 #include "common.h"
 #include "plugins.h"
 
@@ -20,6 +23,8 @@ int processes(int argc, char **argv) {
 	struct dirent *e;
 	char *s;
 	int n=0;
+	struct stat statbuf;
+
 	if(argc > 1) {
 		if(!strcmp(argv[1], "config")) {
 			puts("graph_title Number of Processes\n"
@@ -32,8 +37,18 @@ int processes(int argc, char **argv) {
 				"processes.info The current number of processes.");
 			return 0;
 		}
-		if(!strcmp(argv[1], "autoconf"))
+		if(!strcmp(argv[1], "autoconf")) {
+			if(0 != stat("/proc/1", &statbuf)) {
+				printf("no (cannot stat /proc/1, errno=%d)\n",
+						errno);
+				return 1;
+			}
+			if(!S_ISDIR(statbuf.st_mode)) {
+				printf("no (/proc/1 is not a directory\n");
+				return 1;
+			}
 			return writeyes();
+		}
 	}
 	if(!(d = opendir("/proc")))
 		return fail("cannot open /proc");
