@@ -55,7 +55,7 @@ int threads(int argc, char **argv) {
 	sum = 0;
 	while((e = readdir(d))) {
 		for(s=e->d_name;*s;++s)
-			if(!isdigit(*s))
+			if(!isdigit((int) *s))
 				break;
 		if(*s) /* non-digit found */
 			continue;

@@ -41,7 +41,7 @@ int if_err_(int argc, char **argv) {
 				if(!strncmp(s, "lo:", 3))
 					continue;
 				if(!strncmp(s, "sit", 3)) {
-					for(i=3; isdigit(s[i]); ++i)
+					for(i=3; isdigit((int) s[i]); ++i)
 						;
 					if(s[i] == ':')
 						continue;
@@ -95,27 +95,27 @@ int if_err_(int argc, char **argv) {
 			++s;
 
 		for(i=1;i<3;++i) {
-			while(isdigit(*s))
+			while(isdigit((int) *s))
 				++s;
-			while(isspace(*s))
+			while(isspace((int) *s))
 				++s;
 		}
-		for(i=0;isdigit(s[i]);++i)
+		for(i=0;isdigit((int) s[i]);++i)
 			;
 		printf("rcvd.value ");
 		fwrite(s, 1, i, stdout);
 		putchar('\n');
 		s += i;
-		while(isspace(*s))
+		while(isspace((int) *s))
 			++s;
 
 		for(i=4;i<11;++i) {
-			while(isdigit(*s))
+			while(isdigit((int) *s))
 				++s;
-			while(isspace(*s))
+			while(isspace((int) *s))
 				++s;
 		}
-		for(i=0;isdigit(s[i]);++i)
+		for(i=0;isdigit((int) s[i]);++i)
 			;
 		printf("trans.value ");
 		fwrite(s, 1, i, stdout);

@@ -40,7 +40,7 @@ int cpu(int argc, char **argv) {
 				return fail("cannot open " PROC_STAT);
 			while(fgets(buff, 256, f)) {
 				if(!strncmp(buff, "cpu", 3)) {
-					if(isdigit(buff[3]))
+					if(isdigit((int) buff[3]))
 						ncpu++;
 					if(buff[3] == ' ' && 0 == extinfo) {
 						strtok(buff+4, " \t");
