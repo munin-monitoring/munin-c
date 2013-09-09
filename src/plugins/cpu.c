@@ -62,7 +62,7 @@ int cpu(int argc, char **argv) {
 			if(scaleto100)
 				puts("graph_args --base 1000 -r --lower-limit 0 --upper-limit 100");
 			else
-				printf("graph_args --base 1000 -r --lower-limit 0 --upper-limit %d\n", 100 * ncpu);
+				printf("graph_args --base 1000 -r --lower-limit 0 --upper-limit %d\n", 110 * ncpu);
 			puts("graph_vlabel %\n"
 				"graph_scale no\n"
 				"graph_info This graph shows how CPU time is spent.\n"
@@ -70,7 +70,7 @@ int cpu(int argc, char **argv) {
 				"graph_period second\n"
 				"system.label system\n"
 				"system.draw AREA");
-			printf("system.max %d\n", 100 * ncpu);
+			printf("system.max %d\n", 110 * ncpu);
 			puts("system.min 0\n"
 				"system.type DERIVE");
 			printf("system.warning %d\n", SYSWARNING * ncpu);
@@ -79,20 +79,20 @@ int cpu(int argc, char **argv) {
 				"user.label user\n"
 				"user.draw STACK\n"
 				"user.min 0");
-			printf("user.max %d\n", 100 * ncpu);
+			printf("user.max %d\n", 110 * ncpu);
 			printf("user.warning %d\n", USRWARNING * ncpu);
 			puts("user.type DERIVE\n"
 				"user.info CPU time spent by normal programs and daemons\n"
 				"nice.label nice\n"
 				"nice.draw STACK\n"
 				"nice.min 0");
-			printf("nice.max %d\n", 100 * ncpu);
+			printf("nice.max %d\n", 110 * ncpu);
 			puts("nice.type DERIVE\n"
 				"nice.info CPU time spent by nice(1)d programs\n"
 				"idle.label idle\n"
 				"idle.draw STACK\n"
 				"idle.min 0");
-			printf("idle.max %d\n", 100 * ncpu);
+			printf("idle.max %d\n", 110 * ncpu);
 			puts("idle.type DERIVE\n"
 				"idle.info Idle CPU time");
 			if(scaleto100)
@@ -104,19 +104,19 @@ int cpu(int argc, char **argv) {
 				puts("iowait.label iowait\n"
 					"iowait.draw STACK\n"
 					"iowait.min 0");
-				printf("iowait.max %d\n", 100 * ncpu);
+				printf("iowait.max %d\n", 110 * ncpu);
 				puts("iowait.type DERIVE\n"
 					"iowait.info CPU time spent waiting for I/O operations to finish\n"
 					"irq.label irq\n"
 					"irq.draw STACK\n"
 					"irq.min 0");
-				printf("irq.max %d\n", 100 * ncpu);
+				printf("irq.max %d\n", 110 * ncpu);
 				puts("irq.type DERIVE\n"
 					"irq.info CPU time spent handling interrupts\n"
 					"softirq.label softirq\n"
 					"softirq.draw STACK\n"
 					"softirq.min 0");
-				printf("softirq.max %d\n", 100 * ncpu);
+				printf("softirq.max %d\n", 110 * ncpu);
 				puts("softirq.type DERIVE\n"
 					"softirq.info CPU time spent handling \"batched\" interrupts");
 				if(scaleto100)
@@ -128,7 +128,7 @@ int cpu(int argc, char **argv) {
 				puts("steal.label steal\n"
 					"steal.draw STACK\n"
 					"steal.min 0");
-				printf("steal.max %d\n", 100 * ncpu);
+				printf("steal.max %d\n", 110 * ncpu);
 				puts("steal.type DERIVE\n"
 					"steal.info The time that a virtual CPU had runnable tasks, but the virtual CPU itself was not running");
 				if(scaleto100)
@@ -138,7 +138,7 @@ int cpu(int argc, char **argv) {
 				puts("guest.label guest\n"
 					"guest.draw STACK\n"
 					"guest.min 0");
-				printf("guest.max %d\n", 100 * ncpu);
+				printf("guest.max %d\n", 110 * ncpu);
 				puts("guest.type DERIVE\n"
 					"guest.info The time spent running a virtual CPU for guest operating systems under the control of the Linux kernel.");
 				if(scaleto100)
