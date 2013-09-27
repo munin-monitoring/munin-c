@@ -73,6 +73,10 @@ int main(int argc, char *argv[]) {
 		close(sock_listen);
 		return 1;
 	}
+
+	/* We do *not* care about childs */
+	signal(SIGCHLD, SIG_IGN);
+
 	while((sock_accept = accept(sock_listen, NULL, NULL)) != -1) {
 		if(0 == (pid = vfork())) {
 			close(sock_listen);
