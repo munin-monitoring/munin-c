@@ -46,7 +46,7 @@ static void oom_handler() {
 	static const char* OOM_MSG = "Out of memory\n";
 
 	/* write w/o return check. we are torched anyway */
-	write(STDOUT_FILENO, OOM_MSG, sizeof(OOM_MSG)-1);
+	(void) write(STDOUT_FILENO, OOM_MSG, sizeof(OOM_MSG)-1);
 	abort();
 }
 
