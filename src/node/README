@@ -24,5 +24,3 @@ Cons:
 
      - root uid is not supported. All plugins are run with a single user, usually nobody.
      - no socket is opened. Everything runs from inetd.
-
-GPLv2 - (C) 2013 Steve SCHNEPP <steve.schnepp@pwkf.org>
