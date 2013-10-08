@@ -1,4 +1,15 @@
 #!/bin/sh
+#
+# Copyright (C) 2008-2012 Nicolai Langfeldt <janl@redpill-linpro.com> - All rights reserved.
+# Copyright (C) 2009 Kjell-Magne Øierud <kjellm@redpill-linpro.com> - All rights reserved.
+# Copyright (C) 2011-2013 Steve Schnepp <steve.schnepp@pwkf.org> - All rights reserved.
+# Copyright (C) 2012 Stig Sandbeck Mathisen <ssm@debian.org> - All rights reserved.
+#
+# This copyrighted material is made available to anyone wishing to use,
+# modify, copy, or redistribute it subject to the terms and conditions
+# of the GNU General Public License v.2 or v.3.
+#
+
 
 # Generate a version string for use when building.
 #
