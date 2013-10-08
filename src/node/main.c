@@ -45,8 +45,11 @@ static int handle_connection();
 static void oom_handler() {
 	static const char* OOM_MSG = "Out of memory\n";
 
-	/* write w/o return check. we are torched anyway */
-	write(STDOUT_FILENO, OOM_MSG, sizeof(OOM_MSG)-1);
+	if ( write(STDOUT_FILENO, OOM_MSG, sizeof(OOM_MSG)-1) < 0) {
+		/* Do nothing on write failure, we are torched anyway */
+	}
+
+	/* OOM triggers abort() since it's better to fail fast */
 	abort();
 }
 
