@@ -18,6 +18,7 @@ int swap(int argc, char **argv) {
 	FILE *f;
 	char buff[256];
 	bool in, out;
+	int inval, outval;
 	if(argc > 1) {
 		if(!strcmp(argv[1], "config")) {
 			puts("graph_title Swap in/out\n"
@@ -65,9 +66,9 @@ int swap(int argc, char **argv) {
 		while(fgets(buff, 256, f)) {
 			if(!strncmp(buff, "swap ", 5)) {
 				fclose(f);
-				if(2 != sscanf(buff+5, "%d %d", &in, &out))
+				if(2 != sscanf(buff+5, "%d %d", &inval, &outval))
 					return fail("bad data on " PROC_STAT);
-				printf("swap_in.value %d\nswap_out.value %d\n", in, out);
+				printf("swap_in.value %d\nswap_out.value %d\n", inval, outval);
 				return 0;
 			}
 		}
