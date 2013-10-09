@@ -20,6 +20,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <stdbool.h>
 
 #if !(defined(HAVE_WORKING_VFORK) || defined(S_SPLINT_S))
   #define vfork fork
@@ -33,7 +34,7 @@ static const int yes = 1;
 static const int no = 0;
 
 static int verbose = 0;
-static int extension_stripping = 0;
+static bool extension_stripping = false;
 
 static char* host = "";
 static char* plugin_dir = PLUGINDIR;
@@ -42,7 +43,7 @@ static char* client_ip = NULL;
 
 static int handle_connection();
 
-static void oom_handler() {
+static /*@noreturn@*/ void oom_handler() {
 	static const char* OOM_MSG = "Out of memory\n";
 
 	if ( write(STDOUT_FILENO, OOM_MSG, sizeof(OOM_MSG)-1) < 0) {
@@ -55,7 +56,7 @@ static void oom_handler() {
 
 /* an allocation bigger than MAX_ALLOC_SIZE is bogus */
 #define MAX_ALLOC_SIZE (16 * 1024 * 1024)
-static void* xmalloc(size_t size) {
+static /*@only@*/ void *xmalloc(size_t size) {
 	void* ptr;
 
 	assert(size < MAX_ALLOC_SIZE);
@@ -65,7 +66,7 @@ static void* xmalloc(size_t size) {
 	return ptr;
 }
 
-static char* xstrdup(const char* s) {
+static /*@only@*/ char *xstrdup(const char* s) {
 	char* new_str;
 
 	assert(s != NULL);
@@ -138,7 +139,7 @@ int main(int argc, char *argv[]) {
 	while ((optch = getopt(argc, argv, format)) != -1)
 	switch (optch) {
 		case 'e':
-			extension_stripping ++;
+			extension_stripping = true;
 			break;
 		case 'v':
 			verbose ++;
