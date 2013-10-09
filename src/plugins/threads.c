@@ -5,6 +5,9 @@
  * modify, copy, or redistribute it subject to the terms and conditions
  * of the GNU General Public License v.2 or v.3.
  */
+
+/* This plugin is compatible with munin-mainline version 2.0.17. */
+
 #include <ctype.h>
 #include <dirent.h>
 #include <stdio.h>
