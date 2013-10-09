@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
 		s = argv[1];
 	else {
 		*s++ = '\0';
-		if(0 != inet_aton(argv[1], &server.sin_addr)) {
+		if(0 == inet_aton(argv[1], &server.sin_addr)) {
 			fprintf(stderr, "not an ip address: %s\n", argv[1]);
 			return 1;
 		}
