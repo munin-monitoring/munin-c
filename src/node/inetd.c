@@ -91,13 +91,13 @@ int main(int argc, char *argv[]) {
 			close(sock_accept);
 
 			if(pid < 0) {
-				perror("vfork failed");
+				perror("vfork failed in " __FILE__);
 				close(sock_listen);
 				return 1;
 			}
 		}
 	}
-	perror("accept failed");
+	perror("accept failed in " __FILE__);
 	close(sock_listen);
 	return 1;
 }
