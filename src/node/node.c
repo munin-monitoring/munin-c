@@ -110,12 +110,17 @@ static int find_plugin_with_basename(/*@out@*/ char *cmdline,
 			continue;
 		}
 
+/* CYGWIN (WIN32) does *not* have the +x attribute, so use *every* file there */
+#if ! defined(WIN32) && defined(__CYGWIN__)
 		snprintf(cmdline, LINE_MAX, "%s/%s", plugin_dir, plugin_filename);
-		if (access(cmdline, X_OK) == 0) {
-			/* Found it */
-			found ++;
-			break;
+		if (access(cmdline, X_OK) != 0) {
+			/* Does not end the string or start an extension */
+			continue;
 		}
+#endif
+
+		/* Found it */
+		found ++;
 	}
 	closedir(dirp);
 
