@@ -19,7 +19,7 @@ static int busybox(int argc, char **argv) {
 	if(0 != strcmp(argv[1], "listplugins"))
 		return fail("unknown parameter");
 	puts("cpu\nentropy\nforks\nfw_packets\ninterrupts\nload\n"
-		"open_files\nopen_inodes\nswap\nthreads\nuptime");
+		"open_files\nopen_inodes\nswap\nthreads\nuptime\nmemory");
 	return 0;
 }
 
