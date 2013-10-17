@@ -24,8 +24,3 @@ all-local: $(pkglibexec_PROGRAMS)
 
 clean-local:
 	rm -rf plugins
-
-install-exec-hook:
-	for l in $(LINKS); do \
-		test -f $(DESTDIR)$(pkglibexecdir)$$l || $(LN_S) munin-plugins-c $(DESTDIR)$(pkglibexecdir)/$$l; \
-	done
