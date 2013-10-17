@@ -6,6 +6,7 @@
  * modify, copy, or redistribute it subject to the terms and conditions
  * of the GNU General Public License v.2 or v.3.
  */
+#include <inttypes.h>
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -83,10 +84,10 @@ int memory(int argc, char **argv) {
 	FILE *f;
 	char buff[256];
 
-	long mem_total = -1;
-	long mem_free  = -1;
-	long swap_total = -1;
-	long swap_free  = -1;
+	int_fast64_t mem_total = -1;
+	int_fast64_t mem_free  = -1;
+	int_fast64_t swap_total = -1;
+	int_fast64_t swap_free  = -1;
 
 	if(argc > 1) {
 		if(!strcmp(argv[1], "config")) {
@@ -120,8 +121,8 @@ int memory(int argc, char **argv) {
 
 	while(fgets(buff, 256, f)) {
 		char key[256];
-		long value;
-		if (!sscanf(buff, "%s %ld", key, &value)) {
+		int_fast64_t value;
+		if (!sscanf(buff, "%s %" SCNdFAST64, key, &value)) {
 			fclose(f);
 			return fail("cannot parse " PROC_MEMINFO " line");
 		}
@@ -139,8 +140,8 @@ int memory(int argc, char **argv) {
 	if(mem_total < 0 || mem_free < 0 || swap_total < 0 || swap_free < 0)
 		return fail("missing fileds in " PROC_MEMINFO);
 
-	printf("apps.value %ld\n", mem_total - mem_free);
-	printf("free.value %ld\n", mem_free);
-	printf("swap.value %ld\n", swap_total - swap_free);
+	printf("apps.value %" PRIdFAST64 "\n", mem_total - mem_free);
+	printf("free.value %" PRIdFAST64 "\n", mem_free);
+	printf("swap.value %" PRIdFAST64 "\n", swap_total - swap_free);
 	return 0;
 }
