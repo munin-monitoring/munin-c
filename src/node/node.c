@@ -10,6 +10,7 @@
 #include <libgen.h>
 #include <string.h>
 #include <stdio.h>
+#include <ctype.h>
 #include <unistd.h>
 #include <limits.h>
 #include <stdlib.h>
@@ -157,8 +158,15 @@ int main(int argc, char *argv[]) {
 
 	/* get default hostname if not precised */
 	if ('\0' == *host) {
+		int idx;
+
 		host = xmalloc(HOST_NAME_MAX + 1);
 		gethostname(host, HOST_NAME_MAX);
+
+		/* going to lowercase */
+		for (idx = 0; host[idx] != 0; idx++) {
+			host[idx] = tolower((int) host[idx]);
+		}
 	}
 
 	/* Prepare static plugin env vars once for all */
