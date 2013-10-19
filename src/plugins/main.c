@@ -37,6 +37,8 @@ int main(int argc, char **argv) {
 		case 'e':
 			if(!strcmp(progname, "entropy"))
 				return entropy(argc, argv);
+			if(!strcmp(progname, "external_"))
+				return external_(argc, argv);
 			break;
 		case 'f':
 			if(!strcmp(progname, "forks"))

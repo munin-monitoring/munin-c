@@ -11,6 +11,7 @@
 
 int cpu(int argc, char **argv);
 int entropy(int argc, char **argv);
+int external_(int argc, char **argv);
 int forks(int argc, char **argv);
 int fw_packets(int argc, char **argv);
 int if_err_(int argc, char **argv);

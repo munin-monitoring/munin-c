@@ -17,6 +17,7 @@ munin_plugins_c_SOURCES = \
 	plugins.h \
 	cpu.c \
 	entropy.c \
+	external_.c \
 	forks.c \
 	fw_packets.c \
 	if_err_.c \
