@@ -85,7 +85,7 @@ static int find_plugin_with_basename(/*@out@*/ char *cmdline,
 	size_t plugin_basename_len = strlen(plugin_basename);
 
 	if (dirp == NULL) {
-		perror("Cannot open plugin dir");
+		perror("Cannot open plugin dir in " __FILE__);
 		return(found);
 	}
 

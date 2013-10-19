@@ -20,11 +20,11 @@ munin_plugins_c_SOURCES = \
 	if_err_.c \
 	interrupts.c \
 	load.c \
-	main.c \
 	open_files.c \
 	open_inodes.c \
 	processes.c \
 	swap.c \
 	threads.c \
 	memory.c \
-	uptime.c
+	uptime.c \
+	main.c
