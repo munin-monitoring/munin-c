@@ -22,6 +22,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <stdbool.h>
+#include <pwd.h>
+#include <grp.h>
 
 #if !(defined(HAVE_WORKING_VFORK) || defined(S_SPLINT_S))
   #define vfork fork
@@ -215,6 +217,110 @@ static void setenvvars_munin() {
 
 	/* That's where plugins should live */
 	setenv("MUNIN_LIBDIR", "/usr/share/munin", no);
+}
+
+#define MAX_ENV_NAME_SZ 64
+#define MAX_ENV_VALUE_SZ 256
+struct s_env {
+	int size;
+	char name[MAX_ENV_NAME_SZ];
+	char value[MAX_ENV_VALUE_SZ];
+};
+
+#define MAX_ENV_SZ 256
+struct s_plugin_conf {
+	uid_t uid; 
+	gid_t gid;
+	struct s_env env[MAX_ENV_SZ];
+};
+
+/* in-place */
+char* ltrim(char* s) {
+	while (isspace(*s)) {
+		s++;
+	}
+
+	return s;
+}
+
+/* in-place, but returns string for convenience */
+char* rtrim(char* s) {
+	char* end;
+
+	if (*s == '\0') {
+		/* Only spaces, returns unmodified */
+		return s;
+	}
+
+	end = s + strlen(s) - 1;
+	while (end > s && isspace(*end)) {
+		/* Back from the end */
+		end--;
+	}
+
+	// null-terminate new string
+	end[1] = '\0';
+
+	return s;
+}
+
+/* in-place */
+char* trim(char* s)
+{
+	s = ltrim(s);
+	s = rtrim(s);
+
+	return s;
+}
+
+static int match_wildcard(const char* haystack, const char* needle);
+static int set_value(struct s_plugin_conf* conf, const char* key, const char* value);
+
+
+static struct s_plugin_conf* parse_plugin_conf(FILE* f, const char* plugin, struct s_plugin_conf* conf) {
+	/* read from file */
+	char line[LINE_MAX];
+	int is_relevant = 0;
+
+	while (fgets(line, LINE_MAX, f) != NULL) {
+		char* line_trimmed = trim(line);
+		if (line_trimmed[0] != '[' && ! is_relevant) {
+			/* Ignore the line */
+			continue;
+		}
+
+		if (line_trimmed[0] == '[') {
+
+			/* remove everything after the first ] */
+			char* c = line_trimmed;
+			while (*c != '\0' && *c != ']') { 
+				c++;
+			}
+			*c = '\0';
+		
+			/* Try the key */
+			is_relevant = match_wildcard(plugin, line_trimmed+1);
+			
+			/* Next line */
+			continue;
+		}
+
+		/* Parse the line, and add it to the current conf */
+		char* key = trim(strtok(line_trimmed, "="));
+		char* value = trim(strtok(NULL, "="));
+		
+		if (strcmp(key, "user")) {
+			struct passwd* pswd = getpwnam(value);
+			conf->uid = pswd->pw_uid;
+		} else if (strcmp(key, "group")) {
+			struct group* grp = getgrnam(value);
+			conf->gid = grp->gr_gid;
+		} else {
+			set_value(conf, key, value);
+		}
+	}
+
+	return conf;
 }
 
 /* Setting user configured vars */
