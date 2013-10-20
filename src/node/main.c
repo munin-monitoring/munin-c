@@ -117,7 +117,7 @@ int main(int argc, char *argv[]) {
 	int optch;
 	extern int opterr;
 
-	char format[] = "evd:H:s:l:";
+	char format[] = "evd:H:s:";
 
 	struct sockaddr_in client;
 
