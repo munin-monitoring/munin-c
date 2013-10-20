@@ -1,0 +1,29 @@
+=pod
+
+=head1 NAME
+
+munin-plugins-c - a single binary implementing a number of basic Munin plugins
+
+=head1 DESCRIPTION
+
+A Munin node runs plugins to gather statistics about the system.
+Most of the plugins were originally written in Perl or Shell for simplicity.
+The munin-plugins-c binary implements a number of the plugins as a single binary.
+It was written for reduced footprint in terms of system resources.
+Similar to the busybox utility, it evaluates the name it is called as.
+
+=head1 USAGE
+
+Discovering available plugins:
+
+ @@pkglibexecdir@@/munin-plugins-c listplugins
+
+Enabling the I<cpu> plugin:
+
+ ln -s @@pkglibexecdir@@/munin-plugins-c @@CONFDIR@@/plugins/cpu
+
+=head1 AUTHORS
+
+Helmut Grohne, Steve Schnepp
+
+=cut
