@@ -349,6 +349,7 @@ static struct s_plugin_conf* parse_plugin_conf(FILE* f, const char* plugin, stru
 			continue;
 		}
 
+		{
 		/* Parse the line, and add it to the current conf */
 		char* key = trim(strtok(line_trimmed, "="));
 		char* value = trim(strtok(NULL, "="));
@@ -362,6 +363,7 @@ static struct s_plugin_conf* parse_plugin_conf(FILE* f, const char* plugin, stru
 		} else if (strncmp(key, "env.", strlen("env."))) {
 			char *env_key = key + strlen("env.");
 			set_value(conf, env_key, value);
+		}
 		}
 	}
 
@@ -378,16 +380,20 @@ static void setenvvars_conf(char* current_plugin_name) {
 		return;
 	}
 
+	{
 	struct s_plugin_conf pconf;
 
 	/* default is nobody:nobody */
 	{
 		struct passwd* pswd = getpwnam("nobody");
 		pconf.uid = pswd->pw_uid;
+	}
+	{
 		struct group* grp = getgrnam("nobody");
 		pconf.gid = grp->gr_gid;
 	}
 
+	{
 	struct dirent* dp;
 	while ((dp = readdir(dirp)) != NULL) {
 		char cmdline[LINE_MAX];
@@ -399,6 +405,7 @@ static void setenvvars_conf(char* current_plugin_name) {
 		}
 
 		snprintf(cmdline, LINE_MAX, "%s/%s", pluginconf_dir, plugin_filename);
+		{
 		FILE* f = fopen(cmdline, "r");
 		if (f == NULL) {
 			/* Ignore open failures */
@@ -408,13 +415,16 @@ static void setenvvars_conf(char* current_plugin_name) {
 		parse_plugin_conf(f, current_plugin_name, &pconf);
 
 		fclose(f);
+		}
 	}
 
 	/* Set env after whole parsing */
+	{
 	size_t i;
 	for (i = 0; i < pconf.size; i ++) {
 		struct s_env* env = pconf.env + i;
 		putenv(env->buffer);
+	}
 	}
 
 	/* setuid/gid */
@@ -424,6 +434,8 @@ static void setenvvars_conf(char* current_plugin_name) {
 
 		/* Change UID *after* GID, otherwise cannot change anymore */
 		setuid(pconf.uid);
+	}
+	}
 	}
 }
 
@@ -460,6 +472,8 @@ static int handle_connection() {
 				printf("# Cannot open plugin dir\n");
 				return(0);
 			}
+			{
+			struct dirent* dp;
 			while ((dp = readdir(dirp)) != NULL) {
 				char cmdline[LINE_MAX];
 				char* plugin_filename = dp->d_name;;
@@ -482,6 +496,7 @@ static int handle_connection() {
 				}
 			}
 			closedir(dirp);
+			}
 			putchar('\n');
 		} else if (
 				strcmp(cmd, "config") == 0 ||
