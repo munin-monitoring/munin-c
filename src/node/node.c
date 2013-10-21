@@ -359,9 +359,17 @@ static struct s_plugin_conf* parse_plugin_conf(FILE* f, const char* plugin, stru
 		
 		if (0 == strcmp(key, "user")) {
 			struct passwd* pswd = getpwnam(value);
+			if(pswd == NULL) {
+				perror("getpwnam() error");
+				abort();
+			}
 			conf->uid = pswd->pw_uid;
 		} else if (0 == strcmp(key, "group")) {
 			struct group* grp = getgrnam(value);
+			if(grp == NULL) {
+				perror("getgrnam() error");
+				abort();
+			}
 			conf->gid = grp->gr_gid;
 		} else if (0 == strncmp(key, "env.", strlen("env."))) {
 			char *env_key = key + strlen("env.");
@@ -390,10 +398,18 @@ static void setenvvars_conf(char* current_plugin_name) {
 	/* default is nobody:nobody */
 	{
 		struct passwd* pswd = getpwnam("nobody");
+		if(pswd == NULL) {
+			perror("getpwnam(\"nobody\") error");
+			abort();
+		}
 		pconf.uid = pswd->pw_uid;
 	}
 	{
 		struct group* grp = getgrnam("nobody");
+		if(grp == NULL) {
+			perror("getgrnam(\"nobody\") error");
+			abort();
+		}
 		pconf.gid = grp->gr_gid;
 	}
 
