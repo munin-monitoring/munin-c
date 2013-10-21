@@ -61,7 +61,7 @@ static /*@noreturn@*/ void oom_handler() {
 
 /* an allocation bigger than MAX_ALLOC_SIZE is bogus */
 #define MAX_ALLOC_SIZE (16 * 1024 * 1024)
-static /*@only@*/ void *xmalloc(size_t size) {
+static /*@only@*/ /*@out@*/ void *xmalloc(size_t size) {
 	void* ptr;
 
 	assert(size < MAX_ALLOC_SIZE);
@@ -168,7 +168,7 @@ int main(int argc, char *argv[]) {
 		gethostname(host, HOST_NAME_MAX);
 
 		/* going to lowercase */
-		for (idx = 0; host[idx] != 0; idx++) {
+		for (idx = 0; host[idx] != '\0'; idx++) {
 			host[idx] = tolower((int) host[idx]);
 		}
 	}
@@ -206,7 +206,7 @@ static void setenvvars_system() {
 static void setenvvars_munin() {
 	/* munin-node will override this with the IP of the
 	 * connecting master */
-	if (client_ip && client_ip[0] != '\0') {
+	if (client_ip != NULL && client_ip[0] != '\0') {
 		setenv("MUNIN_MASTER_IP", client_ip, no);
 	}
 
@@ -222,7 +222,7 @@ static void setenvvars_munin() {
 }
 
 /* in-place */
-char* ltrim(char* s) {
+static /*@exposed@*/ char *ltrim(char *s) {
 	while (isspace(*s)) {
 		s++;
 	}
@@ -231,7 +231,7 @@ char* ltrim(char* s) {
 }
 
 /* in-place, but returns string for convenience */
-char* rtrim(char* s) {
+static /*@exposed@*/ char* rtrim(char* s) {
 	char* end;
 
 	if (*s == '\0') {
@@ -252,7 +252,7 @@ char* rtrim(char* s) {
 }
 
 /* in-place */
-char* trim(char* s)
+static /*@exposed@*/ char* trim(char* s)
 {
 	s = ltrim(s);
 	s = rtrim(s);
@@ -287,7 +287,8 @@ static void set_value(struct s_plugin_conf* conf, const char* key, const char* v
 		if (key_len != env->key_len) continue;
 
 		/* this cmp works since keys have the same length */
-		if (strncmp(key, env->buffer, env->key_len)) continue;
+		if(strncmp(key, env->buffer, env->key_len) != 0)
+			continue;
 
 		/* Found the key */
 		dst_env = env;
@@ -527,7 +528,7 @@ static int handle_connection() {
 				printf("# no plugin given\n");
 				continue;
 			}
-			if(arg[0] == '.' || strchr(arg, '/')) {
+			if(arg[0] == '.' || strchr(arg, '/') != NULL) {
 				printf("# invalid plugin character\n");
 				continue;
 			}
