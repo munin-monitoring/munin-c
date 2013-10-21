@@ -245,7 +245,7 @@ char* rtrim(char* s) {
 		end--;
 	}
 
-	// null-terminate new string
+	/* null-terminate new string */
 	end[1] = '\0';
 
 	return s;
@@ -470,7 +470,6 @@ static int handle_connection() {
 		} else if (strcmp(cmd, "quit") == 0) {
 			return(0);
 		} else if (strcmp(cmd, "list") == 0) {
-			struct dirent* dp;
 			DIR* dirp = opendir(plugin_dir);
 			if (dirp == NULL) {
 				printf("# Cannot open plugin dir\n");
