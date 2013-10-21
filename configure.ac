@@ -20,6 +20,8 @@ AC_PROG_CC_C_O
 
 AC_PROG_LN_S
 
+AC_CHECK_DECLS([environ])
+
 AC_FUNC_FORK
 CC_CHECK_CFLAGS_APPEND([-Wall -Wextra -Werror -pedantic -Wno-format])
 
