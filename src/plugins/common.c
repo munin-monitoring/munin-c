@@ -12,7 +12,9 @@
 #include <unistd.h>
 #include "common.h"
 
+#if !HAVE_DECL_ENVIRON
 extern char **environ;
+#endif
 
 int writeyes(void)
 {
