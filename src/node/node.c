@@ -320,7 +320,7 @@ static void end_before_first(char* s, char c) {
 static struct s_plugin_conf* parse_plugin_conf(FILE* f, const char* plugin, struct s_plugin_conf* conf) {
 	/* read from file */
 	char line[LINE_MAX];
-	int is_relevant = 0;
+	bool is_relevant = false;
 
 	while (fgets(line, LINE_MAX, f) != NULL) {
 		char* line_trimmed = trim(line);
@@ -338,9 +338,9 @@ static struct s_plugin_conf* parse_plugin_conf(FILE* f, const char* plugin, stru
 				int fnmatch_flags = FNM_NOESCAPE | FNM_PATHNAME;
 				int res = fnmatch(line_trimmed, plugin, fnmatch_flags);
 				if (res == 0) {
-					is_relevant = 1;
+					is_relevant = true;
 				} else if (res == FNM_NOMATCH) {
-					is_relevant = 0;
+					is_relevant = false;
 				} else {
 					perror("fnmatch() error");
 					abort();
