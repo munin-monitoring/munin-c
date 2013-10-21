@@ -127,7 +127,6 @@ static void setenvvars_system(void);
 int main(int argc, char *argv[]) {
 
 	int optch;
-	extern int opterr;
 
 	char format[] = "evd:H:s:";
 
