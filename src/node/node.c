@@ -406,9 +406,9 @@ static void setenvvars_conf(char* current_plugin_name) {
 		pconf.uid = pswd->pw_uid;
 	}
 	{
-		struct group* grp = getgrnam("nobody");
+		struct group* grp = getgrnam("nogroup");
 		if(grp == NULL) {
-			perror("getgrnam(\"nobody\") error");
+			perror("getgrnam(\"nogroup\") error");
 			abort();
 		}
 		pconf.gid = grp->gr_gid;
