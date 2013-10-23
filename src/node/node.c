@@ -44,7 +44,7 @@ static bool extension_stripping = false;
 static char* host = "";
 static char* plugin_dir = PLUGINDIR;
 static char* spoolfetch_dir = "";
-static char* client_ip = NULL;
+static char* client_ip = "-";
 
 static int handle_connection();
 
@@ -177,8 +177,6 @@ int main(int argc, char *argv[]) {
 	setenvvars_system();
 
 	/* use a 1-shot stdin/stdout */
-	client_ip = "-";
-	client_len = sizeof(client);
 	if(0 == getpeername(STDIN_FILENO, (struct sockaddr*)&client,
 				&client_len))
 		if(client.sin_family == AF_INET)
