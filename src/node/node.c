@@ -223,6 +223,11 @@ static void setenvvars_munin() {
 
 /* in-place */
 static /*@exposed@*/ char *ltrim(char *s) {
+	if (s == NULL || *s == '\0') {
+		/* Empty string, returns unmodified */
+		return s;
+	}
+
 	while (isspace(*s)) {
 		s++;
 	}
@@ -234,8 +239,8 @@ static /*@exposed@*/ char *ltrim(char *s) {
 static /*@exposed@*/ char* rtrim(char* s) {
 	char* end;
 
-	if (*s == '\0') {
-		/* Only spaces, returns unmodified */
+	if (s == NULL || *s == '\0') {
+		/* Empty string, returns unmodified */
 		return s;
 	}
 
@@ -296,7 +301,7 @@ static void set_value(struct s_plugin_conf* conf, const char* key, const char* v
 
 	if (dst_env == NULL) {
 		/* Allocate one */
-		if(conf->size < MAX_ENV_NB) {
+		if(conf->size == MAX_ENV_NB) {
 			fprintf(stderr, "ran out of internal env space\n");
 			abort();
 		}
@@ -355,9 +360,14 @@ static struct s_plugin_conf* parse_plugin_conf(FILE* f, const char* plugin, stru
 		{
 		/* Parse the line, and add it to the current conf */
 		char* key = trim(strtok(line_trimmed, " "));
+		char* value;
+
+		/* No key found, skip the line */
+		if (key == NULL) continue;
+
 		/* Everything after the first " " is value */
-		char* value = trim(key + 1);
-		
+		value = trim(key + strlen(key) + 1);
+
 		if (0 == strcmp(key, "user")) {
 			struct passwd* pswd = getpwnam(value);
 			if(pswd == NULL) {
