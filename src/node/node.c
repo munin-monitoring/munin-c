@@ -45,6 +45,7 @@ static char* host = "";
 static char* plugin_dir = PLUGINDIR;
 static char* spoolfetch_dir = "";
 static char* client_ip = "-";
+static char* pluginconf_dir = "/etc/munin/plugin-conf.d";
 
 static int handle_connection();
 
@@ -133,7 +134,7 @@ int main(int argc, char *argv[]) {
 	int optch;
 	extern int opterr;
 
-	char format[] = "evd:H:s:";
+	char format[] = "evd:D:H:s:";
 
 	struct sockaddr_in client;
 
@@ -151,6 +152,9 @@ int main(int argc, char *argv[]) {
 			break;
 		case 'd':
 			plugin_dir = xstrdup(optarg);
+			break;
+		case 'D':
+			pluginconf_dir = xstrdup(optarg);
 			break;
 		case 'H':
 			host = xstrdup(optarg);
@@ -392,7 +396,6 @@ static struct s_plugin_conf* parse_plugin_conf(FILE* f, const char* plugin, stru
 
 /* Setting user configured vars */
 static void setenvvars_conf(char* current_plugin_name) {
-	const char* pluginconf_dir = "/etc/munin/plugin-conf.d";
 	/* TODO - add plugin conf parsing */
 	DIR* dirp = opendir(pluginconf_dir);
 	if (dirp == NULL) {
