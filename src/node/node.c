@@ -82,6 +82,11 @@ static /*@only@*/ char *xstrdup(const char* s) {
 	return new_str;
 }
 
+static int xsetenv(const char *envname, const char *envval, int overwrite) {
+	if (verbose) printf("# Setting env %s = %s %s overwriting\n", envname, envval, overwrite ? "with" : "without");
+	return setenv(envname, envval, overwrite);
+}
+
 static int find_plugin_with_basename(/*@out@*/ char *cmdline,
 		const char *plugin_dir, const char *plugin_basename) {
 	DIR* dirp = opendir(plugin_dir);
@@ -192,16 +197,16 @@ int main(int argc, char *argv[]) {
 static void setenvvars_system() {
 	/* Some locales use "," as decimal separator.
 	 * This can mess up a lot of plugins. */
-	setenv("LC_ALL", "C", yes);
+	xsetenv("LC_ALL", "C", yes);
 
 	/* LC_ALL should be enough, but some plugins don't
 	 * follow specs (#1014) */
-	setenv("LANG", "C", yes);
+	xsetenv("LANG", "C", yes);
 
 	/* PATH should be *very* sane by default. Can be
 	 * overrided via config file if needed
 	 * (Closes #863 and #1128).  */
-	setenv("PATH", "/usr/sbin:/usr/bin:/sbin:/bin", yes);
+	xsetenv("PATH", "/usr/sbin:/usr/bin:/sbin:/bin", yes);
 }
 
 /* Setting munin specific vars */
@@ -209,18 +214,18 @@ static void setenvvars_munin() {
 	/* munin-node will override this with the IP of the
 	 * connecting master */
 	if (client_ip != NULL && client_ip[0] != '\0') {
-		setenv("MUNIN_MASTER_IP", client_ip, no);
+		xsetenv("MUNIN_MASTER_IP", client_ip, no);
 	}
 
 	/* Tell plugins about supported capabilities */
-	setenv("MUNIN_CAP_MULTIGRAPH", "1", no);
+	xsetenv("MUNIN_CAP_MULTIGRAPH", "1", no);
 
 	/* We only have one user, so using a fixed path */
-	setenv("MUNIN_PLUGSTATE", "/var/tmp", no);
-	setenv("MUNIN_STATEFILE", "/dev/null", no);
+	xsetenv("MUNIN_PLUGSTATE", "/var/tmp", no);
+	xsetenv("MUNIN_STATEFILE", "/dev/null", no);
 
 	/* That's where plugins should live */
-	setenv("MUNIN_LIBDIR", "/usr/share/munin", no);
+	xsetenv("MUNIN_LIBDIR", "/usr/share/munin", no);
 }
 
 /* in-place */
