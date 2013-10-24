@@ -1,1 +1,4 @@
 language: c
+
+notifications:
+  irc: "irc.oftc.net#munin"
