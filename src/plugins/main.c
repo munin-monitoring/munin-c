@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
 		case 'e':
 			if(!strcmp(progname, "entropy"))
 				return entropy(argc, argv);
-			if(!strcmp(progname, "external_"))
+			if(!strncmp(progname, "external_", strlen("external_")))
 				return external_(argc, argv);
 			break;
 		case 'f':
