@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
 		case 'i':
 			if(!strcmp(progname, "interrupts"))
 				return interrupts(argc, argv);
-			if(!strncmp(progname, "if_err_", 6))
+			if(!strncmp(progname, "if_err_", strlen("if_err_")))
 				return if_err_(argc, argv);
 			break;
 		case 'l':
