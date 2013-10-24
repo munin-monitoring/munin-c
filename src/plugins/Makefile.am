@@ -8,6 +8,8 @@
 # of the GNU General Public License v.2 or v.3.
 #
 
+include $(top_srcdir)/common.am
+
 pkglibexec_PROGRAMS = munin-plugins-c
 munin_plugins_c_SOURCES = \
 	common.c \
@@ -28,3 +30,5 @@ munin_plugins_c_SOURCES = \
 	threads.c \
 	memory.c \
 	uptime.c
+man_MANS = munin-plugins-c.1
+CLEANFILES = $(man_MANS)

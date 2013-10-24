@@ -1,5 +1,6 @@
 .*.swp
 *.o
+*.1
 .deps
 .dirstamp
 tags
