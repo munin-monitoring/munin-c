@@ -23,5 +23,11 @@ AC_PROG_LN_S
 AC_FUNC_FORK
 CC_CHECK_CFLAGS_APPEND([-Wall -Wextra -Werror -pedantic -Wno-format])
 
+AC_ARG_ENABLE([experimental],
+              AC_HELP_STRING([--enable-experimental],
+                             [enable EXPERIMENTAL code]),
+              AC_DEFINE([EXPERIMENTAL], [1],
+                        [Define to enable experimental code]))
+
 AC_CONFIG_FILES([Makefile src/node/Makefile src/plugins/Makefile])
 AC_OUTPUT

@@ -31,6 +31,11 @@ static int busybox(int argc, char **argv) {
 	puts("swap");
 	puts("threads");
 	puts("uptime");
+#if EXPERIMENTAL
+	/* We put here the plugins that are not in mainline */
+	puts("external_");
+	puts("memory");
+#endif /* EXPERIMENTAL */
 	return 0;
 }
 
