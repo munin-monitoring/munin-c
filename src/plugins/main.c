@@ -18,8 +18,13 @@ static int busybox(int argc, char **argv) {
 		return fail("missing parameter");
 	if(0 != strcmp(argv[1], "listplugins"))
 		return fail("unknown parameter");
+	if(argc > 3 || (argc > 2 &&
+				0 != strcmp(argv[2], "--include-experimental")))
+		return fail("unknown option");
 	puts("cpu\nentropy\nforks\nfw_packets\ninterrupts\nload\n"
 		"open_files\nopen_inodes\nswap\nthreads\nuptime");
+	if(argc > 2)
+		puts("memory\nprocesses");
 	return 0;
 }
 
