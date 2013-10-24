@@ -1,4 +1,6 @@
 language: c
 
+install: autoreconf -i -I m4
+
 notifications:
   irc: "irc.oftc.net#munin"
