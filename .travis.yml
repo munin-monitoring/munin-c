@@ -2,8 +2,5 @@ language: c
 
 install: autoreconf -i -I m4
 
-before_install:
-  - sudo apt-get install autoconf automake autotools-dev
-
 notifications:
   irc: "irc.oftc.net#munin"
