@@ -8,7 +8,7 @@
 # of the GNU General Public License v.2 or v.3.
 #
 
-AC_INIT([munin-c], [m4_esyscmd_s([./getversion])], [https://github.com/munin-monitoring/munin-c/issues], , [https://github.com/munin-monitoring/munin-c])
+AC_INIT([munin-c], [master], [https://github.com/munin-monitoring/munin-c/issues], , [https://github.com/munin-monitoring/munin-c])
 AC_CONFIG_AUX_DIR([build])
 
 AM_INIT_AUTOMAKE([foreign subdir-objects])
@@ -22,6 +22,12 @@ AC_PROG_LN_S
 
 AC_FUNC_FORK
 CC_CHECK_CFLAGS_APPEND([-Wall -Wextra -Werror -pedantic -Wno-format])
+
+AC_ARG_ENABLE([experimental],
+              AC_HELP_STRING([--enable-experimental],
+                             [enable EXPERIMENTAL code]),
+              AC_DEFINE([EXPERIMENTAL], [1],
+                        [Define to enable experimental code]))
 
 AC_CONFIG_FILES([Makefile src/node/Makefile src/plugins/Makefile])
 AC_OUTPUT
