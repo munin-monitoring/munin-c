@@ -1,4 +1,7 @@
 language: c
+compiler:
+  - gcc
+  - clang
 
 install: autoreconf -i -I m4
 
