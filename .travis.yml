@@ -1,0 +1,11 @@
+language: c
+compiler:
+  - gcc
+  - clang
+
+install: autoreconf -i -I m4
+
+script: ./configure && make
+
+notifications:
+  irc: "irc.oftc.net#munin"
