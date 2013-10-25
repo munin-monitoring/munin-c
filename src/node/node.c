@@ -564,6 +564,8 @@ static int handle_connection() {
 				printf("# unknown plugin: %s\n", arg);
 				continue;
 			}
+			/* Using fork() here instead of vfork() since we will
+			 * do a little more than a mere exec --> setenvvars_conf() */
 			if(0 == (pid = fork())) {
 				/* Now is the time to set environnement */
 				setenvvars_conf(arg);
