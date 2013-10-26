@@ -300,7 +300,11 @@ static int handle_connection() {
 				printf("# unknown plugin: %s\n", arg);
 				continue;
 			}
-			if(0 == (pid = vfork())) {
+			/* Using fork() here instead of vfork() since we will
+			 * do a little more than a mere exec --> setenvvars_conf() */
+			if(0 == (pid = fork())) {
+				/* Now is the time to set environnement */
+				setenvvars_conf(arg);
 				execl(cmdline, arg, cmd, NULL);
 				/* according to vfork(2) we must use _exit */
 				_exit(1);
