@@ -320,7 +320,7 @@ static int handle_connection() {
 		} else if (strcmp(cmd, "spoolfetch") == 0) {
 			printf("# not implem yet cmd: %s\n", cmd);
 		} else {
-			printf("# unknown cmd: %s\n", cmd);
+			printf("# Unknown cmd: %s. Try cap, list, nodes, config, fetch, version or quit\n", cmd);
 		}
 	}
 
