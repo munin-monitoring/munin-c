@@ -233,11 +233,11 @@ static int handle_connection() {
 		char* cmd;
 		char* arg;
 
-		cmd = strtok(line, " \t\n");
+		cmd = strtok(line, " \t\n\r");
 		if(cmd == NULL)
 			arg = NULL;
 		else
-			arg = strtok(NULL, " \t\n");
+			arg = strtok(NULL, " \t\n\r");
 
 		if (!cmd || strlen(cmd) == 0) {
 			printf("# empty cmd\n");
