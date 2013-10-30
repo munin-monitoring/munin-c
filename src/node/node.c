@@ -22,6 +22,10 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <stdbool.h>
+#include <pwd.h>
+#include <grp.h>
+#include <fnmatch.h>
+#include <ctype.h>
 
 #if !(defined(HAVE_WORKING_VFORK) || defined(S_SPLINT_S))
   #define vfork fork
@@ -40,7 +44,8 @@ static bool extension_stripping = false;
 static char* host = "";
 static char* plugin_dir = PLUGINDIR;
 static char* spoolfetch_dir = "";
-static char* client_ip = NULL;
+static char* client_ip = "-";
+static char* pluginconf_dir = "/etc/munin/plugin-conf.d";
 
 static int handle_connection();
 
@@ -57,7 +62,7 @@ static /*@noreturn@*/ void oom_handler() {
 
 /* an allocation bigger than MAX_ALLOC_SIZE is bogus */
 #define MAX_ALLOC_SIZE (16 * 1024 * 1024)
-static /*@only@*/ void *xmalloc(size_t size) {
+static /*@only@*/ /*@out@*/ void *xmalloc(size_t size) {
 	void* ptr;
 
 	assert(size < MAX_ALLOC_SIZE);
@@ -75,6 +80,11 @@ static /*@only@*/ char *xstrdup(const char* s) {
 	new_str = strdup(s);
 	if (new_str == NULL) oom_handler();
 	return new_str;
+}
+
+static int xsetenv(const char *envname, const char *envval, int overwrite) {
+	if (verbose) printf("# Setting env %s = %s %s overwriting\n", envname, envval, overwrite ? "with" : "without");
+	return setenv(envname, envval, overwrite);
 }
 
 static int find_plugin_with_basename(/*@out@*/ char *cmdline,
@@ -128,7 +138,7 @@ int main(int argc, char *argv[]) {
 
 	int optch;
 
-	char format[] = "evd:H:s:";
+	char format[] = "evd:D:H:s:";
 
 	struct sockaddr_in client;
 
@@ -147,6 +157,9 @@ int main(int argc, char *argv[]) {
 		case 'd':
 			plugin_dir = xstrdup(optarg);
 			break;
+		case 'D':
+			pluginconf_dir = xstrdup(optarg);
+			break;
 		case 'H':
 			host = xstrdup(optarg);
 			break;
@@ -163,7 +176,7 @@ int main(int argc, char *argv[]) {
 		gethostname(host, HOST_NAME_MAX);
 
 		/* going to lowercase */
-		for (idx = 0; host[idx] != 0; idx++) {
+		for (idx = 0; host[idx] != '\0'; idx++) {
 			host[idx] = tolower((int) host[idx]);
 		}
 	}
@@ -172,8 +185,6 @@ int main(int argc, char *argv[]) {
 	setenvvars_system();
 
 	/* use a 1-shot stdin/stdout */
-	client_ip = "-";
-	client_len = sizeof(client);
 	if(0 == getpeername(STDIN_FILENO, (struct sockaddr*)&client,
 				&client_len))
 		if(client.sin_family == AF_INET)
@@ -185,40 +196,291 @@ int main(int argc, char *argv[]) {
 static void setenvvars_system() {
 	/* Some locales use "," as decimal separator.
 	 * This can mess up a lot of plugins. */
-	setenv("LC_ALL", "C", yes);
+	xsetenv("LC_ALL", "C", yes);
 
 	/* LC_ALL should be enough, but some plugins don't
 	 * follow specs (#1014) */
-	setenv("LANG", "C", yes);
+	xsetenv("LANG", "C", yes);
 
 	/* PATH should be *very* sane by default. Can be
 	 * overrided via config file if needed
 	 * (Closes #863 and #1128).  */
-	setenv("PATH", "/usr/sbin:/usr/bin:/sbin:/bin", yes);
+	xsetenv("PATH", "/usr/sbin:/usr/bin:/sbin:/bin", yes);
 }
 
 /* Setting munin specific vars */
 static void setenvvars_munin() {
 	/* munin-node will override this with the IP of the
 	 * connecting master */
-	if (client_ip && client_ip[0] != '\0') {
-		setenv("MUNIN_MASTER_IP", client_ip, no);
+	if (client_ip != NULL && client_ip[0] != '\0') {
+		xsetenv("MUNIN_MASTER_IP", client_ip, no);
 	}
 
 	/* Tell plugins about supported capabilities */
-	setenv("MUNIN_CAP_MULTIGRAPH", "1", no);
+	xsetenv("MUNIN_CAP_MULTIGRAPH", "1", no);
 
 	/* We only have one user, so using a fixed path */
-	setenv("MUNIN_PLUGSTATE", "/var/tmp", no);
-	setenv("MUNIN_STATEFILE", "/dev/null", no);
+	xsetenv("MUNIN_PLUGSTATE", "/var/tmp", no);
+	xsetenv("MUNIN_STATEFILE", "/dev/null", no);
 
 	/* That's where plugins should live */
-	setenv("MUNIN_LIBDIR", "/usr/share/munin", no);
+	xsetenv("MUNIN_LIBDIR", "/usr/share/munin", no);
+}
+
+/* in-place */
+static /*@exposed@*/ char *ltrim(char *s) {
+	if (s == NULL || *s == '\0') {
+		/* Empty string, returns unmodified */
+		return s;
+	}
+
+	while (isspace(*s)) {
+		s++;
+	}
+
+	return s;
+}
+
+/* in-place, but returns string for convenience */
+static /*@exposed@*/ char* rtrim(char* s) {
+	char* end;
+
+	if (s == NULL || *s == '\0') {
+		/* Empty string, returns unmodified */
+		return s;
+	}
+
+	end = s + strlen(s) - 1;
+	while (end > s && isspace(*end)) {
+		/* Back from the end */
+		end--;
+	}
+
+	/* null-terminate new string */
+	end[1] = '\0';
+
+	return s;
+}
+
+/* in-place */
+static /*@exposed@*/ char* trim(char* s)
+{
+	s = ltrim(s);
+	s = rtrim(s);
+
+	return s;
+}
+
+#define MAX_ENV_BUF_SZ 256
+struct s_env {
+	/* buffer will hold a C string : "KEY=VALUE", use the key_len to know where the "=" is */
+	size_t key_len;
+	char buffer[MAX_ENV_BUF_SZ];
+};
+
+#define MAX_ENV_NB 256
+struct s_plugin_conf {
+	uid_t uid;
+	gid_t gid;
+	size_t size;
+	struct s_env env[MAX_ENV_NB];
+};
+
+static void set_value(struct s_plugin_conf* conf, const char* key, const char* value) {
+	size_t i;
+	size_t key_len = strlen(key);
+
+	struct s_env* dst_env = NULL;
+	/* Search for the corresponding env */
+	for (i = 0; i < conf->size; i ++) {
+		struct s_env* env = conf->env + i;
+
+		if (key_len != env->key_len) continue;
+
+		/* this cmp works since keys have the same length */
+		if(strncmp(key, env->buffer, env->key_len) != 0)
+			continue;
+
+		/* Found the key */
+		dst_env = env;
+	}
+
+	if (dst_env == NULL) {
+		/* Allocate one */
+		if(conf->size == MAX_ENV_NB) {
+			fprintf(stderr, "ran out of internal env space\n");
+			abort();
+		}
+
+		/* ptr arithmetic is done with int, not with size_t */
+		dst_env = conf->env;
+		dst_env += (int) conf->size;
+
+		conf->size ++;
+	}
+
+	/* Save the environment in setenv() format */
+	dst_env->key_len = key_len;
+	snprintf(dst_env->buffer, MAX_ENV_BUF_SZ, "%s=%s", key, value);
+}
+
+static void end_before_first(char* s, char c) {
+	s = strchr(s, c);
+	if (s != NULL) *s = '\0';
+}
+
+static struct s_plugin_conf* parse_plugin_conf(FILE* f, const char* plugin, struct s_plugin_conf* conf) {
+	/* read from file */
+	char line[LINE_MAX];
+	bool is_relevant = false;
+
+	while (fgets(line, LINE_MAX, f) != NULL) {
+		char* line_trimmed = trim(line);
+		if (line_trimmed[0] != '[' && ! is_relevant) {
+			/* Ignore the line */
+			continue;
+		}
+
+		if (line_trimmed[0] == '[') {
+			line_trimmed++;
+			end_before_first(line_trimmed, ']');
+		
+			/* Try the key */
+			{
+				int fnmatch_flags = FNM_NOESCAPE | FNM_PATHNAME;
+				int res = fnmatch(line_trimmed, plugin, fnmatch_flags);
+				if (res == 0) {
+					is_relevant = true;
+				} else if (res == FNM_NOMATCH) {
+					is_relevant = false;
+				} else {
+					perror("fnmatch() error");
+					abort();
+				}
+			}
+			
+			/* Next line */
+			continue;
+		}
+
+		{
+		/* Parse the line, and add it to the current conf */
+		char* key = trim(strtok(line_trimmed, " "));
+		char* value;
+
+		/* No key found, skip the line */
+		if (key == NULL) continue;
+
+		/* Everything after the first " " is value */
+		value = trim(key + strlen(key) + 1);
+
+		if (0 == strcmp(key, "user")) {
+			struct passwd* pswd = getpwnam(value);
+			if(pswd == NULL) {
+				perror("getpwnam() error");
+				abort();
+			}
+			conf->uid = pswd->pw_uid;
+		} else if (0 == strcmp(key, "group")) {
+			struct group* grp = getgrnam(value);
+			if(grp == NULL) {
+				perror("getgrnam() error");
+				abort();
+			}
+			conf->gid = grp->gr_gid;
+		} else if (0 == strncmp(key, "env.", strlen("env."))) {
+			char *env_key = key + strlen("env.");
+			set_value(conf, env_key, value);
+		}
+		}
+	}
+
+	return conf;
 }
 
 /* Setting user configured vars */
-static void setenvvars_conf() {
+static void setenvvars_conf(char* current_plugin_name) {
 	/* TODO - add plugin conf parsing */
+	DIR* dirp = opendir(pluginconf_dir);
+	if (dirp == NULL) {
+		printf("# Cannot open plugin config dir\n");
+		return;
+	}
+
+	{
+	struct s_plugin_conf pconf;
+	pconf.size = 0;
+
+	/* default is nobody:nobody */
+	{
+		struct passwd* pswd = getpwnam("nobody");
+		if(pswd == NULL) {
+			perror("getpwnam(\"nobody\") error");
+			abort();
+		}
+		pconf.uid = pswd->pw_uid;
+	}
+	{
+		struct group* grp = getgrnam("nogroup");
+		if(grp == NULL) {
+			perror("getgrnam(\"nogroup\") error");
+			abort();
+		}
+		pconf.gid = grp->gr_gid;
+	}
+
+	{
+	struct dirent* dp;
+	while ((dp = readdir(dirp)) != NULL) {
+		char cmdline[LINE_MAX];
+		char* plugin_filename = dp->d_name;;
+
+		if (plugin_filename[0] == '.') {
+			/* No dotted plugin */
+			continue;
+		}
+
+		snprintf(cmdline, LINE_MAX, "%s/%s", pluginconf_dir, plugin_filename);
+		{
+		FILE* f = fopen(cmdline, "r");
+		if (f == NULL) {
+			/* Ignore open failures */
+			continue;
+		}
+
+		parse_plugin_conf(f, current_plugin_name, &pconf);
+
+		fclose(f);
+		}
+	}
+
+	/* Set env after whole parsing */
+	{
+	size_t i;
+	for (i = 0; i < pconf.size; i ++) {
+		struct s_env* env = pconf.env + i;
+		putenv(env->buffer);
+	}
+	}
+
+	/* setuid/gid */
+	if (geteuid() == 0) {
+		/* We *are* root */
+		(void)setgid(pconf.gid);
+		if(getgid() != pconf.gid) {
+			perror("gid not changed by setgid");
+			abort();
+		}
+
+		/* Change UID *after* GID, otherwise cannot change anymore */
+		(void)setuid(pconf.uid);
+		if(getuid() != pconf.uid) {
+			perror("uid not changed by setuid");
+			abort();
+		}
+	}
+	}
+	}
 }
 
 static int handle_connection() {
@@ -226,7 +488,6 @@ static int handle_connection() {
 
 	/* Prepare per connection plugin env vars */
 	setenvvars_munin();
-	setenvvars_conf();
 
 	printf("# munin node at %s\n", host);
 	while (fflush(stdout), fgets(line, LINE_MAX, stdin) != NULL) {
@@ -249,12 +510,13 @@ static int handle_connection() {
 		} else if (strcmp(cmd, "quit") == 0) {
 			return(0);
 		} else if (strcmp(cmd, "list") == 0) {
-			struct dirent* dp;
 			DIR* dirp = opendir(plugin_dir);
 			if (dirp == NULL) {
 				printf("# Cannot open plugin dir\n");
 				return(0);
 			}
+			{
+			struct dirent* dp;
 			while ((dp = readdir(dirp)) != NULL) {
 				char cmdline[LINE_MAX];
 				char* plugin_filename = dp->d_name;;
@@ -277,6 +539,7 @@ static int handle_connection() {
 				}
 			}
 			closedir(dirp);
+			}
 			putchar('\n');
 		} else if (
 				strcmp(cmd, "config") == 0 ||
@@ -288,7 +551,7 @@ static int handle_connection() {
 				printf("# no plugin given\n");
 				continue;
 			}
-			if(arg[0] == '.' || strchr(arg, '/')) {
+			if(arg[0] == '.' || strchr(arg, '/') != NULL) {
 				printf("# invalid plugin character\n");
 				continue;
 			}
@@ -300,7 +563,11 @@ static int handle_connection() {
 				printf("# unknown plugin: %s\n", arg);
 				continue;
 			}
-			if(0 == (pid = vfork())) {
+			/* Using fork() here instead of vfork() since we will
+			 * do a little more than a mere exec --> setenvvars_conf() */
+			if(0 == (pid = fork())) {
+				/* Now is the time to set environnement */
+				setenvvars_conf(arg);
 				execl(cmdline, arg, cmd, NULL);
 				/* according to vfork(2) we must use _exit */
 				_exit(1);
