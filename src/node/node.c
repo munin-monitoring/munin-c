@@ -239,7 +239,7 @@ static /*@exposed@*/ char *ltrim(char *s) {
 		return s;
 	}
 
-	while (isspace(*s)) {
+	while (isspace((int) *s)) {
 		s++;
 	}
 
@@ -256,7 +256,7 @@ static /*@exposed@*/ char* rtrim(char* s) {
 	}
 
 	end = s + strlen(s) - 1;
-	while (end > s && isspace(*end)) {
+	while (end > s && isspace((int) *end)) {
 		/* Back from the end */
 		end--;
 	}
