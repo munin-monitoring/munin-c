@@ -46,6 +46,9 @@ static int set_filename(char *filename, const char* plugin_basename, const char 
 int external_(int argc, char **argv) {
 	char filename[LINE_MAX];
 
+	/* Default is "fetch" */
+	set_filename(filename, basename(argv[0]), "fetch");
+
 	if(argc > 1) {
 		if(!strcmp(argv[1], "autoconf"))
 			return puts("no (not yet implemented)");
@@ -54,8 +57,6 @@ int external_(int argc, char **argv) {
 			set_filename(filename, basename(argv[0]), "config");
 		}
 	}
-
-	set_filename(filename, basename(argv[0]), "fetch");
 
 	read_file_to_stdout(filename);
 
