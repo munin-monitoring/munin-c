@@ -40,7 +40,7 @@ static int set_filename(char *filename, const char* plugin_basename, const char 
 		return snprintf(filename, LINE_MAX, "%s/%s.%s", getenv("MUNIN_PLUGSTATE"), plugin_basename, action);
 	}
 
-	return snprintf(filename, LINE_MAX, "%s", getenv("fetch"));
+	return snprintf(filename, LINE_MAX, "%s", getenv(action));
 }
 
 int external_(int argc, char **argv) {
