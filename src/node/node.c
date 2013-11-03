@@ -27,10 +27,6 @@
 #include <fnmatch.h>
 #include <ctype.h>
 
-#if !(defined(HAVE_WORKING_VFORK) || defined(S_SPLINT_S))
-  #define vfork fork
-#endif
-
 #ifndef HOST_NAME_MAX
   #define HOST_NAME_MAX 256
 #endif
@@ -572,8 +568,7 @@ static int handle_connection() {
 				/* Now is the time to set environnement */
 				setenvvars_conf(arg);
 				execl(cmdline, arg, cmd, NULL);
-				/* according to vfork(2) we must use _exit */
-				_exit(1);
+				exit(1);
 			} else if(pid < 0) {
 				printf("# fork failed\n");
 				continue;
