@@ -21,10 +21,22 @@ static int busybox(int argc, char **argv) {
 	if(argc > 3 || (argc > 2 &&
 				0 != strcmp(argv[2], "--include-experimental")))
 		return fail("unknown option");
-	puts("cpu\nentropy\nforks\nfw_packets\ninterrupts\nload\n"
-		"open_files\nopen_inodes\nswap\nthreads\nuptime");
+	puts(
+			"cpu\n"
+			"entropy\n"
+			"forks\n"
+			"fw_packets\n"
+			"interrupts\n"
+			"load\n"
+			"open_files\n"
+			"open_inodes\n"
+			"swap\n"
+			"threads\n"
+			"uptime");
 	if(argc > 2)
-		puts("memory\nprocesses");
+		puts(
+				"memory\n"
+				"processes");
 	return 0;
 }
 
