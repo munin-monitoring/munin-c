@@ -229,7 +229,7 @@ static void setenvvars_munin() {
 }
 
 /* in-place */
-static /*@exposed@*/ char *ltrim(char *s) {
+static /*@null@*/ /*@exposed@*/ char *ltrim(/*@null@*/ char *s) {
 	if (s == NULL || *s == '\0') {
 		/* Empty string, returns unmodified */
 		return s;
@@ -243,7 +243,7 @@ static /*@exposed@*/ char *ltrim(char *s) {
 }
 
 /* in-place, but returns string for convenience */
-static /*@exposed@*/ char* rtrim(char* s) {
+static /*@null@*/ /*@exposed@*/ char* rtrim(/*@null@*/ char* s) {
 	char* end;
 
 	if (s == NULL || *s == '\0') {
@@ -264,7 +264,7 @@ static /*@exposed@*/ char* rtrim(char* s) {
 }
 
 /* in-place */
-static /*@exposed@*/ char* trim(char* s)
+static /*@null@*/ /*@exposed@*/ char* trim(/*@null@*/ char* s)
 {
 	s = ltrim(s);
 	s = rtrim(s);
@@ -337,6 +337,7 @@ static struct s_plugin_conf* parse_plugin_conf(FILE* f, const char* plugin, stru
 
 	while (fgets(line, LINE_MAX, f) != NULL) {
 		char* line_trimmed = trim(line);
+		assert(line_trimmed != NULL);
 		if (line_trimmed[0] != '[' && ! is_relevant) {
 			/* Ignore the line */
 			continue;
@@ -374,6 +375,7 @@ static struct s_plugin_conf* parse_plugin_conf(FILE* f, const char* plugin, stru
 
 		/* Everything after the first " " is value */
 		value = trim(key + strlen(key) + 1);
+		assert(value != NULL);
 
 		if (0 == strcmp(key, "user")) {
 			struct passwd* pswd = getpwnam(value);
