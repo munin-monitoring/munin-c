@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <libgen.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 
 #include "common.h"
@@ -24,13 +25,34 @@ static int read_file_to_stdout(const char *filename)
 {
 	FILE *f;
 	int c;
+	bool should_convert_crlf = false;
+	bool is_cr_retained = false;
 
 	if (!(f = fopen(filename, "r"))) {
 		fputs("cannot open ", stderr);	/* filename is not a constant */
 		return fail(filename);
 	}
 
+	/* Test if we should convert the CRLF to LF */
+	{
+		char* convert_crlf = getenv("convert_crlf");
+		if (convert_crlf != NULL && ! strcmp(convert_crlf, "on")) {
+			should_convert_crlf = true;
+		}
+	}
+
 	while ((c = fgetc(f)) != EOF) {
+		if (should_convert_crlf && c == '\r') {
+			is_cr_retained = true;
+			/* Directly get next char */
+			continue;
+		}
+
+		/* Not a "\r\n", emit the missing \r */
+		if (is_cr_retained && c != '\n') fputc('\r', stdout);
+		/* is_cr_retained has been handled */
+		is_cr_retained = false;
+
 		fputc(c, stdout);
 	}
 
