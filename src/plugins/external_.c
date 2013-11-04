@@ -55,20 +55,18 @@ static int set_filename(char *filename, const char *plugin_basename,
 int external_(int argc, char **argv)
 {
 	char filename[LINE_MAX];
-
-	/* Default is "fetch" */
-	set_filename(filename, basename(argv[0]), "fetch");
+	char *action = "fetch"; /* Default is "fetch" */
 
 	if (argc > 1) {
 		if (!strcmp(argv[1], "autoconf"))
 			return puts("no (not yet implemented)");
 
-		if (!strcmp(argv[1], "config")) {
-			set_filename(filename, basename(argv[0]),
-				     "config");
+		if(!strcmp(argv[1], "config")) {
+			action = "config";
 		}
 	}
 
+	set_filename(filename, basename(argv[0]), action);
 	read_file_to_stdout(filename);
 
 	return 0;
