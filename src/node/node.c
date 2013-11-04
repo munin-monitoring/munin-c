@@ -415,23 +415,17 @@ static void setenvvars_conf(char* current_plugin_name) {
 	{
 	struct s_plugin_conf pconf;
 	pconf.size = 0;
+	pconf.uid = 0;
+	pconf.gid = 0;
 
-	/* default is nobody:nobody */
+	/* default is nobody:nogroup */
 	{
 		struct passwd* pswd = getpwnam("nobody");
-		if(pswd == NULL) {
-			perror("getpwnam(\"nobody\") error");
-			abort();
-		}
-		pconf.uid = pswd->pw_uid;
+		if(pswd != NULL) pconf.uid = pswd->pw_uid;
 	}
 	{
 		struct group* grp = getgrnam("nogroup");
-		if(grp == NULL) {
-			perror("getgrnam(\"nogroup\") error");
-			abort();
-		}
-		pconf.gid = grp->gr_gid;
+		if(grp != NULL) pconf.gid = grp->gr_gid;
 	}
 
 	{
@@ -471,14 +465,18 @@ static void setenvvars_conf(char* current_plugin_name) {
 	/* setuid/gid */
 	if (geteuid() == 0) {
 		/* We *are* root */
-		(void)setgid(pconf.gid);
+		if(getgid() != pconf.gid) {
+			(void)setgid(pconf.gid);
+		}
 		if(getgid() != pconf.gid) {
 			perror("gid not changed by setgid");
 			abort();
 		}
 
 		/* Change UID *after* GID, otherwise cannot change anymore */
-		(void)setuid(pconf.uid);
+		if(getuid() != pconf.uid) {
+			(void)setuid(pconf.uid);
+		}
 		if(getuid() != pconf.uid) {
 			perror("uid not changed by setuid");
 			abort();
