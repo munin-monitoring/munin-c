@@ -580,7 +580,8 @@ static int handle_connection() {
 			} else {
 				waitpid(pid, NULL, 0);
 			}
-			printf(".\n");
+			/* We need to send the whole EOF string, since the plugin might not end itself with "\n" */
+			printf("\n.\n");
 		} else if (strcmp(cmd, "cap") == 0) {
 			printf("cap ");
 			if ('\0' != *spoolfetch_dir) {
