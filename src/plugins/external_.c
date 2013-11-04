@@ -58,6 +58,9 @@ static int read_file_to_stdout(const char *filename)
 
 	fclose(f);
 
+	/* If the last char was \r, we should still emit it */
+	if (is_cr_retained) fputc('\r', stdout);
+
 	return 0;
 }
 
