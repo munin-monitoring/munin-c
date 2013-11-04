@@ -10,6 +10,7 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <libgen.h>
+#include <unistd.h>
 
 
 #include "common.h"
@@ -58,6 +59,24 @@ int external_(int argc, char **argv) {
 
 	set_filename(filename, basename(argv[0]), action);
 	read_file_to_stdout(filename);
+
+	/* trigger on_read hook */
+	{
+		char hookname[LINE_MAX];
+		char* on_read;
+
+		snprintf(hookname, LINE_MAX, "on_%s", action);
+		on_read = getenv(hookname);
+		if (on_read == NULL || ! strcmp(on_read, "nothing")) {
+			/* nothing */
+		} else if (! strcmp(on_read, "unlink")) {
+			return unlink(filename);
+		} else if (! strcmp(on_read, "truncate")) {
+			return truncate(filename, 0);
+		} else {
+			/* Do nothing if unknown */
+		}
+	}
 
 	return 0;
 }
