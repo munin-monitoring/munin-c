@@ -1,6 +1,7 @@
 .*.swp
 *.o
 *.1
+*.exe
 .deps
 .dirstamp
 tags
