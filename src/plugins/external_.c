@@ -20,8 +20,8 @@ static int read_file_to_stdout(const char *filename) {
 	int c;
 
 	if(!(f=fopen(filename, "r"))) {
-		fputs("cannot open ", stderr); /* filename is not a constant */
-		return fail(filename);
+		printf("# cannot open %s\n", filename); /* filename is not a constant */
+		return 1;
 	}
 
 	while ((c = fgetc(f)) != EOF) {
