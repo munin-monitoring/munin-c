@@ -17,10 +17,13 @@
 #include "common.h"
 #include "plugins.h"
 
+static const char MAGIC_BOM_UTF8[] = "\xEF\xBB\xBF";
+
 static int read_file_to_stdout(const char *filename) {
 	FILE *f;
 	int c;
 	bool should_convert_crlf = false;
+	bool should_remove_bom = false;
 	bool is_cr_retained = false;
 
 	if(!(f=fopen(filename, "r"))) {
@@ -34,6 +37,31 @@ static int read_file_to_stdout(const char *filename) {
 		if (convert_crlf != NULL && ! strcmp(convert_crlf, "on")) {
 			should_convert_crlf = true;
 		}
+	}
+
+	/* Test if we should remove the UTF-8 BOM */
+	{
+		char* remove_bom = getenv("remove_bom");
+		if (remove_bom != NULL && ! strcmp(remove_bom, "on")) {
+			should_remove_bom = true;
+		}
+	}
+
+	if (should_remove_bom) {
+#ifdef DUMMY_BOM_HANDLING
+		fseek(f, 3, SEEK_SET);
+#else
+		char bom_buf[3];
+
+		/* Reading an eventual BOM */
+		fread(bom_buf, 3, 1, f);
+
+		/* Checking BOM */
+		if (strncmp(bom_buf, MAGIC_BOM_UTF8, 3)) {
+			/* Not a BOM, reverting to the beginning */
+			fseek(f, 0, SEEK_SET);
+		}
+#endif
 	}
 
 	while ((c = fgetc(f)) != EOF) {
