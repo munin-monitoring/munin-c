@@ -464,15 +464,16 @@ static void setenvvars_conf(char* current_plugin_name) {
 	/* setuid/gid */
 	if (geteuid() == 0) {
 		/* We *are* root */
-		(void)setgid(pconf.gid);
-		if(getgid() != pconf.gid) {
-			perror("gid not changed by setgid");
-			abort();
+		int ret_val;
+		ret_val = setgid(pconf.gid);
+		if ((ret_val =! 0) || (getgid() != pconf.gid)) {
+				perror("gid not changed by setgid");
+				abort();
 		}
 
 		/* Change UID *after* GID, otherwise cannot change anymore */
-		(void)setuid(pconf.uid);
-		if(getuid() != pconf.uid) {
+		ret_val = setuid(pconf.uid);
+		if ((ret_val != 0) || (getuid() != pconf.uid)) {
 			perror("uid not changed by setuid");
 			abort();
 		}
