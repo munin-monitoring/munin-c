@@ -32,3 +32,4 @@ munin_plugins_c_SOURCES = \
 	uptime.c
 man_MANS = munin-plugins-c.1
 CLEANFILES = $(man_MANS)
+EXTRA_DIST = munin-plugins-c.pod

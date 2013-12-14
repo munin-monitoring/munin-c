@@ -16,3 +16,4 @@ munin_node_c_SOURCES = node.c
 munin_inetd_c_SOURCES = inetd.c
 man_MANS = munin-node-c.1
 CLEANFILES = $(man_MANS)
+EXTRA_DIST = munin-node-c.pod
