@@ -15,6 +15,7 @@ ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = src/node src/plugins
 
 dist_doc_DATA = gpl-2.0.txt gpl-3.0.txt
+EXTRA_DIST = README.md
 
 all-local: $(pkglibexec_PROGRAMS)
 	$(MKDIR_P) plugins
