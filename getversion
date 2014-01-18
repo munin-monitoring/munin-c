@@ -60,7 +60,8 @@ EOF
 }
 
 generate_version_string_from_dir() {
-	basename $(pwd) | grep -e '^munin-' | cut -c7-
+	# munin-c- is "9" chars, not 7 as munin- is.
+	basename $(pwd) | grep -e '^munin-c' | cut -c9-
 }
 
 if [ -s "RELEASE" ]; then
