@@ -2,7 +2,7 @@ What is this?
 ~~~~~~~~~~~~~
 This is a rewrite of commonly used munin plugins in C as a single binary.
 The purpose is reducing resource usage:
- * disk space: the binary is smaler than the plugins together
+ * disk space: the binary is smaller than the plugins together
  * more diskspace: it has no dependencies on other programs
  * less forks: it does not fork internally
  * faster startup: it doesn't start perl or shell
