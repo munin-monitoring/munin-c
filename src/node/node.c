@@ -217,10 +217,16 @@ static void setenvvars_munin() {
 
 	/* We only have one user, so using a fixed path */
 	xsetenv("MUNIN_PLUGSTATE", "/var/tmp", no);
-	xsetenv("MUNIN_STATEFILE", "/dev/null", no);
 
 	/* That's where plugins should live */
 	xsetenv("MUNIN_LIBDIR", "/usr/share/munin", no);
+}
+
+static void setenvvars_plugin(char *current_plugin_name) {
+	char statefile[LINE_MAX];
+
+	snprintf(statefile, LINE_MAX, "/var/tmp/munin-state.%s", current_plugin_name);
+	xsetenv("MUNIN_STATEFILE", statefile, no);
 }
 
 /* in-place */
@@ -566,6 +572,7 @@ static int handle_connection() {
 			 * do a little more than a mere exec --> setenvvars_conf() */
 			if(0 == (pid = fork())) {
 				/* Now is the time to set environnement */
+				setenvvars_plugin(arg);
 				setenvvars_conf(arg);
 				execl(cmdline, arg, cmd, NULL);
 				exit(1);
