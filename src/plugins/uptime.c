@@ -23,6 +23,7 @@ int uptime(int argc, char **argv) {
 			puts("graph_title Uptime\n"
 				"graph_args --base 1000 -l 0 \n"
 				"graph_vlabel uptime in days\n"
+				"graph_category system\n"
 				"uptime.label uptime\n"
 				"uptime.draw AREA");
 			print_warncrit("uptime");
