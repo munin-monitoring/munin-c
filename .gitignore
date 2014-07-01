@@ -3,6 +3,7 @@
 *.1
 .deps
 .dirstamp
+.gdbinit
 tags
 TAGS
 /Makefile
