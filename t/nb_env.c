@@ -24,10 +24,11 @@ int emit_config() {
 }
 
 int emit_fetch() {
+	char **cur_environ = environ;
+
 	printf("env_nb.value %d\n", count_env_nb());
 	printf("env_nb.ext_info ");
 
-	char **cur_environ = environ;
 	while (*cur_environ) {
 		printf("{%s},", *cur_environ);
 		cur_environ ++;
