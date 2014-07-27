@@ -39,7 +39,7 @@ int fw_packets(int argc, char **argv) {
 	if(!(f=fopen(PROC_NET_SNMP, "r")))
 		return fail("cannot open " PROC_NET_SNMP);
 	while(fgets(buff, 1024, f)) {
-		if(!strncmp(buff, "Ip: ", 4) && isdigit(buff[4])) {
+		if(!strncmp(buff, "Ip: ", 4) && xisdigit(buff[4])) {
 			fclose(f);
 			if(!(s = strtok(buff+4, " \t")))
 				break;

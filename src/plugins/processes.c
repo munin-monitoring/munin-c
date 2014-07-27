@@ -54,7 +54,7 @@ int processes(int argc, char **argv) {
 		return fail("cannot open /proc");
 	while((e = readdir(d))) {
 		for(s=e->d_name;*s;++s)
-			if(!isdigit(*s))
+			if(!xisdigit(*s))
 				break;
 		if(!*s)
 			++n;

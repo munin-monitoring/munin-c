@@ -45,6 +45,9 @@ static char* pluginconf_dir = "/etc/munin/plugin-conf.d";
 
 static int handle_connection();
 
+#define xisspace(x) isspace((int)(unsigned char) x)
+#define xisdigit(x) isdigit((int)(unsigned char) x)
+
 static /*@noreturn@*/ void oom_handler() {
 	static const char* OOM_MSG = "Out of memory\n";
 
@@ -230,7 +233,7 @@ static /*@null@*/ /*@exposed@*/ char *ltrim(/*@null@*/ char *s) {
 		return s;
 	}
 
-	while (isspace(*s)) {
+	while (xisspace(*s)) {
 		s++;
 	}
 
@@ -247,7 +250,7 @@ static /*@null@*/ /*@exposed@*/ char* rtrim(/*@null@*/ char* s) {
 	}
 
 	end = s + strlen(s) - 1;
-	while (end > s && isspace(*end)) {
+	while (end > s && xisspace(*end)) {
 		/* Back from the end */
 		end--;
 	}
