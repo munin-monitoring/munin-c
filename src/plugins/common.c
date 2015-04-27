@@ -68,7 +68,7 @@ void print_critical(const char *name) {
 	if(p == NULL)
 		return;
 
-	printf("%s.critial %s\n", name, p);
+	printf("%s.critical %s\n", name, p);
 }
 
 void print_warncrit(const char *name) {
