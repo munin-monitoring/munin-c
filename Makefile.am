@@ -12,7 +12,7 @@ pkglibexecdir = $(libexecdir)/$(PACKAGE)
 
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = src/node src/plugins
+SUBDIRS = src/node src/plugins t
 
 dist_doc_DATA = gpl-2.0.txt gpl-3.0.txt
 EXTRA_DIST = README.md
