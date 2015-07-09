@@ -18,6 +18,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
+#include <spawn.h>
 
 #if !(defined(HAVE_WORKING_VFORK) || defined(S_SPLINT_S))
   #define vfork fork
@@ -79,22 +80,23 @@ int main(int argc, char *argv[]) {
 	signal(SIGCHLD, SIG_IGN);
 
 	while((sock_accept = accept(sock_listen, NULL, NULL)) != -1) {
-		if(0 == (pid = vfork())) {
-			close(sock_listen);
-			dup2(sock_accept, 0);
-			dup2(sock_accept, 1);
-			close(sock_accept);
-			execvp(argv[2], argv + 3);
-			/* according to vfork(2) we must use _exit */
-			_exit(1);
-		} else {
-			close(sock_accept);
+		posix_spawn_file_actions_t action;
 
-			if(pid < 0) {
-				perror("vfork failed");
-				close(sock_listen);
-				return 1;
-			}
+		posix_spawn_file_actions_init(&action);
+		posix_spawn_file_actions_addclose(&action, sock_listen);
+		posix_spawn_file_actions_adddup2(&action, sock_accept, 0);
+		posix_spawn_file_actions_adddup2(&action, sock_accept, 1);
+		posix_spawn_file_actions_addclose(&action, sock_accept);
+
+		if(0 == posix_spawnp(&pid, argv[2],
+			&action,
+			NULL,
+			argv + 3, NULL)) {
+			close(sock_accept);
+		} else {
+			perror("vfork failed");
+			close(sock_listen);
+			return 1;
 		}
 	}
 	perror("accept failed");

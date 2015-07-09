@@ -26,10 +26,13 @@
 #include <grp.h>
 #include <fnmatch.h>
 #include <ctype.h>
+#include <spawn.h>
 
 #ifndef HOST_NAME_MAX
   #define HOST_NAME_MAX 256
 #endif
+
+extern char **environ;
 
 static const int yes = 1;
 static const int no = 0;
@@ -548,6 +551,7 @@ static int handle_connection() {
 				strcmp(cmd, "fetch") == 0
 			) {
 			char cmdline[LINE_MAX];
+			char *argv[2] = { 0, };
 			pid_t pid;
 			if(arg == NULL) {
 				printf("# no plugin given\n");
@@ -565,18 +569,23 @@ static int handle_connection() {
 				printf("# unknown plugin: %s\n", arg);
 				continue;
 			}
-			/* Using fork() here instead of vfork() since we will
+
+			/* Now is the time to set environnement */
+			setenvvars_conf(arg);
+			argv[0] = arg;
+
+			/* Using posix_spawnp() here instead of fork() since we will
 			 * do a little more than a mere exec --> setenvvars_conf() */
-			if(0 == (pid = fork())) {
-				/* Now is the time to set environnement */
-				setenvvars_conf(arg);
-				execl(cmdline, arg, cmd, NULL);
-				exit(1);
-			} else if(pid < 0) {
+			if (0 == posix_spawn(&pid, cmdline,
+					NULL, /* const posix_spawn_file_actions_t *file_actions, */
+					NULL, /* const posix_spawnattr_t *restrict attrp, */
+					argv, environ)) {
+
+				/* Wait for completion */
+				waitpid(pid, NULL, 0);
+			} else {
 				printf("# fork failed\n");
 				continue;
-			} else {
-				waitpid(pid, NULL, 0);
 			}
 			printf(".\n");
 		} else if (strcmp(cmd, "cap") == 0) {
