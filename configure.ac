@@ -15,6 +15,16 @@ AM_INIT_AUTOMAKE([foreign subdir-objects])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 AM_MAINTAINER_MODE([enable])
 
+AC_CANONICAL_HOST
+case $host in
+	*bsd* | *darwin* )
+		LOAD_SYSTEM='load-sysctl.$(OBJEXT)' ;;
+	*)
+		LOAD_SYSTEM='load-proc.$(OBJEXT)' ;;
+esac
+
+AC_SUBST([LOAD_SYSTEM])
+
 AC_PROG_CC
 AC_PROG_CC_C_O
 

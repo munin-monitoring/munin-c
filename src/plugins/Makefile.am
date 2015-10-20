@@ -21,7 +21,6 @@ munin_plugins_c_SOURCES = \
 	fw_packets.c \
 	if_err_.c \
 	interrupts.c \
-	load.c \
 	main.c \
 	open_files.c \
 	open_inodes.c \
@@ -30,6 +29,12 @@ munin_plugins_c_SOURCES = \
 	threads.c \
 	memory.c \
 	uptime.c
+
+EXTRA_munin_plugins_c_SOURCES = load-proc.c load-sysctl.c
+
+munin_plugins_c_LDADD = $(LOAD_SYSTEM)
+munin_plugins_c_DEPENDENCIES = $(LOAD_SYSTEM)
+
 man_MANS = munin-plugins-c.1
 CLEANFILES = $(man_MANS)
 EXTRA_DIST = munin-plugins-c.pod
