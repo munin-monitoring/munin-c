@@ -15,6 +15,16 @@ AM_INIT_AUTOMAKE([foreign subdir-objects])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 AM_MAINTAINER_MODE([enable])
 
+AC_CANONICAL_HOST
+case $host in
+	*bsd* | *darwin* )
+		SYS_API='sysctl' ;;
+	*)
+		SYS_API='proc' ;;
+esac
+
+AC_SUBST([SYS_API])
+
 AC_PROG_CC
 AC_PROG_CC_C_O
 
