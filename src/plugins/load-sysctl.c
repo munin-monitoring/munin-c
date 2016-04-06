@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/resource.h>
 #include <sys/types.h>
 #include <sys/sysctl.h>
 #include "common.h"
