@@ -1,7 +1,9 @@
 MANCENTER="Munin C Documentation"
 RELEASE="$(shell $(top_srcdir)/getversion)"
 
-%.1:%.pod
+.pod.1:
 	$(AM_V_GEN)pod2man --section=1 --release=$(RELEASE) --center=$(MANCENTER) $< > $@
+
+SUFFIXES = .1 .pod
 
 # vim:ft=make
