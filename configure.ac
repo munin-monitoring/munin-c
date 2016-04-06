@@ -18,12 +18,12 @@ AM_MAINTAINER_MODE([enable])
 AC_CANONICAL_HOST
 case $host in
 	*bsd* | *darwin* )
-		LOAD_SYSTEM='load-sysctl.$(OBJEXT)' ;;
+		SYS_API='sysctl' ;;
 	*)
-		LOAD_SYSTEM='load-proc.$(OBJEXT)' ;;
+		SYS_API='proc' ;;
 esac
 
-AC_SUBST([LOAD_SYSTEM])
+AC_SUBST([SYS_API])
 
 AC_PROG_CC
 AC_PROG_CC_C_O
