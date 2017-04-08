@@ -486,6 +486,7 @@ static void setenvvars_conf(char* current_plugin_name) {
 	}
 	}
 	}
+	closedir(dirp);
 }
 
 static int handle_connection() {
