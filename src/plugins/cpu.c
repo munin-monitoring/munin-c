@@ -22,7 +22,12 @@
 /* TODO: port support for env.foo_warning and env.foo_critical from mainline plugin */
 
 static int print_stat_value(const char* field_name, const char* stat_value, int hz_) {
-	return printf("%s.value %llu\n", field_name, strtoull(stat_value, NULL, 0) * 100 / hz_);
+	long long stat_value_ll = strtoull(stat_value, NULL, 0);
+	if (hz_ != 0) {
+		/* hz_ is not ZERO, narmalize the value */
+		stat_value_ll = stat_value_ll * 100 / hz_;
+	}
+	return printf("%s.value %llu\n", field_name, stat_value_ll);
 }
 
 int cpu(int argc, char **argv) {
