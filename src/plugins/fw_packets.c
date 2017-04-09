@@ -40,7 +40,6 @@ int fw_packets(int argc, char **argv) {
 		return fail("cannot open " PROC_NET_SNMP);
 	while(fgets(buff, 1024, f)) {
 		if(!strncmp(buff, "Ip: ", 4) && xisdigit(buff[4])) {
-			fclose(f);
 			if(!(s = strtok(buff+4, " \t")))
 				break;
 			if(!(s = strtok(NULL, " \t")))
@@ -55,6 +54,7 @@ int fw_packets(int argc, char **argv) {
 			if(!(s = strtok(NULL, " \t")))
 				break;
 			printf("forwarded.value %s\n", s);
+			fclose(f);
 			return 0;
 		}
 	}

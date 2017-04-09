@@ -486,6 +486,7 @@ static void setenvvars_conf(char* current_plugin_name) {
 	}
 	}
 	}
+	closedir(dirp);
 }
 
 static int handle_connection() {
@@ -551,7 +552,7 @@ static int handle_connection() {
 				strcmp(cmd, "fetch") == 0
 			) {
 			char cmdline[LINE_MAX];
-			char *argv[2] = { 0, };
+			char *argv[3] = { 0, };
 			pid_t pid;
 			if(arg == NULL) {
 				printf("# no plugin given\n");
@@ -573,6 +574,7 @@ static int handle_connection() {
 			/* Now is the time to set environnement */
 			setenvvars_conf(arg);
 			argv[0] = arg;
+			argv[1] = cmd;
 
 			/* Using posix_spawnp() here instead of fork() since we will
 			 * do a little more than a mere exec --> setenvvars_conf() */
