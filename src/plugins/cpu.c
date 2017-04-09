@@ -7,6 +7,7 @@
  * of the GNU General Public License v.2 or v.3.
  */
 #include <stdbool.h>
+#include <stdint.h>
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
