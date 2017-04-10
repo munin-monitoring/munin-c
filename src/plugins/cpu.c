@@ -159,8 +159,8 @@ int cpu(int argc, char **argv) {
 		return fail("cannot open " PROC_STAT);
 	hz_ = getenvint("HZ", 100);
 	while(fgets(buff, 256, f)) {
+		fclose(f);
 		if(!strncmp(buff, "cpu ", 4)) {
-			fclose(f);
 			if(!(s = strtok(buff+4, " \t")))
 				break;
 			print_stat_value("user", s, hz_);
@@ -191,6 +191,5 @@ int cpu(int argc, char **argv) {
 			return 0;
 		}
 	}
-	fclose(f);
 	return fail("no cpu line found in " PROC_STAT);
 }
