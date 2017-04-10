@@ -45,10 +45,8 @@ int swap(int argc, char **argv) {
 		if(!strcmp(argv[1], "autoconf"))
 			return autoconf_check_readable(PROC_STAT);
 	}
-	if(!access(PROC_VMSTAT, F_OK)) {
+	if((f=fopen(PROC_VMSTAT, "r"))) {
 		in = out = false;
-		if(!(f=fopen(PROC_VMSTAT, "r")))
-			return fail("cannot open " PROC_VMSTAT);
 		while(fgets(buff, 256, f)) {
 			if(!in && !strncmp(buff, "pswpin ", 7)) {
 				in = true;
