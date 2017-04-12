@@ -17,6 +17,7 @@
 int fw_packets(int argc, char **argv) {
 	FILE *f;
 	char buff[1024], *s;
+	int ret;
 	if(argc > 1) {
 		if(!strcmp(argv[1], "config")) {
 			puts("graph_title Firewall Throughput\n"
@@ -55,8 +56,12 @@ int fw_packets(int argc, char **argv) {
 			if(!(s = strtok(NULL, " \t")))
 				break;
 			printf("forwarded.value %s\n", s);
-			return 0;
+			ret = 0;
+			goto OK;
 		}
 	}
-	return fail("no ip line found in " PROC_NET_SNMP);
+	ret = fail("no ip line found in " PROC_NET_SNMP);
+OK:
+	fclose(f);
+	return ret;
 }
