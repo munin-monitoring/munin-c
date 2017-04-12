@@ -3,6 +3,9 @@ compiler:
   - gcc
   - clang
 
+# Use a container Travis
+sudo: false
+
 install: autoreconf -i -I m4
 
 script: ./configure && make
