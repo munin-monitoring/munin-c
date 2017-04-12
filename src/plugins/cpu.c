@@ -31,7 +31,8 @@ static int print_stat_value(const char* field_name, const char* stat_value, int 
 	return printf("%s.value %llu\n", field_name, stat_value_ll);
 }
 
-static int parse_cpu_line(char *s, char *buff) {
+static int parse_cpu_line(char *buff) {
+	char *s;
 	int hz_ = getenvint("HZ", 100);
 	if(!(s = strtok(buff+4, " \t")))
 		return -1;
@@ -65,12 +66,12 @@ static int parse_cpu_line(char *s, char *buff) {
 
 int cpu(int argc, char **argv) {
 	FILE *f;
-	char buff[256], *s = "";
+	char buff[256];
 	int ncpu=0, extinfo=0, ret;
 	bool scaleto100 = false;
 	if(argc > 1) {
 		if(!strcmp(argv[1], "config")) {
-			s = getenv("scaleto100");
+			char *s = getenv("scaleto100");
 			if(s && !strcmp(s, "yes"))
 				scaleto100 = true;
 
@@ -191,7 +192,7 @@ int cpu(int argc, char **argv) {
 		return fail("cannot open " PROC_STAT);
 	while(fgets(buff, 256, f)) {
 		if(!strncmp(buff, "cpu ", 4)) {
-			ret = parse_cpu_line(s, buff);
+			ret = parse_cpu_line(buff);
 			goto OK;
 		}
 	}
