@@ -65,7 +65,7 @@ static int parse_cpu_line(char *s, char *buff) {
 
 int cpu(int argc, char **argv) {
 	FILE *f;
-	char buff[256], *s;
+	char buff[256], *s = "";
 	int ncpu=0, extinfo=0, ret;
 	bool scaleto100 = false;
 	if(argc > 1) {
