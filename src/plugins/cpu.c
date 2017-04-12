@@ -31,10 +31,42 @@ static int print_stat_value(const char* field_name, const char* stat_value, int 
 	return printf("%s.value %llu\n", field_name, stat_value_ll);
 }
 
+static int parse_cpu_line(char *s, char *buff) {
+	int hz_ = getenvint("HZ", 100);
+	if(!(s = strtok(buff+4, " \t")))
+		return -1;
+	print_stat_value("user", s, hz_);
+	if(!(s = strtok(NULL, " \t")))
+		return -1;
+	print_stat_value("nice", s, hz_);
+	if(!(s = strtok(NULL, " \t")))
+		return -1;
+	print_stat_value("system", s, hz_);
+	if(!(s = strtok(NULL, " \t")))
+		return -1;
+	print_stat_value("idle", s, hz_);
+	if(!(s = strtok(NULL, " \t")))
+		return 0;
+	print_stat_value("iowait", s, hz_);
+	if(!(s = strtok(NULL, " \t")))
+		return 0;
+	print_stat_value("irq", s, hz_);
+	if(!(s = strtok(NULL, " \t")))
+		return 0;
+	print_stat_value("softirq", s, hz_);
+	if(!(s = strtok(NULL, " \t")))
+		return 0;
+	print_stat_value("steal", s, hz_);
+	if(!(s = strtok(NULL, " \t")))
+		return 0;
+	print_stat_value("guest", s, hz_);
+	return 0;
+}
+
 int cpu(int argc, char **argv) {
 	FILE *f;
 	char buff[256], *s;
-	int ncpu=0, extinfo=0, hz_;
+	int ncpu=0, extinfo=0, ret;
 	bool scaleto100 = false;
 	if(argc > 1) {
 		if(!strcmp(argv[1], "config")) {
@@ -157,39 +189,15 @@ int cpu(int argc, char **argv) {
 	}
 	if(!(f=fopen(PROC_STAT, "r")))
 		return fail("cannot open " PROC_STAT);
-	hz_ = getenvint("HZ", 100);
 	while(fgets(buff, 256, f)) {
-		fclose(f);
 		if(!strncmp(buff, "cpu ", 4)) {
-			if(!(s = strtok(buff+4, " \t")))
-				break;
-			print_stat_value("user", s, hz_);
-			if(!(s = strtok(NULL, " \t")))
-				break;
-			print_stat_value("nice", s, hz_);
-			if(!(s = strtok(NULL, " \t")))
-				break;
-			print_stat_value("system", s, hz_);
-			if(!(s = strtok(NULL, " \t")))
-				break;
-			print_stat_value("idle", s, hz_);
-			if(!(s = strtok(NULL, " \t")))
-				return 0;
-			print_stat_value("iowait", s, hz_);
-			if(!(s = strtok(NULL, " \t")))
-				return 0;
-			print_stat_value("irq", s, hz_);
-			if(!(s = strtok(NULL, " \t")))
-				return 0;
-			print_stat_value("softirq", s, hz_);
-			if(!(s = strtok(NULL, " \t")))
-				return 0;
-			print_stat_value("steal", s, hz_);
-			if(!(s = strtok(NULL, " \t")))
-				return 0;
-			print_stat_value("guest", s, hz_);
-			return 0;
+			ret = parse_cpu_line(s, buff);
+			goto OK;
 		}
 	}
-	return fail("no cpu line found in " PROC_STAT);
+	/* We didn't find anyting */
+	ret = fail("no cpu line found in " PROC_STAT);
+OK:
+	fclose(f);
+	return ret;
 }
