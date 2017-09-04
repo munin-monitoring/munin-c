@@ -8,10 +8,6 @@
 # of the GNU General Public License v.2 or v.3.
 #
 
-# Add support for m4_esyscmd_s to autoconf-2.63 (used in RHEL/CentOS 6.7)
-m4_ifndef([m4_esyscmd_s], [m4_define([m4_chomp_all], [m4_format([[%.*s]], m4_bregexp(m4_translit([[$1]], [/], [/ ]), [/*$]), [$1])])])
-m4_ifndef([m4_esyscmd_s], [m4_define([m4_esyscmd_s], [m4_chomp_all(m4_esyscmd([$1]))])])
-
 AC_INIT([munin-c], [m4_esyscmd_s([./getversion])], [https://github.com/munin-monitoring/munin-c/issues], , [https://github.com/munin-monitoring/munin-c])
 AC_CONFIG_AUX_DIR([build])
 
