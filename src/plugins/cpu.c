@@ -7,6 +7,7 @@
  * of the GNU General Public License v.2 or v.3.
  */
 #include <stdbool.h>
+#include <stdint.h>
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -22,17 +23,55 @@
 /* TODO: port support for env.foo_warning and env.foo_critical from mainline plugin */
 
 static int print_stat_value(const char* field_name, const char* stat_value, int hz_) {
-	return printf("%s.value %llu\n", field_name, strtoull(stat_value, NULL, 0) * 100 / hz_);
+	uint64_t stat_value_ll = strtoull(stat_value, NULL, 0);
+	if (hz_ != 0) {
+		/* hz_ is not ZERO, narmalize the value */
+		stat_value_ll = stat_value_ll * 100 / hz_;
+	}
+	return printf("%s.value %llu\n", field_name, stat_value_ll);
+}
+
+static int parse_cpu_line(char *buff) {
+	char *s;
+	int hz_ = getenvint("HZ", 100);
+	if(!(s = strtok(buff+4, " \t")))
+		return -1;
+	print_stat_value("user", s, hz_);
+	if(!(s = strtok(NULL, " \t")))
+		return -1;
+	print_stat_value("nice", s, hz_);
+	if(!(s = strtok(NULL, " \t")))
+		return -1;
+	print_stat_value("system", s, hz_);
+	if(!(s = strtok(NULL, " \t")))
+		return -1;
+	print_stat_value("idle", s, hz_);
+	if(!(s = strtok(NULL, " \t")))
+		return 0;
+	print_stat_value("iowait", s, hz_);
+	if(!(s = strtok(NULL, " \t")))
+		return 0;
+	print_stat_value("irq", s, hz_);
+	if(!(s = strtok(NULL, " \t")))
+		return 0;
+	print_stat_value("softirq", s, hz_);
+	if(!(s = strtok(NULL, " \t")))
+		return 0;
+	print_stat_value("steal", s, hz_);
+	if(!(s = strtok(NULL, " \t")))
+		return 0;
+	print_stat_value("guest", s, hz_);
+	return 0;
 }
 
 int cpu(int argc, char **argv) {
 	FILE *f;
-	char buff[256], *s;
-	int ncpu=0, extinfo=0, hz_;
+	char buff[256];
+	int ncpu=0, extinfo=0, ret;
 	bool scaleto100 = false;
 	if(argc > 1) {
 		if(!strcmp(argv[1], "config")) {
-			s = getenv("scaleto100");
+			char *s = getenv("scaleto100");
 			if(s && !strcmp(s, "yes"))
 				scaleto100 = true;
 
@@ -151,40 +190,15 @@ int cpu(int argc, char **argv) {
 	}
 	if(!(f=fopen(PROC_STAT, "r")))
 		return fail("cannot open " PROC_STAT);
-	hz_ = getenvint("HZ", 100);
 	while(fgets(buff, 256, f)) {
 		if(!strncmp(buff, "cpu ", 4)) {
-			fclose(f);
-			if(!(s = strtok(buff+4, " \t")))
-				break;
-			print_stat_value("user", s, hz_);
-			if(!(s = strtok(NULL, " \t")))
-				break;
-			print_stat_value("nice", s, hz_);
-			if(!(s = strtok(NULL, " \t")))
-				break;
-			print_stat_value("system", s, hz_);
-			if(!(s = strtok(NULL, " \t")))
-				break;
-			print_stat_value("idle", s, hz_);
-			if(!(s = strtok(NULL, " \t")))
-				return 0;
-			print_stat_value("iowait", s, hz_);
-			if(!(s = strtok(NULL, " \t")))
-				return 0;
-			print_stat_value("irq", s, hz_);
-			if(!(s = strtok(NULL, " \t")))
-				return 0;
-			print_stat_value("softirq", s, hz_);
-			if(!(s = strtok(NULL, " \t")))
-				return 0;
-			print_stat_value("steal", s, hz_);
-			if(!(s = strtok(NULL, " \t")))
-				return 0;
-			print_stat_value("guest", s, hz_);
-			return 0;
+			ret = parse_cpu_line(buff);
+			goto OK;
 		}
 	}
+	/* We didn't find anyting */
+	ret = fail("no cpu line found in " PROC_STAT);
+OK:
 	fclose(f);
-	return fail("no cpu line found in " PROC_STAT);
+	return ret;
 }

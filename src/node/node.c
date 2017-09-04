@@ -472,7 +472,7 @@ static void setenvvars_conf(char* current_plugin_name) {
 		/* We *are* root */
 		int ret_val;
 		ret_val = setgid(pconf.gid);
-		if ((ret_val =! 0) || (getgid() != pconf.gid)) {
+		if ((ret_val != 0) || (getgid() != pconf.gid)) {
 				perror("gid not changed by setgid");
 				abort();
 		}
@@ -486,6 +486,7 @@ static void setenvvars_conf(char* current_plugin_name) {
 	}
 	}
 	}
+	closedir(dirp);
 }
 
 static int handle_connection() {
