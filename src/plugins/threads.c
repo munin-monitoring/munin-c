@@ -19,7 +19,7 @@
 
 int threads(int argc, char **argv) {
 	FILE *f;
-	char buff[256];
+	char buff[512]; /* normally only 256 char are used, but gcc complains when sprintf %s is used */
 	const char *s;
 	int i, sum;
 	DIR *d;
