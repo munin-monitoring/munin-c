@@ -7,8 +7,8 @@ compiler:
 sudo: false
 
 install:
-	- ./getversion
-	- autoreconf -i -I m4
+  - ./getversion
+  - autoreconf -i -I m4
 
 script: ./configure && make
 
