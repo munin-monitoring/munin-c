@@ -19,7 +19,7 @@
 
 int threads(int argc, char **argv) {
 	FILE *f;
-	char buff[512]; /* normally only 256 char are used, but gcc complains when sprintf %s is used */
+	char buff[270];
 	const char *s;
 	int i, sum;
 	DIR *d;
@@ -59,7 +59,7 @@ int threads(int argc, char **argv) {
 				break;
 		if(*s) /* non-digit found */
 			continue;
-		snprintf(buff, 256, "/proc/%s/status", e->d_name);
+		snprintf(buff, 270, "/proc/%s/status", e->d_name);
 		if(!(f = fopen(buff, "r")))
 			continue; /* process has vanished */
 		while(fgets(buff, 256, f)) {
