@@ -3,5 +3,7 @@ RELEASE="$(shell $(top_srcdir)/getversion)"
 
 %.1:%.pod
 	$(AM_V_GEN)pod2man --section=1 --release=$(RELEASE) --center=$(MANCENTER) $< > $@
+	sed -i -e 's#@@pkglibexecdir@@#$(pkglibexecdir)#' -e 's#@@CONFDIR@@#$(sysconfdir)#' $@
+
 
 # vim:ft=make
