@@ -2,11 +2,28 @@
 #
 # Generate a version string for use when building.
 #
-# * If RELEASE exists, and is non-empty, use the contents of that file.
-#   This is in case we're building from a tarball.
+# * If in a git repository use "git describe"
+# * If building from tarball extract the version from the directory name or 
+#   try to get the version fronm the packaging.
 
-if [ -s "RELEASE" ]; then
-    cat RELEASE
+
+generate_version_string_from_dir() {
+        basename $(pwd) | grep -e '^munin-c' | cut -c9-
+}
+
+generate_version_string_from_packaging() {
+	if [ -d debian ]; then
+	        dpkg-parsechangelog -SVersion 2> /dev/null
+	fi
+}
+
+if [ "$(git rev-parse --is-inside-work-tree 2>/dev/null)" = "true" ]; then
+	git describe --always
+elif [ ! -z "$(generate_version_string_from_dir)" ]; then
+	generate_version_string_from_dir
+elif [ ! -z "$(generate_version_string_from_packaging)" ]; then
+	generate_version_string_from_packaging
 else
-    git describe --always
+    echo "unknown"
 fi
+
