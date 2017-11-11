@@ -8,6 +8,7 @@
  */
 #include <stdbool.h>
 #include <stdint.h>
+#include <inttypes.h>
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -28,7 +29,7 @@ static int print_stat_value(const char* field_name, const char* stat_value, int 
 		/* hz_ is not ZERO, narmalize the value */
 		stat_value_ll = stat_value_ll * 100 / hz_;
 	}
-	return printf("%s.value %llu\n", field_name, stat_value_ll);
+	return printf("%s.value %"PRIu64"\n", field_name, stat_value_ll);
 }
 
 static int parse_cpu_line(char *buff) {
