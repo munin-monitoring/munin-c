@@ -662,6 +662,7 @@ pid_t acquire(char* plugin_name, char *plugin_filename) {
 	pid_t child = fork();
 	if (child) return child;
 
+	setenvvars_munin();
 	setenvvars_conf(plugin_name);
 
 	/* ask the plugin not to fork */
