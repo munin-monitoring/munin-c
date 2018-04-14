@@ -192,7 +192,7 @@ int main(int argc, char *argv[]) {
 	/* Prepare static plugin env vars once for all */
 	setenvvars_system();
 
-	// Asked to acquire
+	/* Asked to acquire */
 	if (is_acquire) return acquire_all();
 
 	/* use a 1-shot stdin/stdout */
@@ -640,7 +640,7 @@ int acquire_all() {
 				}
 			}
 
-			// run acquire on that
+			/* run acquire on that */
 			printf("# acquire %s\n", plugin_filename);
 			acquire(plugin_filename, cmdline);
 		}
@@ -648,7 +648,7 @@ int acquire_all() {
 	closedir(dirp);
 	}
 
-	// wait for all childrens to end
+	/* wait for all childrens to end */
 	{
 		pid_t waited_pid;
 		while ((waited_pid = wait(NULL)) != -1);
@@ -658,7 +658,7 @@ int acquire_all() {
 }
 
 pid_t acquire(char* plugin_name, char *plugin_filename) {
-	// continue in background
+	/* continue in background */
 	pid_t child = fork();
 	if (child) return child;
 
@@ -668,13 +668,13 @@ pid_t acquire(char* plugin_name, char *plugin_filename) {
 	/* ask the plugin not to fork */
 	putenv("no_fork=1");
 
-	// Go underwater
+	/* Go underwater */
 	close(STDIN_FILENO);
 	close(STDOUT_FILENO);
 	close(STDERR_FILENO);
 
 	execl(plugin_filename, plugin_name, "acquire");
 
-	// should nevec come here
+	/* should nevec come here */
 	exit(2);
 }
