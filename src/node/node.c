@@ -664,6 +664,9 @@ pid_t acquire(char* plugin_name, char *plugin_filename) {
 
 	setenvvars_conf(plugin_name);
 
+	/* ask the plugin not to fork */
+	putenv("no_fork=1");
+
 	// Go underwater
 	close(STDIN_FILENO);
 	close(STDOUT_FILENO);
