@@ -561,7 +561,6 @@ static int handle_connection() {
 				strcmp(cmd, "fetch") == 0
 			) {
 			char cmdline[LINE_MAX];
-			char *argv[3] = { 0, };
 			pid_t pid;
 			if(arg == NULL) {
 				printf("# no plugin given\n");
@@ -580,24 +579,21 @@ static int handle_connection() {
 				continue;
 			}
 
-			/* Now is the time to set environnement */
-			setenvvars_conf(arg);
-			argv[0] = arg;
-			argv[1] = cmd;
-
 			/* Using posix_spawnp() here instead of fork() since we will
 			 * do a little more than a mere exec --> setenvvars_conf() */
-			if (0 == posix_spawn(&pid, cmdline,
-					NULL, /* const posix_spawn_file_actions_t *file_actions, */
-					NULL, /* const posix_spawnattr_t *restrict attrp, */
-					argv, environ)) {
+			pid = fork();
 
-				/* Wait for completion */
-				waitpid(pid, NULL, 0);
-			} else {
+			if (pid == -1) {
 				printf("# fork failed\n");
 				continue;
+			} else if (pid == 0) {
+				/* Now is the time to set environnement */
+				setenvvars_conf(arg);
+				execl(cmdline, arg, cmd);
 			}
+
+			waitpid(pid, NULL, 0);
+
 			printf(".\n");
 		} else if (strcmp(cmd, "cap") == 0) {
 			printf("cap ");
