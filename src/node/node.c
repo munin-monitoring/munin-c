@@ -641,7 +641,7 @@ int acquire_all() {
 			}
 
 			// run acquire on that
-			printf("# acquire ", plugin_filename);
+			printf("# acquire %s\n", plugin_filename);
 			acquire(plugin_filename, cmdline);
 		}
 	}
