@@ -37,6 +37,7 @@ extern char **environ;
 static const int yes = 1;
 static const int no = 0;
 
+static int is_acquire = 0;
 static int verbose = 0;
 static bool extension_stripping = false;
 
@@ -134,13 +135,15 @@ static int find_plugin_with_basename(/*@out@*/ char *cmdline,
 	return found;
 }
 
+
+int acquire_all();
 static void setenvvars_system(void);
 
 int main(int argc, char *argv[]) {
 
 	int optch;
 
-	char format[] = "evd:D:H:s:";
+	char format[] = "aevd:D:H:s:";
 
 	struct sockaddr_in client;
 
@@ -150,6 +153,9 @@ int main(int argc, char *argv[]) {
 
 	while ((optch = getopt(argc, argv, format)) != -1)
 	switch (optch) {
+		case 'a':
+			is_acquire = true;
+			break;
 		case 'e':
 			extension_stripping = true;
 			break;
@@ -185,6 +191,9 @@ int main(int argc, char *argv[]) {
 
 	/* Prepare static plugin env vars once for all */
 	setenvvars_system();
+
+	/* Asked to acquire */
+	if (is_acquire) return acquire_all();
 
 	/* use a 1-shot stdin/stdout */
 	if(0 == getpeername(STDIN_FILENO, (struct sockaddr*)&client,
@@ -552,7 +561,6 @@ static int handle_connection() {
 				strcmp(cmd, "fetch") == 0
 			) {
 			char cmdline[LINE_MAX];
-			char *argv[3] = { 0, };
 			pid_t pid;
 			if(arg == NULL) {
 				printf("# no plugin given\n");
@@ -571,24 +579,21 @@ static int handle_connection() {
 				continue;
 			}
 
-			/* Now is the time to set environnement */
-			setenvvars_conf(arg);
-			argv[0] = arg;
-			argv[1] = cmd;
-
 			/* Using posix_spawnp() here instead of fork() since we will
 			 * do a little more than a mere exec --> setenvvars_conf() */
-			if (0 == posix_spawn(&pid, cmdline,
-					NULL, /* const posix_spawn_file_actions_t *file_actions, */
-					NULL, /* const posix_spawnattr_t *restrict attrp, */
-					argv, environ)) {
+			pid = fork();
 
-				/* Wait for completion */
-				waitpid(pid, NULL, 0);
-			} else {
+			if (pid == -1) {
 				printf("# fork failed\n");
 				continue;
+			} else if (pid == 0) {
+				/* Now is the time to set environnement */
+				setenvvars_conf(arg);
+				execl(cmdline, arg, cmd);
 			}
+
+			waitpid(pid, NULL, 0);
+
 			printf(".\n");
 		} else if (strcmp(cmd, "cap") == 0) {
 			printf("cap ");
@@ -604,4 +609,72 @@ static int handle_connection() {
 	}
 
 	return 0;
+}
+
+pid_t acquire(char* plugin_name, char *plugin_filename);
+
+int acquire_all() {
+	DIR* dirp = opendir(plugin_dir);
+	if (dirp == NULL) {
+		printf("# Cannot open plugin dir\n");
+		return(0);
+	}
+	{
+	struct dirent* dp;
+	while ((dp = readdir(dirp)) != NULL) {
+		char cmdline[LINE_MAX];
+		char* plugin_filename = dp->d_name;;
+
+		if (plugin_filename[0] == '.') {
+			/* No dotted plugin */
+			continue;
+		}
+
+		snprintf(cmdline, LINE_MAX, "%s/%s", plugin_dir, plugin_filename);
+		if (access(cmdline, X_OK) == 0) {
+			if(extension_stripping) {
+				/* Strip after the last . */
+				char *last_dot_idx = strrchr(plugin_filename, '.');
+				if (last_dot_idx != NULL) {
+					*last_dot_idx = '\0';
+				}
+			}
+
+			/* run acquire on that */
+			printf("# acquire %s\n", plugin_filename);
+			acquire(plugin_filename, cmdline);
+		}
+	}
+	closedir(dirp);
+	}
+
+	/* wait for all childrens to end */
+	{
+		pid_t waited_pid;
+		while ((waited_pid = wait(NULL)) != -1);
+	}
+
+	return 0;
+}
+
+pid_t acquire(char* plugin_name, char *plugin_filename) {
+	/* continue in background */
+	pid_t child = fork();
+	if (child) return child;
+
+	setenvvars_munin();
+	setenvvars_conf(plugin_name);
+
+	/* ask the plugin not to fork */
+	putenv("no_fork=1");
+
+	/* Go underwater */
+	close(STDIN_FILENO);
+	close(STDOUT_FILENO);
+	close(STDERR_FILENO);
+
+	execl(plugin_filename, plugin_name, "acquire");
+
+	/* should nevec come here */
+	exit(2);
 }
