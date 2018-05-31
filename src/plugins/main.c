@@ -21,22 +21,26 @@ static int busybox(int argc, char **argv) {
 	if(argc > 3 || (argc > 2 &&
 				0 != strcmp(argv[2], "--include-experimental")))
 		return fail("unknown option");
-	puts(
-			"cpu\n"
-			"entropy\n"
-			"forks\n"
-			"fw_packets\n"
-			"interrupts\n"
-			"load\n"
-			"open_files\n"
-			"open_inodes\n"
-			"swap\n"
-			"threads\n"
-			"uptime");
-	if(argc > 2)
-		puts(
-				"memory\n"
-				"processes");
+
+	/* The following is focused on readability over efficiency. */
+	puts("cpu");
+	puts("entropy");
+	puts("forks");
+	puts("fw_packets");
+	puts("interrupts");
+	puts("load");
+	puts("open_files");
+	puts("open_inodes");
+	puts("swap");
+	puts("threads");
+	puts("uptime");
+
+	if(argc > 2) {
+		puts("memory");
+		puts("processes");
+		puts("external_");
+	}
+
 	return 0;
 }
 
@@ -54,6 +58,8 @@ int main(int argc, char **argv) {
 		case 'e':
 			if(!strcmp(progname, "entropy"))
 				return entropy(argc, argv);
+			if(!strncmp(progname, "external_", strlen("external_")))
+				return external_(argc, argv);
 			break;
 		case 'f':
 			if(!strcmp(progname, "forks"))
@@ -64,7 +70,7 @@ int main(int argc, char **argv) {
 		case 'i':
 			if(!strcmp(progname, "interrupts"))
 				return interrupts(argc, argv);
-			if(!strncmp(progname, "if_err_", 6))
+			if(!strncmp(progname, "if_err_", strlen("if_err_")))
 				return if_err_(argc, argv);
 			break;
 		case 'l':
