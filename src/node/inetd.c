@@ -94,12 +94,12 @@ int main(int argc, char *argv[]) {
 			argv + 3, NULL)) {
 			close(sock_accept);
 		} else {
-			perror("vfork failed");
+			perror("vfork failed in " __FILE__);
 			close(sock_listen);
 			return 1;
 		}
 	}
-	perror("accept failed");
+	perror("accept failed in " __FILE__);
 	close(sock_listen);
 	return 1;
 }
