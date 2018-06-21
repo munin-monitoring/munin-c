@@ -589,7 +589,7 @@ static int handle_connection() {
 			} else if (pid == 0) {
 				/* Now is the time to set environnement */
 				setenvvars_conf(arg);
-				execl(cmdline, arg, cmd);
+				execl(cmdline, arg, cmd, NULL);
 			}
 
 			waitpid(pid, NULL, 0);
@@ -673,7 +673,7 @@ pid_t acquire(char* plugin_name, char *plugin_filename) {
 	close(STDOUT_FILENO);
 	close(STDERR_FILENO);
 
-	execl(plugin_filename, plugin_name, "acquire");
+	execl(plugin_filename, plugin_name, "acquire", NULL);
 
 	/* should nevec come here */
 	exit(2);
