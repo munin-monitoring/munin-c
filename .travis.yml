@@ -10,7 +10,7 @@ install:
   - ./getversion
   - autoreconf -i -I m4
 
-script: ./configure && make
+script: ./configure && make -j2
 
 notifications:
   irc: "irc.oftc.net#munin"
@@ -27,7 +27,7 @@ addons:
       version: 0.0.9
       description: Munin node
 
-    notification_email: ssm@fnord.no
+    notification_email: steve.schnepp@gmail.com
     build_command_prepend: ./configure
-    build_command: make
+    build_command: make -j2
     branch_pattern: coverity_scan
