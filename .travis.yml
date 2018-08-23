@@ -2,6 +2,7 @@ language: c
 compiler:
   - gcc
   - clang
+  - musl-gcc
 
 # Use a container Travis
 sudo: false
@@ -21,6 +22,10 @@ env:
     - secure: "CNXrpwGgWHhD9894gMeKqlt/5eeKJ+J764jRV685JWV/5OrHeWqEfAp+onX/B+RUCl5DrFpblyQl2K6IDTABolkY4Vy/kvZHB5Y2XhyXu3U6RzQwdH3xo9olJQ+UcGzNOc1YOqSWzkDG2JbR9HthgyWgMjbvePXn5AKRGUTAasI="
 
 addons:
+  apt:
+    packages:
+      - musl-tools
+
   coverity_scan:
     project:
       name: munin-monitoring/munin-c
