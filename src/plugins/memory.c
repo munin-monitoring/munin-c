@@ -92,6 +92,7 @@ int memory(int argc, char **argv) {
 	if(argc > 1) {
 		if(!strcmp(argv[1], "config")) {
 			printf(
+				"graph_args --base 1024 -l 0\n"
 				"graph_vlabel Bytes\n"
 				"graph_title Memory usage\n"
 				"graph_category system\n"
