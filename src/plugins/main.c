@@ -28,6 +28,7 @@ static int busybox(int argc, char **argv) {
 	puts("forks");
 	puts("fw_packets");
 	puts("interrupts");
+	puts("iostat");
 	puts("load");
 	puts("open_files");
 	puts("open_inodes");
@@ -72,6 +73,8 @@ int main(int argc, char **argv) {
 				return interrupts(argc, argv);
 			if(!strncmp(progname, "if_err_", strlen("if_err_")))
 				return if_err_(argc, argv);
+			if(!strcmp(progname, "iostat"))
+				return iostat(argc, argv);
 			break;
 		case 'l':
 			if(!strcmp(progname, "load"))

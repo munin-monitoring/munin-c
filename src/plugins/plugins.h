@@ -16,6 +16,7 @@ int forks(int argc, char **argv);
 int fw_packets(int argc, char **argv);
 int if_err_(int argc, char **argv);
 int interrupts(int argc, char **argv);
+int iostat(int argc, char **argv);
 int load(int argc, char **argv);
 int memory(int argc, char **argv);
 int open_files(int argc, char **argv);
