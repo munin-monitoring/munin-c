@@ -45,7 +45,7 @@ static char* host = "";
 static char* plugin_dir = PLUGINDIR;
 static char* spoolfetch_dir = "";
 static char* client_ip = "-";
-static char* pluginconf_dir = "/etc/munin/plugin-conf.d";
+static char* pluginconf_dir = PLUGINCONFDIR;
 
 static int handle_connection();
 
@@ -416,7 +416,7 @@ static void setenvvars_conf(char* current_plugin_name) {
 	/* TODO - add plugin conf parsing */
 	DIR* dirp = opendir(pluginconf_dir);
 	if (dirp == NULL) {
-		printf("# Cannot open plugin config dir\n");
+		printf("# Cannot open plugin config dir '%s'\n", pluginconf_dir);
 		return;
 	}
 

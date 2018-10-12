@@ -11,7 +11,8 @@
 include $(top_srcdir)/common.am
 
 sbin_PROGRAMS = munin-node-c munin-inetd-c
-AM_CPPFLAGS = -DPLUGINDIR=\"$(sysconfdir)/munin/plugins\"
+AM_CPPFLAGS = -DPLUGINDIR=\"$(sysconfdir)/munin/plugins\" \
+              -DPLUGINCONFDIR=\"$(sysconfdir)/munin/plugin-conf.d\"
 munin_node_c_SOURCES = node.c
 munin_inetd_c_SOURCES = inetd.c
 man_MANS = munin-node-c.1
