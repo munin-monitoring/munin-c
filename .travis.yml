@@ -1,8 +1,33 @@
+matrix:
+  include:
+    - os: osx
+      compiler: clang
+    - os: linux
+      compiler: gcc
+      env:
+        - LDFLAGS=
+    - os: linux
+      compiler: gcc
+      env:
+        - LDFLAGS=-static
+    - os: linux
+      compiler: clang
+      env:
+        - LDFLAGS=
+    - os: linux
+      compiler: clang
+      env:
+        - LDFLAGS=-static
+    - os: linux
+      compiler: musl-gcc
+      env:
+        - LDFLAGS=
+    - os: linux
+      compiler: musl-gcc
+      env:
+        - LDFLAGS=-static
+
 language: c
-compiler:
-  - gcc
-  - clang
-  - musl-gcc
 
 # Use a container Travis
 sudo: false
@@ -20,9 +45,6 @@ notifications:
 env:
   global:
     - secure: "CNXrpwGgWHhD9894gMeKqlt/5eeKJ+J764jRV685JWV/5OrHeWqEfAp+onX/B+RUCl5DrFpblyQl2K6IDTABolkY4Vy/kvZHB5Y2XhyXu3U6RzQwdH3xo9olJQ+UcGzNOc1YOqSWzkDG2JbR9HthgyWgMjbvePXn5AKRGUTAasI="
-  matrix:
-    - LDFLAGS=-static
-    - LDFLAGS=
 
 addons:
   apt:
