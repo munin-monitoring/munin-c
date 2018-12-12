@@ -15,6 +15,10 @@
 #include "common.h"
 #include "plugins.h"
 
+#ifndef LINE_MAX
+#define LINE_MAX 2048
+#endif
+
 static int read_file_to_stdout(const char *filename)
 {
 	FILE *f;
