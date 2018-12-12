@@ -32,6 +32,10 @@
   #define HOST_NAME_MAX 256
 #endif
 
+#ifndef LINE_MAX
+  #define LINE_MAX 2048
+#endif
+
 extern char **environ;
 
 static const int yes = 1;
