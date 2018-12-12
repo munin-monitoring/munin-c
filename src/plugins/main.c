@@ -33,7 +33,8 @@ static int busybox(int argc, char **argv) {
 	puts("open_inodes");
 	puts("swap");
 	puts("threads");
-	puts("uptime");
+    puts("uptime");
+    puts("smart_*");
 
 	if(argc > 2) {
 		puts("memory");
@@ -94,6 +95,8 @@ int main(int argc, char **argv) {
 				return processes(argc, argv);
 			break;
 		case 's':
+            if(!strncmp(progname, "smart_", 6))
+                return smart(argc, argv);
 			if(!strcmp(progname, "swap"))
 				return swap(argc, argv);
 			break;

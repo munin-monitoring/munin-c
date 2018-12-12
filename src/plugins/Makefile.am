@@ -30,6 +30,7 @@ munin_plugins_c_SOURCES = \
 	threads.c \
 	memory.c \
 	uptime.c \
+	smart.c \
 	main.c
 man_MANS = munin-plugins-c.1
 CLEANFILES = $(man_MANS)
