@@ -21,7 +21,6 @@ int memory(int argc, char **argv);
 int open_files(int argc, char **argv);
 int open_inodes(int argc, char **argv);
 int processes(int argc, char **argv);
-int smart(int argc, char **argv);
 int swap(int argc, char **argv);
 int threads(int argc, char **argv);
 int uptime(int argc, char **argv);
