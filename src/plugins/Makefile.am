@@ -16,7 +16,6 @@ munin_plugins_c_SOURCES = \
 	common.h \
 	plugins.h \
 	cpu.c \
-	df.c \
 	entropy.c \
 	external_.c \
 	forks.c \

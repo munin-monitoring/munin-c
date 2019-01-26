@@ -24,7 +24,6 @@ static int busybox(int argc, char **argv) {
 
 	/* The following is focused on readability over efficiency. */
 	puts("cpu");
-    puts("df");
 	puts("entropy");
 	puts("forks");
 	puts("fw_packets");
@@ -57,10 +56,6 @@ int main(int argc, char **argv) {
 			if(!strcmp(progname, "cpu"))
 				return cpu(argc, argv);
 			break;
-        case 'd':
-            if(!strcmp(progname, "df"))
-                return df(argc, argv);
-            break;
 		case 'e':
 			if(!strcmp(progname, "entropy"))
 				return entropy(argc, argv);

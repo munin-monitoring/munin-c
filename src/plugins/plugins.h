@@ -10,7 +10,6 @@
 #define PLUGINS_H
 
 int cpu(int argc, char **argv);
-int df(int argc, char **argv);
 int entropy(int argc, char **argv);
 int external_(int argc, char **argv);
 int forks(int argc, char **argv);
