@@ -23,11 +23,6 @@ int autoconf_check_readable(const char *);
  * variable the given defaultvalue is returned.  */
 int getenvint(const char *, int defaultvalue);
 
-/** Return the value of the environment variable referred to by the
- * concatenation of the given strings.  */
-/*@null@*/ /*@observer@*/ const char *getenv_composed(const char *,
-		const char *);
-
 /** Print a name.warning line using the "name_warning" or "warning" environment
  * variables. */
 void print_warning(const char *name);
