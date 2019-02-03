@@ -1,0 +1,11 @@
+[Unit]
+
+[Service]
+ExecStart=/usr/local/sbin/munin-node-c -a
+
+PrivateTmp=yes
+PrivateNetwork=no
+ProtectHome=yes
+
+[Install]
+WantedBy=multi-user.target

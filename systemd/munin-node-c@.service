@@ -1,0 +1,9 @@
+[Unit]
+JoinsNamespaceOf=munin-node-daemon.service
+
+[Service]
+ExecStart=/usr/local/sbin/munin-node-c
+PrivateTmp=yes
+ProtectHome=yes
+StandardInput=socket
+StandardOutput=socket
