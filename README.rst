@@ -23,6 +23,19 @@ This project has been ported to autotools. You have to use::
 
     autoreconf -i -I m4 && ./configure && make
 
+
+
+Contribute and coding style
+===========================
+Contribute by open an issue or pull-request at
+https://github.com/munin-monitoring/munin-c
+
+When contributing code please follow the kernel coding style. 
+Use GNU indent with the parameters to follow the Kernighan & Ritchie coding
+style and set the indention level to 8 spaces::
+
+    find . -iname "*.c" -exec indent -kr -i8 {} \;
+
 License
 =======
 munin-c is licensed as gpl-2 or gpl-3 at your choice.

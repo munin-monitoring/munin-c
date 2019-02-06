@@ -13,28 +13,29 @@
 
 #define ENTROPY_AVAIL "/proc/sys/kernel/random/entropy_avail"
 
-int entropy(int argc, char **argv) {
+int entropy(int argc, char **argv)
+{
 	FILE *f;
 	int entropy;
-	if(argc > 1) {
-		if(!strcmp(argv[1], "config")) {
+	if (argc > 1) {
+		if (!strcmp(argv[1], "config")) {
 			puts("graph_title Available entropy\n"
-				"graph_args --base 1000 -l 0\n"
-				"graph_vlabel entropy (bytes)\n"
-				"graph_scale no\n"
-				"graph_category system\n"
-				"graph_info This graph shows the amount of entropy available in the system.\n"
-				"entropy.label entropy\n"
-				"entropy.info The number of random bytes available. This is typically used by cryptographic applications.");
+			     "graph_args --base 1000 -l 0\n"
+			     "graph_vlabel entropy (bytes)\n"
+			     "graph_scale no\n"
+			     "graph_category system\n"
+			     "graph_info This graph shows the amount of entropy available in the system.\n"
+			     "entropy.label entropy\n"
+			     "entropy.info The number of random bytes available. This is typically used by cryptographic applications.");
 			print_warncrit("entropy");
 			return 0;
 		}
-		if(!strcmp(argv[1], "autoconf"))
+		if (!strcmp(argv[1], "autoconf"))
 			return autoconf_check_readable(ENTROPY_AVAIL);
 	}
-	if(!(f=fopen(ENTROPY_AVAIL, "r")))
+	if (!(f = fopen(ENTROPY_AVAIL, "r")))
 		return fail("cannot open " ENTROPY_AVAIL);
-	if(1 != fscanf(f, "%d", &entropy)) {
+	if (1 != fscanf(f, "%d", &entropy)) {
 		fclose(f);
 		return fail("cannot read from " ENTROPY_AVAIL);
 	}

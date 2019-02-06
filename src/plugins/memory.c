@@ -80,31 +80,32 @@ SwapFree:     215608 kB
 */
 
 /* TODO - For now we only support Cygwin fields. */
-int memory(int argc, char **argv) {
+int memory(int argc, char **argv)
+{
 	FILE *f;
 	char buff[256];
 
 	int_fast64_t mem_total = -1;
-	int_fast64_t mem_free  = -1;
+	int_fast64_t mem_free = -1;
 	int_fast64_t swap_total = -1;
-	int_fast64_t swap_free  = -1;
+	int_fast64_t swap_free = -1;
 
-	if(argc > 1) {
-		if(!strcmp(argv[1], "config")) {
-			printf(
-				"graph_args --base 1024 -l 0\n"
-				"graph_vlabel Bytes\n"
-				"graph_title Memory usage\n"
-				"graph_category system\n"
-				"graph_info This graph shows what the machine uses memory for.\n"
-			);
+	if (argc > 1) {
+		if (!strcmp(argv[1], "config")) {
+			printf("graph_args --base 1024 -l 0\n"
+			       "graph_vlabel Bytes\n"
+			       "graph_title Memory usage\n"
+			       "graph_category system\n"
+			       "graph_info This graph shows what the machine uses memory for.\n");
 			printf("apps.label apps\n");
 			printf("apps.draw AREA\n");
-			printf("apps.info Memory used by user-space applications.\n");
+			printf
+			    ("apps.info Memory used by user-space applications.\n");
 
 			printf("free.label free\n");
 			printf("free.draw STACK\n");
-			printf("free.info Wasted memory. Memory that is not used for anything at all.\n");
+			printf
+			    ("free.info Wasted memory. Memory that is not used for anything at all.\n");
 
 			printf("swap.label swap\n");
 			printf("swap.draw STACK\n");
@@ -112,15 +113,15 @@ int memory(int argc, char **argv) {
 
 			return 0;
 		}
-		if(!strcmp(argv[1], "autoconf"))
+		if (!strcmp(argv[1], "autoconf"))
 			return autoconf_check_readable(PROC_MEMINFO);
 	}
 
 	/* Asking for a fetch */
-	if(!(f=fopen(PROC_MEMINFO, "r")))
+	if (!(f = fopen(PROC_MEMINFO, "r")))
 		return fail("cannot open " PROC_MEMINFO);
 
-	while(fgets(buff, 256, f)) {
+	while (fgets(buff, 256, f)) {
 		char key[256];
 		int_fast64_t value;
 		if (!sscanf(buff, "%s %" SCNdFAST64, key, &value)) {
@@ -128,17 +129,18 @@ int memory(int argc, char **argv) {
 			return fail("cannot parse " PROC_MEMINFO " line");
 		}
 
-		if(!strcmp(key, "MemTotal:"))
+		if (!strcmp(key, "MemTotal:"))
 			mem_total = value * 1024;
-		else if(!strcmp(key, "MemFree:"))
+		else if (!strcmp(key, "MemFree:"))
 			mem_free = value * 1024;
-		else if(!strcmp(key, "SwapTotal:"))
+		else if (!strcmp(key, "SwapTotal:"))
 			swap_total = value * 1024;
-		else if(!strcmp(key, "SwapFree:"))
+		else if (!strcmp(key, "SwapFree:"))
 			swap_free = value * 1024;
 	}
 	fclose(f);
-	if(mem_total < 0 || mem_free < 0 || swap_total < 0 || swap_free < 0)
+	if (mem_total < 0 || mem_free < 0 || swap_total < 0
+	    || swap_free < 0)
 		return fail("missing fileds in " PROC_MEMINFO);
 
 	printf("apps.value %" PRIdFAST64 "\n", mem_total - mem_free);
