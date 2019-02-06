@@ -15,12 +15,13 @@
 #include "common.h"
 #include "plugins.h"
 
-static int read_file_to_stdout(const char *filename) {
+static int read_file_to_stdout(const char *filename)
+{
 	FILE *f;
 	int c;
 
-	if(!(f=fopen(filename, "r"))) {
-		fputs("cannot open ", stderr); /* filename is not a constant */
+	if (!(f = fopen(filename, "r"))) {
+		fputs("cannot open ", stderr);	/* filename is not a constant */
 		return fail(filename);
 	}
 
@@ -33,28 +34,34 @@ static int read_file_to_stdout(const char *filename) {
 	return 0;
 }
 
-static int set_filename(char *filename, const char* plugin_basename, const char *action) {
+static int set_filename(char *filename, const char *plugin_basename,
+			const char *action)
+{
 
 	if (getenv(action) == NULL) {
 		/* Default */
-		return snprintf(filename, LINE_MAX, "%s/%s.%s", getenv("MUNIN_PLUGSTATE"), plugin_basename, action);
+		return snprintf(filename, LINE_MAX, "%s/%s.%s",
+				getenv("MUNIN_PLUGSTATE"), plugin_basename,
+				action);
 	}
 
 	return snprintf(filename, LINE_MAX, "%s", getenv(action));
 }
 
-int external_(int argc, char **argv) {
+int external_(int argc, char **argv)
+{
 	char filename[LINE_MAX];
 
 	/* Default is "fetch" */
 	set_filename(filename, basename(argv[0]), "fetch");
 
-	if(argc > 1) {
-		if(!strcmp(argv[1], "autoconf"))
+	if (argc > 1) {
+		if (!strcmp(argv[1], "autoconf"))
 			return puts("no (not yet implemented)");
 
-		if(!strcmp(argv[1], "config")) {
-			set_filename(filename, basename(argv[0]), "config");
+		if (!strcmp(argv[1], "config")) {
+			set_filename(filename, basename(argv[0]),
+				     "config");
 		}
 	}
 

@@ -23,183 +23,182 @@
 
 /* TODO: port support for env.foo_warning and env.foo_critical from mainline plugin */
 
-static int print_stat_value(const char* field_name, const char* stat_value, int hz_) {
+static int print_stat_value(const char *field_name, const char *stat_value,
+			    int hz_)
+{
 	uint64_t stat_value_ll = strtoull(stat_value, NULL, 0);
 	if (hz_ != 0) {
 		/* hz_ is not ZERO, narmalize the value */
 		stat_value_ll = stat_value_ll * 100 / hz_;
 	}
-	return printf("%s.value %"PRIu64"\n", field_name, stat_value_ll);
+	return printf("%s.value %" PRIu64 "\n", field_name, stat_value_ll);
 }
 
-static int parse_cpu_line(char *buff) {
+static int parse_cpu_line(char *buff)
+{
 	char *s;
 	int hz_ = getenvint("HZ", 100);
-	if(!(s = strtok(buff+4, " \t")))
+	if (!(s = strtok(buff + 4, " \t")))
 		return -1;
 	print_stat_value("user", s, hz_);
-	if(!(s = strtok(NULL, " \t")))
+	if (!(s = strtok(NULL, " \t")))
 		return -1;
 	print_stat_value("nice", s, hz_);
-	if(!(s = strtok(NULL, " \t")))
+	if (!(s = strtok(NULL, " \t")))
 		return -1;
 	print_stat_value("system", s, hz_);
-	if(!(s = strtok(NULL, " \t")))
+	if (!(s = strtok(NULL, " \t")))
 		return -1;
 	print_stat_value("idle", s, hz_);
-	if(!(s = strtok(NULL, " \t")))
+	if (!(s = strtok(NULL, " \t")))
 		return 0;
 	print_stat_value("iowait", s, hz_);
-	if(!(s = strtok(NULL, " \t")))
+	if (!(s = strtok(NULL, " \t")))
 		return 0;
 	print_stat_value("irq", s, hz_);
-	if(!(s = strtok(NULL, " \t")))
+	if (!(s = strtok(NULL, " \t")))
 		return 0;
 	print_stat_value("softirq", s, hz_);
-	if(!(s = strtok(NULL, " \t")))
+	if (!(s = strtok(NULL, " \t")))
 		return 0;
 	print_stat_value("steal", s, hz_);
-	if(!(s = strtok(NULL, " \t")))
+	if (!(s = strtok(NULL, " \t")))
 		return 0;
 	print_stat_value("guest", s, hz_);
 	return 0;
 }
 
-int cpu(int argc, char **argv) {
+int cpu(int argc, char **argv)
+{
 	FILE *f;
 	char buff[256];
-	int ncpu=0, extinfo=0, ret;
+	int ncpu = 0, extinfo = 0, ret;
 	bool scaleto100 = false;
-	if(argc > 1) {
-		if(!strcmp(argv[1], "config")) {
+	if (argc > 1) {
+		if (!strcmp(argv[1], "config")) {
 			char *s = getenv("scaleto100");
-			if(s && !strcmp(s, "yes"))
+			if (s && !strcmp(s, "yes"))
 				scaleto100 = true;
 
-			if(!(f=fopen(PROC_STAT, "r")))
+			if (!(f = fopen(PROC_STAT, "r")))
 				return fail("cannot open " PROC_STAT);
-			while(fgets(buff, 256, f)) {
-				if(!strncmp(buff, "cpu", 3)) {
-					if(xisdigit(buff[3]))
+			while (fgets(buff, 256, f)) {
+				if (!strncmp(buff, "cpu", 3)) {
+					if (xisdigit(buff[3]))
 						ncpu++;
-					if(buff[3] == ' ' && 0 == extinfo) {
-						strtok(buff+4, " \t");
-						for(extinfo=1;strtok(NULL, " \t");extinfo++)
-							;
+					if (buff[3] == ' ' && 0 == extinfo) {
+						strtok(buff + 4, " \t");
+						for (extinfo = 1;
+						     strtok(NULL, " \t");
+						     extinfo++);
 					}
 				}
 			}
 			fclose(f);
 
-			if(ncpu < 1 || extinfo < 4)
+			if (ncpu < 1 || extinfo < 4)
 				return fail("cannot parse " PROC_STAT);
 
 			puts("graph_title CPU usage");
-			if(extinfo >= 7)
+			if (extinfo >= 7)
 				puts("graph_order system user nice idle iowait irq softirq");
 			else
 				puts("graph_order system user nice idle");
-			if(scaleto100)
+			if (scaleto100)
 				puts("graph_args --base 1000 -r --lower-limit 0 --upper-limit 100");
 			else
-				printf("graph_args --base 1000 -r --lower-limit 0 --upper-limit %d\n", 110 * ncpu);
-			puts("graph_vlabel %\n"
-				"graph_scale no\n"
-				"graph_info This graph shows how CPU time is spent.\n"
-				"graph_category system\n"
-				"graph_period second\n"
-				"system.label system\n"
-				"system.draw AREA");
+				printf
+				    ("graph_args --base 1000 -r --lower-limit 0 --upper-limit %d\n",
+				     110 * ncpu);
+			puts("graph_vlabel %\n" "graph_scale no\n"
+			     "graph_info This graph shows how CPU time is spent.\n"
+			     "graph_category system\n"
+			     "graph_period second\n"
+			     "system.label system\n" "system.draw AREA");
 			printf("system.max %d\n", 110 * ncpu);
-			puts("system.min 0\n"
-				"system.type DERIVE");
+			puts("system.min 0\n" "system.type DERIVE");
 			printf("system.warning %d\n", SYSWARNING * ncpu);
 			printf("system.critical %d\n", SYSCRITICAL * ncpu);
-			puts("system.info CPU time spent by the kernel in system activities\n"
-				"user.label user\n"
-				"user.draw STACK\n"
-				"user.min 0");
+			puts("system.info CPU time spent by the kernel in system activities\n" "user.label user\n" "user.draw STACK\n" "user.min 0");
 			printf("user.max %d\n", 110 * ncpu);
 			printf("user.warning %d\n", USRWARNING * ncpu);
 			puts("user.type DERIVE\n"
-				"user.info CPU time spent by normal programs and daemons\n"
-				"nice.label nice\n"
-				"nice.draw STACK\n"
-				"nice.min 0");
+			     "user.info CPU time spent by normal programs and daemons\n"
+			     "nice.label nice\n"
+			     "nice.draw STACK\n" "nice.min 0");
 			printf("nice.max %d\n", 110 * ncpu);
 			puts("nice.type DERIVE\n"
-				"nice.info CPU time spent by nice(1)d programs\n"
-				"idle.label idle\n"
-				"idle.draw STACK\n"
-				"idle.min 0");
+			     "nice.info CPU time spent by nice(1)d programs\n"
+			     "idle.label idle\n"
+			     "idle.draw STACK\n" "idle.min 0");
 			printf("idle.max %d\n", 110 * ncpu);
 			puts("idle.type DERIVE\n"
-				"idle.info Idle CPU time");
-			if(scaleto100)
+			     "idle.info Idle CPU time");
+			if (scaleto100)
 				printf("system.cdef system,%d,/\n"
-					"user.cdef user,%d,/\n"
-					"nice.cdef nice,%d,/\n"
-					"idle.cdef idle,%d,/\n", ncpu, ncpu, ncpu, ncpu);
-			if(extinfo >= 7) {
+				       "user.cdef user,%d,/\n"
+				       "nice.cdef nice,%d,/\n"
+				       "idle.cdef idle,%d,/\n", ncpu, ncpu,
+				       ncpu, ncpu);
+			if (extinfo >= 7) {
 				puts("iowait.label iowait\n"
-					"iowait.draw STACK\n"
-					"iowait.min 0");
+				     "iowait.draw STACK\n" "iowait.min 0");
 				printf("iowait.max %d\n", 110 * ncpu);
 				puts("iowait.type DERIVE\n"
-					"iowait.info CPU time spent waiting for I/O operations to finish\n"
-					"irq.label irq\n"
-					"irq.draw STACK\n"
-					"irq.min 0");
+				     "iowait.info CPU time spent waiting for I/O operations to finish\n"
+				     "irq.label irq\n"
+				     "irq.draw STACK\n" "irq.min 0");
 				printf("irq.max %d\n", 110 * ncpu);
 				puts("irq.type DERIVE\n"
-					"irq.info CPU time spent handling interrupts\n"
-					"softirq.label softirq\n"
-					"softirq.draw STACK\n"
-					"softirq.min 0");
+				     "irq.info CPU time spent handling interrupts\n"
+				     "softirq.label softirq\n"
+				     "softirq.draw STACK\n"
+				     "softirq.min 0");
 				printf("softirq.max %d\n", 110 * ncpu);
 				puts("softirq.type DERIVE\n"
-					"softirq.info CPU time spent handling \"batched\" interrupts");
-				if(scaleto100)
+				     "softirq.info CPU time spent handling \"batched\" interrupts");
+				if (scaleto100)
 					printf("iowait.cdef iowait,%d,/\n"
-						"irq.cdef irq,%d,/\n"
-						"softirq.cdef softirq,%d,/\n", ncpu, ncpu, ncpu);
+					       "irq.cdef irq,%d,/\n"
+					       "softirq.cdef softirq,%d,/\n",
+					       ncpu, ncpu, ncpu);
 			}
-			if(extinfo >= 8) {
+			if (extinfo >= 8) {
 				puts("steal.label steal\n"
-					"steal.draw STACK\n"
-					"steal.min 0");
+				     "steal.draw STACK\n" "steal.min 0");
 				printf("steal.max %d\n", 110 * ncpu);
 				puts("steal.type DERIVE\n"
-					"steal.info The time that a virtual CPU had runnable tasks, but the virtual CPU itself was not running");
-				if(scaleto100)
-					printf("steal.cdef steal,%d,/\n", ncpu);
+				     "steal.info The time that a virtual CPU had runnable tasks, but the virtual CPU itself was not running");
+				if (scaleto100)
+					printf("steal.cdef steal,%d,/\n",
+					       ncpu);
 			}
-			if(extinfo >= 9) {
+			if (extinfo >= 9) {
 				puts("guest.label guest\n"
-					"guest.draw STACK\n"
-					"guest.min 0");
+				     "guest.draw STACK\n" "guest.min 0");
 				printf("guest.max %d\n", 110 * ncpu);
 				puts("guest.type DERIVE\n"
-					"guest.info The time spent running a virtual CPU for guest operating systems under the control of the Linux kernel.");
-				if(scaleto100)
-					printf("guest.cdef guest,%d,/\n", ncpu);
+				     "guest.info The time spent running a virtual CPU for guest operating systems under the control of the Linux kernel.");
+				if (scaleto100)
+					printf("guest.cdef guest,%d,/\n",
+					       ncpu);
 			}
 			return 0;
 		}
-		if(!strcmp(argv[1], "autoconf"))
+		if (!strcmp(argv[1], "autoconf"))
 			return autoconf_check_readable(PROC_STAT);
 	}
-	if(!(f=fopen(PROC_STAT, "r")))
+	if (!(f = fopen(PROC_STAT, "r")))
 		return fail("cannot open " PROC_STAT);
-	while(fgets(buff, 256, f)) {
-		if(!strncmp(buff, "cpu ", 4)) {
+	while (fgets(buff, 256, f)) {
+		if (!strncmp(buff, "cpu ", 4)) {
 			ret = parse_cpu_line(buff);
 			goto OK;
 		}
 	}
 	/* We didn't find anyting */
 	ret = fail("no cpu line found in " PROC_STAT);
-OK:
+      OK:
 	fclose(f);
 	return ret;
 }

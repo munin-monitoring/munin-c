@@ -18,45 +18,47 @@
 
 /* TODO: The upstream plugin does way more nowawdays. */
 
-int processes(int argc, char **argv) {
+int processes(int argc, char **argv)
+{
 	DIR *d;
 	struct dirent *e;
 	char *s;
-	int n=0;
+	int n = 0;
 	struct stat statbuf;
 
-	if(argc > 1) {
-		if(!strcmp(argv[1], "config")) {
+	if (argc > 1) {
+		if (!strcmp(argv[1], "config")) {
 			puts("graph_title Number of Processes\n"
-				"graph_args --base 1000 -l 0 \n"
-				"graph_vlabel number of processes\n"
-				"graph_category processes\n"
-				"graph_info This graph shows the number of processes in the system.\n"
-				"processes.label processes\n"
-				"processes.draw LINE2\n"
-				"processes.info The current number of processes.");
+			     "graph_args --base 1000 -l 0 \n"
+			     "graph_vlabel number of processes\n"
+			     "graph_category processes\n"
+			     "graph_info This graph shows the number of processes in the system.\n"
+			     "processes.label processes\n"
+			     "processes.draw LINE2\n"
+			     "processes.info The current number of processes.");
 			return 0;
 		}
-		if(!strcmp(argv[1], "autoconf")) {
-			if(0 != stat("/proc/1", &statbuf)) {
-				printf("no (cannot stat /proc/1, errno=%d)\n",
-						errno);
+		if (!strcmp(argv[1], "autoconf")) {
+			if (0 != stat("/proc/1", &statbuf)) {
+				printf
+				    ("no (cannot stat /proc/1, errno=%d)\n",
+				     errno);
 				return 1;
 			}
-			if(!S_ISDIR(statbuf.st_mode)) {
+			if (!S_ISDIR(statbuf.st_mode)) {
 				printf("no (/proc/1 is not a directory\n");
 				return 1;
 			}
 			return writeyes();
 		}
 	}
-	if(!(d = opendir("/proc")))
+	if (!(d = opendir("/proc")))
 		return fail("cannot open /proc");
-	while((e = readdir(d))) {
-		for(s=e->d_name;*s;++s)
-			if(!xisdigit(*s))
+	while ((e = readdir(d))) {
+		for (s = e->d_name; *s; ++s)
+			if (!xisdigit(*s))
 				break;
-		if(!*s)
+		if (!*s)
 			++n;
 	}
 	closedir(d);

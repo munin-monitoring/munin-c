@@ -15,30 +15,30 @@
 
 #define PROC_UPTIME "/proc/uptime"
 
-int uptime(int argc, char **argv) {
+int uptime(int argc, char **argv)
+{
 	FILE *f;
 	float uptime;
-	if(argc > 1) {
-		if(!strcmp(argv[1], "config")) {
+	if (argc > 1) {
+		if (!strcmp(argv[1], "config")) {
 			puts("graph_title Uptime\n"
-				"graph_args --base 1000 -l 0 \n"
-				"graph_vlabel uptime in days\n"
-				"graph_category system\n"
-				"uptime.label uptime\n"
-				"uptime.draw AREA");
+			     "graph_args --base 1000 -l 0 \n"
+			     "graph_vlabel uptime in days\n"
+			     "graph_category system\n"
+			     "uptime.label uptime\n" "uptime.draw AREA");
 			print_warncrit("uptime");
 			return 0;
 		}
-		if(!strcmp(argv[1], "autoconf"))
+		if (!strcmp(argv[1], "autoconf"))
 			return writeyes();
 	}
-	if(!(f=fopen(PROC_UPTIME, "r")))
+	if (!(f = fopen(PROC_UPTIME, "r")))
 		return fail("cannot open " PROC_UPTIME);
-	if(1 != fscanf(f, "%f", &uptime)) {
+	if (1 != fscanf(f, "%f", &uptime)) {
 		fclose(f);
 		return fail("cannot read from " PROC_UPTIME);
 	}
 	fclose(f);
-	printf("uptime.value %.2f\n", uptime/86400);
+	printf("uptime.value %.2f\n", uptime / 86400);
 	return 0;
 }
