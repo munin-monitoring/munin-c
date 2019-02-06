@@ -36,7 +36,7 @@ int getenvint(const char *name, int defvalue) {
 	return atoi(value);
 }
 
-/*@null@*/ /*@observer@*/ const char *getenv_composed(const char *name1,
+static /*@null@*/ /*@observer@*/ const char *getenv_composed(const char *name1,
 		const char *name2) {
 	char **p;
 	size_t len1 = strlen(name1), len2 = strlen(name2);
