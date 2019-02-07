@@ -23,5 +23,7 @@ AC_PROG_LN_S
 AC_FUNC_FORK
 CC_CHECK_CFLAGS_APPEND([-Wall -Wextra -Werror -pedantic -Wno-format])
 
+AC_CHECK_HEADERS([mntent.h sys/vfs.h])
+
 AC_CONFIG_FILES([Makefile src/node/Makefile src/plugins/Makefile t/Makefile])
 AC_OUTPUT

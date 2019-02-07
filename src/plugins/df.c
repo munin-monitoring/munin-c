@@ -10,10 +10,18 @@
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
+
+#ifdef HAVE_MNTENT_H
 #include <mntent.h>		/* for getmntent(), et al. */
+#endif
+
 #include <unistd.h>		/* for getopt() */
 #include <sys/types.h>
+
+#ifdef HAVE_SYS_VFS_H
 #include <sys/vfs.h>
+#endif
+
 #include "common.h"
 
 /* Defines taken from statfs(2) man page: */
@@ -25,6 +33,17 @@
 #define DEBUGFS_MAGIC         0x64626720
 #define CGROUP_SUPER_MAGIC    0x27e0eb
 #define DEVPTS_SUPER_MAGIC    0x1cd1
+
+
+#ifndef HAVE_MNTENT_H
+int df(int argc, char **argv)
+{
+       if (argc && argv) {
+               // Do nothing, but silence the warnings
+       }
+       return fail("getmntent() is not supported on your system");
+}
+#else
 
 static char *replace_slash(char *c)
 {
@@ -124,3 +143,4 @@ int df(int argc, char **argv)
 
 	return 0;
 }
+#endif
