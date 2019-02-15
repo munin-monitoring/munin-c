@@ -38,10 +38,10 @@
 #ifndef HAVE_MNTENT_H
 int df(int argc, char **argv)
 {
-       if (argc && argv) {
-               /* Do nothing, but silence the warnings */
-       }
-       return fail("getmntent() is not supported on your system");
+	if (argc && argv) {
+		/* Do nothing, but silence the warnings */
+	}
+	return fail("getmntent() is not supported on your system");
 }
 #else
 

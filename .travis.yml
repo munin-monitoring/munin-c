@@ -32,6 +32,11 @@ language: c
 # Use a container Travis
 sudo: false
 
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then gindent -kr -i8 src/node/*.c ; else indent -kr -i8 src/node/*.c ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then gindent -kr -i8 src/plugins/*.c ; else indent -kr -i8 src/plugins/*.c ; fi
+  - git diff
+  - git diff --quiet
 install:
   - ./getversion
   - autoreconf -i -I m4
@@ -50,6 +55,10 @@ addons:
   apt:
     packages:
       - musl-tools
+      - indent
+  homebrew:
+    packages:
+      - gnu-indent
 
   coverity_scan:
     project:
