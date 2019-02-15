@@ -60,7 +60,7 @@ static /*@noreturn@ */ void oom_handler()
 {
 	static const char *OOM_MSG = "Out of memory\n";
 
-	if (write(STDOUT_FILENO, OOM_MSG, sizeof(OOM_MSG) - 1) < 0) {
+	if (write(STDERR_FILENO, OOM_MSG, sizeof(OOM_MSG) - 1) < 0) {
 		/* Do nothing on write failure, we are torched anyway */
 	}
 
