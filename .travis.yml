@@ -3,6 +3,12 @@ matrix:
     - os: osx
       compiler: clang
     - os: linux
+      compiler: gcc-8
+      env:
+        - LDFLAGS="-Wl,-z,relro"
+        - CFLAGS="-g -O2 -fstack-protector-strong -Wformat -Werror=format-security"
+        - CPPFLAGS="-Wdate-time -D_FORTIFY_SOURCE=2"
+    - os: linux
       compiler: gcc
       env:
         - LDFLAGS=
@@ -53,9 +59,12 @@ env:
 
 addons:
   apt:
+    sources:
+      - ubuntu-toolchain-r-test
     packages:
       - musl-tools
       - indent
+      - gcc-8
   homebrew:
     packages:
       - gnu-indent

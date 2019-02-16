@@ -73,7 +73,7 @@ int df(int argc, char **argv)
 		if (strcmp(argv[1], "config") == 0) {
 			printf("graph_title Disk usage in percent\n"
 			       "graph_args --upper-limit 100 -l 0\n"
-			       "graph_vlabel %\n"
+			       "graph_vlabel %%\n"
 			       "graph_scale no\n" "graph_category disk\n");
 
 			while ((fs = getmntent(fp)) != NULL) {
