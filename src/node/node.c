@@ -26,7 +26,6 @@
 #include <grp.h>
 #include <fnmatch.h>
 #include <ctype.h>
-#include <spawn.h>
 
 #ifndef HOST_NAME_MAX
 #define HOST_NAME_MAX 256
@@ -649,7 +648,7 @@ static int handle_connection()
 				continue;
 			}
 
-			/* Using posix_spawnp() here instead of fork() since we will
+			/* Using fork() here instead of vork() since we will
 			 * do a little more than a mere exec --> setenvvars_conf() */
 			pid = fork();
 
