@@ -32,6 +32,27 @@ matrix:
       compiler: musl-gcc
       env:
         - LDFLAGS=-static
+    - os: linux
+      compiler: gcc-8
+      env:
+        - LDFLAGS="-Wl,-z,relro"
+        - CFLAGS="-g -O2 -fstack-protector-strong -Wformat -Werror=format-security"
+        - CPPFLAGS="-Wdate-time -D_FORTIFY_SOURCE=2"
+      arch: ppc64le
+    - os: linux
+      compiler: gcc-8
+      env:
+        - LDFLAGS="-Wl,-z,relro"
+        - CFLAGS="-g -O2 -fstack-protector-strong -Wformat -Werror=format-security"
+        - CPPFLAGS="-Wdate-time -D_FORTIFY_SOURCE=2"
+      arch: arm64
+    - os: linux
+      compiler: gcc-8
+      env:
+        - LDFLAGS="-Wl,-z,relro"
+        - CFLAGS="-g -O2 -fstack-protector-strong -Wformat -Werror=format-security"
+        - CPPFLAGS="-Wdate-time -D_FORTIFY_SOURCE=2"
+      arch: s390x
 
 language: c
 
