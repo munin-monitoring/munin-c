@@ -9,6 +9,7 @@
 #include <inttypes.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <unistd.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -79,16 +80,191 @@ SwapFree:     215608 kB
 
 */
 
-/* TODO - For now we only support Cygwin fields. */
-int memory(int argc, char **argv)
+struct meminfo_pair {
+	char *key;
+	char *label;
+	char *draw;
+	char *info;
+	int colour;
+	int_fast64_t value;
+	bool exists;
+};
+
+struct meminfo_pair meminfo[] = {
+	{
+	 .key = "Shmem",
+	 .label = "shmem",
+	 .draw = "STACK",
+	 .info = "Shared Memory (SYSV SHM segments, tmpfs).",
+	 .colour = 9,
+	 },
+	{
+	 .key = "Slab",
+	 .label = "slab_cache",
+	 .draw = "STACK",
+	 .info =
+	 "Memory used by the kernel (major users are caches like inode, "
+	 "dentry, etc).",
+	 .colour = 3,
+	 },
+	{
+	 .key = "SwapCached",
+	 .label = "swap_cache",
+	 .draw = "STACK",
+	 .info =
+	 "A piece of memory that keeps track of pages that have been "
+	 "fetched from swap but not yet been modified.",
+	 .colour = 2,
+	 },
+	{
+	 .key = "PageTables",
+	 .label = "page_tables",
+	 .draw = "STACK",
+	 .info =
+	 "Memory used to map between virtual and physical memory addresses.",
+	 .colour = 1,
+	 },
+	{
+	 .key = "VmallocUsed",
+	 .label = "vmalloc_used",
+	 .draw = "LINE2",
+	 .info = "'VMalloc' (kernel) memory used.",
+	 .colour = 8,
+	 },
+	{
+	 .key = "Committed_AS",
+	 .label = "committed",
+	 .draw = "LINE2",
+	 .info =
+	 "The amount of memory allocated to programs. Overcommitting is "
+	 "normal, but may indicate memory leaks.",
+	 .colour = 10,
+	 },
+	{
+	 .key = "Mapped",
+	 .label = "mapped",
+	 .draw = "LINE2",
+	 .info = "All mmap()ed pages.",
+	 .colour = 11,
+	 },
+	{
+	 .key = "Active",
+	 .label = "active",
+	 .draw = "LINE2",
+	 .info =
+	 "Memory recently used. Not reclaimed unless absolutely necessary.",
+	 .colour = 12,
+	 },
+	{
+	 .key = "ActiveAnon",
+	 .label = "active_anon",
+	 .draw = "LINE1",
+	 .colour = 13,
+	 },
+	{
+	 .key = "ActiveCache",
+	 .label = "active_cache",
+	 .draw = "LINE1",
+	 .colour = 14,
+	 },
+	{
+	 .key = "Inactive",
+	 .label = "inactive",
+	 .draw = "LINE2",
+	 .info = "Memory not currently used.",
+	 .colour = 15,
+	 },
+	{
+	 .key = "Inact_dirty",
+	 .label = "inactive_dirty",
+	 .draw = "LINE1",
+	 .info =
+	 "Memory not currently used, but in need of being written to disk.",
+	 .colour = 16,
+	 },
+	{
+	 .key = "Inact_laundry",
+	 .label = "inactive_laundry",
+	 .draw = "LINE1",
+	 .colour = 17,
+	 },
+	{
+	 .key = "Inact_clean",
+	 .label = "inactive_clean",
+	 .draw = "LINE1",
+	 .info = "Memory not currently used.",
+	 .colour = 18,
+	 },
+	{
+	 .key = "KSM",
+	 .label = "ksm_sharing",
+	 .draw = "LINE2",
+	 .info = "Memory saved by KSM sharing.",
+	 .colour = 19,
+	 },
+	// Fields that we do not report directly, but still care about parsing from
+	// /proc/meminfo.
+	{.key = "MemTotal"},
+	{.key = "MemFree"},
+	{.key = "SwapTotal"},
+	{.key = "SwapFree"},
+	{.key = "Buffers"},
+	{.key = "Cached"},
+	// Sentinel field.
+	{.key = NULL}
+};
+
+struct meminfo_pair *get_meminfo_key(char *key)
+{
+	for (struct meminfo_pair * info = meminfo; info->key; info++) {
+		if (!strcmp(info->key, key)) {
+			return info;
+		}
+	}
+
+	return NULL;
+}
+
+int_fast64_t get_meminfo_value(char *key)
+{
+	struct meminfo_pair *info = get_meminfo_key(key);
+	return info && info->exists ? info->value : -1;
+}
+
+void parse_meminfo(void)
 {
 	FILE *f;
 	char buff[256];
 
-	int_fast64_t mem_total = -1;
-	int_fast64_t mem_free = -1;
-	int_fast64_t swap_total = -1;
-	int_fast64_t swap_free = -1;
+	/* Asking for a fetch */
+	if (!(f = fopen(PROC_MEMINFO, "r")))
+		exit(fail("cannot open " PROC_MEMINFO));
+
+	while (fgets(buff, 256, f)) {
+		char key[256];
+		char *colon;
+		int_fast64_t value;
+		if (!sscanf(buff, "%s %" SCNdFAST64, key, &value) ||
+		    !(colon = strstr(key, ":"))) {
+			fclose(f);
+			exit(fail("cannot parse " PROC_MEMINFO " line"));
+		}
+
+		*colon = '\0';
+
+		struct meminfo_pair *info = get_meminfo_key(key);
+		if (info) {
+			info->exists = true;
+			info->value = value * 1024;
+		}
+	}
+
+	fclose(f);
+}
+
+int memory(int argc, char **argv)
+{
+	parse_meminfo();
 
 	if (argc > 1) {
 		if (!strcmp(argv[1], "config")) {
@@ -111,40 +287,65 @@ int memory(int argc, char **argv)
 			printf("swap.draw STACK\n");
 			printf("swap.info Swap space used.\n");
 
+			printf("buffers.label buffers\n");
+			printf("buffers.draw STACK\n");
+			printf
+			    ("buffers.info Block device (e.g. harddisk) cache. "
+			     "Also where \"dirty\" blocks are stored until written.\n");
+			printf("buffers.colour COLOUR5\n");
+
+			printf("cached.label cache\n");
+			printf("cached.draw STACK\n");
+			printf
+			    ("cached.info Parked file data (file content) cache.\n");
+			printf("cached.colour COLOUR4\n");
+
+			for (struct meminfo_pair * info = meminfo;
+			     info->key; info++) {
+				if (!info->exists || !info->label)
+					continue;
+
+				printf("%s.label %s\n", info->label,
+				       info->label);
+				printf("%s.draw %s\n", info->label,
+				       info->draw);
+				if (info->info)
+					printf("%s.info %s\n", info->label,
+					       info->info);
+				printf("%s.colour COLOUR%d\n", info->label,
+				       info->colour);
+			}
+
 			return 0;
 		}
+
 		if (!strcmp(argv[1], "autoconf"))
 			return autoconf_check_readable(PROC_MEMINFO);
 	}
 
-	/* Asking for a fetch */
-	if (!(f = fopen(PROC_MEMINFO, "r")))
-		return fail("cannot open " PROC_MEMINFO);
+	printf("apps.value %" PRIdFAST64 "\n",
+	       get_meminfo_value("MemTotal") -
+	       get_meminfo_value("MemFree") -
+	       get_meminfo_value("Buffers") -
+	       get_meminfo_value("Cached") -
+	       get_meminfo_value("Slab") -
+	       get_meminfo_value("PageTables") -
+	       get_meminfo_value("SwapCached"));
+	printf("free.value %" PRIdFAST64 "\n",
+	       get_meminfo_value("MemFree"));
+	printf("buffers.value %" PRIdFAST64 "\n",
+	       get_meminfo_value("Buffers"));
+	printf("cached.value %" PRIdFAST64 "\n",
+	       get_meminfo_value("Cached"));
+	printf("swap.value %" PRIdFAST64 "\n",
+	       get_meminfo_value("SwapTotal") -
+	       get_meminfo_value("SwapFree"));
 
-	while (fgets(buff, 256, f)) {
-		char key[256];
-		int_fast64_t value;
-		if (!sscanf(buff, "%s %" SCNdFAST64, key, &value)) {
-			fclose(f);
-			return fail("cannot parse " PROC_MEMINFO " line");
-		}
-
-		if (!strcmp(key, "MemTotal:"))
-			mem_total = value * 1024;
-		else if (!strcmp(key, "MemFree:"))
-			mem_free = value * 1024;
-		else if (!strcmp(key, "SwapTotal:"))
-			swap_total = value * 1024;
-		else if (!strcmp(key, "SwapFree:"))
-			swap_free = value * 1024;
+	for (struct meminfo_pair * info = meminfo; info->key; info++) {
+		if (info->exists && info->label)
+			printf("%s.value %" PRIdFAST64 "\n", info->label,
+			       info->value);
 	}
-	fclose(f);
-	if (mem_total < 0 || mem_free < 0 || swap_total < 0
-	    || swap_free < 0)
-		return fail("missing fileds in " PROC_MEMINFO);
 
-	printf("apps.value %" PRIdFAST64 "\n", mem_total - mem_free);
-	printf("free.value %" PRIdFAST64 "\n", mem_free);
-	printf("swap.value %" PRIdFAST64 "\n", swap_total - swap_free);
 	return 0;
 }
