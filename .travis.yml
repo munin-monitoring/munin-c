@@ -39,8 +39,8 @@ language: c
 sudo: false
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then gindent -kr -i8 src/node/*.c ; else indent -kr -i8 src/node/*.c ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then gindent -kr -i8 src/plugins/*.c ; else indent -kr -i8 src/plugins/*.c ; fi
+  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then indent -kr -i8 src/node/*.c ; fi
+  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then indent -kr -i8 src/plugins/*.c ; fi
   - git diff
   - git diff --quiet
 install:
