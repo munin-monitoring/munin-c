@@ -23,7 +23,7 @@ int open_files(int argc, char **argv)
 		if (!strcmp(argv[1], "config")) {
 			if (!(f = fopen(FS_FILE_NR, "r")))
 				return fail("cannot open " FS_FILE_NR);
-			if (1 != fscanf(f, "%*lu %*lu %lu", &avail)) {
+			if (1 != fscanf(f, "%*d %*d %lu", &avail)) {
 				fclose(f);
 				return fail("cannot read from "
 					    FS_FILE_NR);
