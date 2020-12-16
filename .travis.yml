@@ -32,6 +32,51 @@ matrix:
       compiler: musl-gcc
       env:
         - LDFLAGS=-static
+# Adding ppc64le jobs
+    - os: linux
+      arch: ppc64le
+      dist: bionic
+      compiler: gcc-8
+      env:
+        - LDFLAGS="-Wl,-z,relro"
+        - CFLAGS="-g -O2 -fstack-protector-strong -Wformat -Werror=format-security"
+        - CPPFLAGS="-Wdate-time -D_FORTIFY_SOURCE=2"
+    - os: linux
+      arch: ppc64le
+      dist: bionic
+      compiler: gcc
+      env:
+        - LDFLAGS=
+    - os: linux
+      arch: ppc64le
+      dist: bionic
+      compiler: gcc
+      env:
+        - LDFLAGS=-static
+    - os: linux
+      arch: ppc64le
+      dist: bionic
+      compiler: clang
+      env:
+        - LDFLAGS=
+    - os: linux
+      arch: ppc64le
+      dist: bionic
+      compiler: clang
+      env:
+        - LDFLAGS=-static
+    - os: linux
+      arch: ppc64le
+      dist: bionic
+      compiler: musl-gcc
+      env:
+        - LDFLAGS=
+    - os: linux
+      arch: ppc64le
+      dist: bionic
+      compiler: musl-gcc
+      env:
+        - LDFLAGS=-static
 
 language: c
 
