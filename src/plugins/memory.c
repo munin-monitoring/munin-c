@@ -97,7 +97,7 @@ struct meminfo_pair meminfo[] = {
 	 .draw = "STACK",
 	 .info = "Shared Memory (SYSV SHM segments, tmpfs).",
 	 .colour = 9,
-	  },
+	 },
 	{
 	 .key = "Slab",
 	 .label = "slab_cache",
@@ -106,7 +106,7 @@ struct meminfo_pair meminfo[] = {
 	 "Memory used by the kernel (major users are caches like inode, "
 	 "dentry, etc).",
 	 .colour = 3,
-	  },
+	 },
 	{
 	 .key = "SwapCached",
 	 .label = "swap_cache",
@@ -115,7 +115,7 @@ struct meminfo_pair meminfo[] = {
 	 "A piece of memory that keeps track of pages that have been "
 	 "fetched from swap but not yet been modified.",
 	 .colour = 2,
-	  },
+	 },
 	{
 	 .key = "PageTables",
 	 .label = "page_tables",
@@ -123,14 +123,14 @@ struct meminfo_pair meminfo[] = {
 	 .info =
 	 "Memory used to map between virtual and physical memory addresses.",
 	 .colour = 1,
-	  },
+	 },
 	{
 	 .key = "VmallocUsed",
 	 .label = "vmalloc_used",
 	 .draw = "LINE2",
 	 .info = "'VMalloc' (kernel) memory used.",
 	 .colour = 8,
-	  },
+	 },
 	{
 	 .key = "Committed_AS",
 	 .label = "committed",
@@ -139,14 +139,14 @@ struct meminfo_pair meminfo[] = {
 	 "The amount of memory allocated to programs. Overcommitting is "
 	 "normal, but may indicate memory leaks.",
 	 .colour = 10,
-	  },
+	 },
 	{
 	 .key = "Mapped",
 	 .label = "mapped",
 	 .draw = "LINE2",
 	 .info = "All mmap()ed pages.",
 	 .colour = 11,
-	  },
+	 },
 	{
 	 .key = "Active",
 	 .label = "active",
@@ -154,26 +154,26 @@ struct meminfo_pair meminfo[] = {
 	 .info =
 	 "Memory recently used. Not reclaimed unless absolutely necessary.",
 	 .colour = 12,
-	  },
+	 },
 	{
 	 .key = "ActiveAnon",
 	 .label = "active_anon",
 	 .draw = "LINE1",
 	 .colour = 13,
-	  },
+	 },
 	{
 	 .key = "ActiveCache",
 	 .label = "active_cache",
 	 .draw = "LINE1",
 	 .colour = 14,
-	  },
+	 },
 	{
 	 .key = "Inactive",
 	 .label = "inactive",
 	 .draw = "LINE2",
 	 .info = "Memory not currently used.",
 	 .colour = 15,
-	  },
+	 },
 	{
 	 .key = "Inact_dirty",
 	 .label = "inactive_dirty",
@@ -181,37 +181,37 @@ struct meminfo_pair meminfo[] = {
 	 .info =
 	 "Memory not currently used, but in need of being written to disk.",
 	 .colour = 16,
-	  },
+	 },
 	{
 	 .key = "Inact_laundry",
 	 .label = "inactive_laundry",
 	 .draw = "LINE1",
 	 .colour = 17,
-	  },
+	 },
 	{
 	 .key = "Inact_clean",
 	 .label = "inactive_clean",
 	 .draw = "LINE1",
 	 .info = "Memory not currently used.",
 	 .colour = 18,
-	  },
+	 },
 	{
 	 .key = "KSM",
 	 .label = "ksm_sharing",
 	 .draw = "LINE2",
 	 .info = "Memory saved by KSM sharing.",
 	 .colour = 19,
-	  },
+	 },
 	// Fields that we do not report directly, but still care about parsing from
 	// /proc/meminfo.
-	{.key = "MemTotal" },
-	{.key = "MemFree" },
-	{.key = "SwapTotal" },
-	{.key = "SwapFree" },
-	{.key = "Buffers" },
-	{.key = "Cached" },
+	{.key = "MemTotal"},
+	{.key = "MemFree"},
+	{.key = "SwapTotal"},
+	{.key = "SwapFree"},
+	{.key = "Buffers"},
+	{.key = "Cached"},
 	// Sentinel field.
-	{.key = NULL }
+	{.key = NULL}
 };
 
 struct meminfo_pair *get_meminfo_key(char *key)
