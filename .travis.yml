@@ -1,4 +1,5 @@
 matrix:
+  fast_finish: true
   include:
     - os: osx
       compiler: clang
@@ -32,27 +33,51 @@ matrix:
       compiler: musl-gcc
       env:
         - LDFLAGS=-static
+# Adding ppc64le jobs
     - os: linux
-      compiler: gcc-8
-      env:
-        - LDFLAGS="-Wl,-z,relro"
-        - CFLAGS="-g -O2 -fstack-protector-strong -Wformat -Werror=format-security"
-        - CPPFLAGS="-Wdate-time -D_FORTIFY_SOURCE=2"
       arch: ppc64le
-    - os: linux
+      dist: bionic
       compiler: gcc-8
       env:
         - LDFLAGS="-Wl,-z,relro"
         - CFLAGS="-g -O2 -fstack-protector-strong -Wformat -Werror=format-security"
         - CPPFLAGS="-Wdate-time -D_FORTIFY_SOURCE=2"
-      arch: arm64
     - os: linux
-      compiler: gcc-8
+      arch: ppc64le
+      dist: bionic
+      compiler: gcc
       env:
-        - LDFLAGS="-Wl,-z,relro"
-        - CFLAGS="-g -O2 -fstack-protector-strong -Wformat -Werror=format-security"
-        - CPPFLAGS="-Wdate-time -D_FORTIFY_SOURCE=2"
-      arch: s390x
+        - LDFLAGS=
+    - os: linux
+      arch: ppc64le
+      dist: bionic
+      compiler: gcc
+      env:
+        - LDFLAGS=-static
+    - os: linux
+      arch: ppc64le
+      dist: bionic
+      compiler: clang
+      env:
+        - LDFLAGS=
+    - os: linux
+      arch: ppc64le
+      dist: bionic
+      compiler: clang
+      env:
+        - LDFLAGS=-static
+    - os: linux
+      arch: ppc64le
+      dist: bionic
+      compiler: musl-gcc
+      env:
+        - LDFLAGS=
+    - os: linux
+      arch: ppc64le
+      dist: bionic
+      compiler: musl-gcc
+      env:
+        - LDFLAGS=-static
 
 language: c
 
@@ -60,8 +85,8 @@ language: c
 sudo: false
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then gindent -kr -i8 src/node/*.c ; else indent -kr -i8 src/node/*.c ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then gindent -kr -i8 src/plugins/*.c ; else indent -kr -i8 src/plugins/*.c ; fi
+  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then indent -kr -i8 src/node/*.c ; fi
+  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then indent -kr -i8 src/plugins/*.c ; fi
   - git diff
   - git diff --quiet
 install:

@@ -18,12 +18,12 @@
 int open_files(int argc, char **argv)
 {
 	FILE *f;
-	int alloc, freeh, avail;
+	unsigned long alloc, freeh, avail;
 	if (argc > 1) {
 		if (!strcmp(argv[1], "config")) {
 			if (!(f = fopen(FS_FILE_NR, "r")))
 				return fail("cannot open " FS_FILE_NR);
-			if (1 != fscanf(f, "%*d %*d %d", &avail)) {
+			if (1 != fscanf(f, "%*d %*d %lu", &avail)) {
 				fclose(f);
 				return fail("cannot read from "
 					    FS_FILE_NR);
@@ -48,11 +48,11 @@ int open_files(int argc, char **argv)
 	}
 	if (!(f = fopen(FS_FILE_NR, "r")))
 		return fail("cannot open " FS_FILE_NR);
-	if (3 != fscanf(f, "%d %d %d", &alloc, &freeh, &avail)) {
+	if (3 != fscanf(f, "%lu %lu %lu", &alloc, &freeh, &avail)) {
 		fclose(f);
 		return fail("cannot read from " FS_FILE_NR);
 	}
 	fclose(f);
-	printf("used.value %d\nmax.value %d\n", alloc - freeh, avail);
+	printf("used.value %lu\nmax.value %lu\n", alloc - freeh, avail);
 	return 0;
 }
