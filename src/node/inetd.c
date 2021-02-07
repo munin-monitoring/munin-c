@@ -82,8 +82,8 @@ int main(int argc, char *argv[])
 	/* We do *not* care about childs */
 	signal(SIGCHLD, SIG_IGN);
 
-	while((sock_accept = accept(sock_listen, NULL, NULL)) != -1) {
-		if(0 == (pid = vfork())) {
+	while ((sock_accept = accept(sock_listen, NULL, NULL)) != -1) {
+		if (0 == (pid = vfork())) {
 			close(sock_listen);
 			dup2(sock_accept, 0);
 			dup2(sock_accept, 1);
