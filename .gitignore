@@ -1,6 +1,8 @@
 .*.swp
 *.o
 *.1
+*~
+*.bak
 .deps
 .dirstamp
 .gdbinit
