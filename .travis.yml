@@ -1,4 +1,5 @@
 matrix:
+  fast_finish: true
   include:
     - os: osx
       compiler: clang
