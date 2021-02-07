@@ -68,7 +68,7 @@ int iostat(int argc, char **argv)
 
 		if (4 != fscanf(f, "%hhu %*hhu %" STR(NAME_SIZE)
 				"s %*lu %*lu %lu %*lu %*lu %*lu %lu%*[^\n]",
-				&dev->major, &dev->name, &dev->rsect,
+				&dev->major, dev->name, &dev->rsect,
 				&dev->wsect))
 			continue;
 
