@@ -81,7 +81,7 @@ int main(int argc, char **argv)
 			return interrupts(argc, argv);
 		if (!strncmp(progname, "if_err_", strlen("if_err_")))
 			return if_err_(argc, argv);
-		if(!strcmp(progname, "iostat"))
+		if (!strcmp(progname, "iostat"))
 			return iostat(argc, argv);
 		break;
 	case 'l':
