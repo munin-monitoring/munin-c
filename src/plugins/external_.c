@@ -38,8 +38,8 @@ static int read_file_to_stdout(const char *filename)
 
 	/* Test if we should remove the UTF-8 BOM */
 	{
-		char* remove_bom = getenv("remove_bom");
-		if (remove_bom != NULL && ! strcmp(remove_bom, "on")) {
+		char *remove_bom = getenv("remove_bom");
+		if (remove_bom != NULL && !strcmp(remove_bom, "on")) {
 			should_remove_bom = true;
 		}
 	}
@@ -55,7 +55,7 @@ static int read_file_to_stdout(const char *filename)
 
 		/* Checking BOM */
 		if (strncmp(bom_buf, MAGIC_BOM_UTF8, 3)) {
-		/* Not a BOM, reverting to the beginning */
+			/* Not a BOM, reverting to the beginning */
 			fseek(f, 0, SEEK_SET);
 		}
 #endif
@@ -63,8 +63,8 @@ static int read_file_to_stdout(const char *filename)
 
 	/* Test if we should convert the CRLF to LF */
 	{
-		char* convert_crlf = getenv("convert_crlf");
-		if (convert_crlf != NULL && ! strcmp(convert_crlf, "on")) {
+		char *convert_crlf = getenv("convert_crlf");
+		if (convert_crlf != NULL && !strcmp(convert_crlf, "on")) {
 			should_convert_crlf = true;
 		}
 	}
@@ -77,7 +77,8 @@ static int read_file_to_stdout(const char *filename)
 		}
 
 		/* Not a "\r\n", emit the missing \r */
-		if (is_cr_retained && c != '\n') fputc('\r', stdout);
+		if (is_cr_retained && c != '\n')
+			fputc('\r', stdout);
 		/* is_cr_retained has been handled */
 		is_cr_retained = false;
 
@@ -87,7 +88,8 @@ static int read_file_to_stdout(const char *filename)
 	fclose(f);
 
 	/* If the last char was \r, we should still emit it */
-	if (is_cr_retained) fputc('\r', stdout);
+	if (is_cr_retained)
+		fputc('\r', stdout);
 
 	return 0;
 }
@@ -109,13 +111,13 @@ static int set_filename(char *filename, const char *plugin_basename,
 int external_(int argc, char **argv)
 {
 	char filename[LINE_MAX];
-	char *action = "fetch"; /* Default is "fetch" */
+	char *action = "fetch";	/* Default is "fetch" */
 
 	if (argc > 1) {
 		if (!strcmp(argv[1], "autoconf"))
 			return puts("no (not yet implemented)");
 
-		if(!strcmp(argv[1], "config")) {
+		if (!strcmp(argv[1], "config")) {
 			action = "config";
 		}
 	}
@@ -126,15 +128,15 @@ int external_(int argc, char **argv)
 	/* trigger on_read hook */
 	{
 		char hookname[LINE_MAX];
-		char* on_read;
+		char *on_read;
 
 		snprintf(hookname, LINE_MAX, "on_%s", action);
 		on_read = getenv(hookname);
-		if (on_read == NULL || ! strcmp(on_read, "nothing")) {
+		if (on_read == NULL || !strcmp(on_read, "nothing")) {
 			/* nothing */
-		} else if (! strcmp(on_read, "unlink")) {
+		} else if (!strcmp(on_read, "unlink")) {
 			return unlink(filename);
-		} else if (! strcmp(on_read, "truncate")) {
+		} else if (!strcmp(on_read, "truncate")) {
 			return truncate(filename, 0);
 		} else {
 			/* Do nothing if unknown */
