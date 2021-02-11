@@ -13,6 +13,7 @@ matrix:
       compiler: gcc
       env:
         - LDFLAGS=
+        - TEST_INDENT=yes
     - os: linux
       compiler: gcc
       env:
@@ -85,8 +86,8 @@ language: c
 sudo: false
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then indent -kr -i8 src/node/*.c ; fi
-  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then indent -kr -i8 src/plugins/*.c ; fi
+  - if [[ "$TEST_INDENT" = "yes" ]]; then indent -kr -i8 src/node/*.c ; fi
+  - if [[ "$TEST_INDENT" = "yes" ]]; then indent -kr -i8 src/plugins/*.c ; fi
   - git diff
   - git diff --quiet
 install:
