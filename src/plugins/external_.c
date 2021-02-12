@@ -51,10 +51,10 @@ static int read_file_to_stdout(const char *filename)
 		char bom_buf[3];
 
 		/* Reading an eventual BOM */
-		fread(bom_buf, 3, 1, f);
+		size_t read_bytes = fread(bom_buf, 3, 1, f);
 
 		/* Checking BOM */
-		if (strncmp(bom_buf, MAGIC_BOM_UTF8, 3)) {
+		if (read_bytes != 3 || strncmp(bom_buf, MAGIC_BOM_UTF8, 3)) {
 			/* Not a BOM, reverting to the beginning */
 			fseek(f, 0, SEEK_SET);
 		}
