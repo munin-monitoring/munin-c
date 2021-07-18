@@ -92,10 +92,13 @@ int main(int argc, char *argv[])
 			/* according to vfork(2) we must use _exit */
 			_exit(1);
 		} else {
-			perror("vfork failed in " __FILE__);
 			close(sock_accept);
-			close(sock_listen);
-			return 1;
+
+			if (pid < 0) {
+				perror("vfork failed in " __FILE__);
+				close(sock_listen);
+				return 1;
+			}
 		}
 	}
 	perror("accept failed in " __FILE__);
