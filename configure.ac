@@ -25,5 +25,15 @@ CC_CHECK_CFLAGS_APPEND([-Wall -Wextra -Werror -pedantic -Wno-format])
 
 AC_CHECK_HEADERS([mntent.h sys/vfs.h])
 
+AC_MSG_CHECKING([whether to enable legacy "fetch"])
+AC_ARG_WITH(legacy_fetch,
+	    [  --with-legacy-fetch     enable legacy fetch which does not add "fetch") @<:@yes@:>@],
+    with_legacy_fetch=$withval,
+    with_legacy_fetch=yes)
+AC_MSG_RESULT($with_legacy_fetch)
+if test "$with_legacy_fetch" = "yes"; then
+  AC_DEFINE(LEGACY_FETCH)
+fi
+
 AC_CONFIG_FILES([Makefile src/node/Makefile src/plugins/Makefile t/Makefile])
 AC_OUTPUT
