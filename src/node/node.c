@@ -658,6 +658,12 @@ static int handle_connection()
 			} else if (pid == 0) {
 				/* Now is the time to set environnement */
 				setenvvars_conf(arg);
+#ifdef LEGACY_FETCH
+				/* The munin-node implementation does not set arg[1] if "fetch" */
+				if (strcmp(cmd, "fetch") == 0) {
+					cmd = NULL;
+				}
+#endif // LEGACY_FETCH
 				execl(cmdline, arg, cmd, NULL);
 			}
 
