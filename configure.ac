@@ -37,5 +37,15 @@ if test "$with_legacy_fetch" = "yes"; then
   AC_DEFINE(LEGACY_FETCH)
 fi
 
+AC_MSG_CHECKING([whether to exit on vfork errors])
+AC_ARG_WITH(exit_vfork_error,
+	    [  --with-exit-vfork-error  exit on vfork errors @<:@no@:>@],
+    with_exit_vfork_error=$withval,
+    with_exit_vfork_error=no)
+AC_MSG_RESULT($with_exit_vfork_error)
+if test "$with_exit_vfork_error" = "yes"; then
+  AC_DEFINE(INETD_EXIT_VFORK_ERROR)
+fi
+
 AC_CONFIG_FILES([Makefile src/node/Makefile src/plugins/Makefile t/Makefile])
 AC_OUTPUT
