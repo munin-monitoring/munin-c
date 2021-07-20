@@ -84,6 +84,7 @@ int main(int argc, char *argv[])
 
 	while ((sock_accept = accept(sock_listen, NULL, NULL)) != -1) {
 		if (0 == (pid = vfork())) {
+			/* we are in the child */
 			close(sock_listen);
 			dup2(sock_accept, 0);
 			dup2(sock_accept, 1);
@@ -92,10 +93,16 @@ int main(int argc, char *argv[])
 			/* according to vfork(2) we must use _exit */
 			_exit(1);
 		} else {
-			perror("vfork failed in " __FILE__);
+			/* we are in the parent */
 			close(sock_accept);
-			close(sock_listen);
-			return 1;
+
+			/* we didn't manage to fork */
+			if (pid == -1) {
+				perror("vfork failed in " __FILE__);
+#ifdef INETD_EXIT_VFORK_ERROR
+				return 1;
+#endif // INETD_EXIT_VFORK_ERROR
+			}
 		}
 	}
 	perror("accept failed in " __FILE__);
