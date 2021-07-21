@@ -15,23 +15,23 @@ munin_plugins_c_SOURCES = \
 	common.c \
 	common.h \
 	plugins.h \
-	cpu.c \
-	df.c \
-	entropy.c \
-	external_.c \
-	forks.c \
-	fw_packets.c \
-	if_err_.c \
-	interrupts.c \
-	iostat.c \
-	load.c \
-	open_files.c \
-	open_inodes.c \
-	processes.c \
-	swap.c \
-	threads.c \
-	memory.c \
-	uptime.c \
+	p/cpu.c \
+	p/df.c \
+	p/entropy.c \
+	p/external_.c \
+	p/forks.c \
+	p/fw_packets.c \
+	p/if_err_.c \
+	p/interrupts.c \
+	p/iostat.c \
+	p/load.c \
+	p/open_files.c \
+	p/open_inodes.c \
+	p/processes.c \
+	p/swap.c \
+	p/threads.c \
+	p/memory.c \
+	p/uptime.c \
 	main.c
 man_MANS = munin-plugins-c.1
 CLEANFILES = $(man_MANS)

@@ -15,13 +15,9 @@ ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = src/node src/plugins t
 
 dist_doc_DATA = gpl-2.0.txt gpl-3.0.txt
-EXTRA_DIST = README.rst getversion
+EXTRA_DIST = README.rst getversion t/plugin_list t/node_list
 
-all-local: $(pkglibexec_PROGRAMS)
-	$(MKDIR_P) plugins
-	for l in `./src/plugins/munin-plugins-c$(EXEEXT) listplugins`; do \
-		test -L plugins/$$l$(EXEEXT) || $(LN_S) ../src/plugins/munin-plugins-c$(EXEEXT) plugins/$$l$(EXEEXT); \
-	done
+TESTS = t/plugin_list t/node_list
 
 clean-local:
 	rm -rf plugins
