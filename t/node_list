@@ -1,0 +1,8 @@
+#! /bin/sh
+
+# lauching the list of testing
+echo list | src/node/munin-node-c -d t/p -D t.conf
+
+#
+echo config nb_env | src/node/munin-node-c -d t/p -D t.conf
+echo fetch nb_env | src/node/munin-node-c -d t/p -D t.conf

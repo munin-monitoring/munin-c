@@ -3,6 +3,8 @@
 *.1
 *~
 *.bak
+*.log
+*.trs
 .deps
 .dirstamp
 .gdbinit
@@ -20,3 +22,5 @@ TAGS
 /plugins/
 /munin-node-c
 /munin-plugins-c
+/t/p/
+!/t/p/*.c
