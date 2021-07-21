@@ -19,7 +19,7 @@ EXTRA_DIST = README.md
 
 all-local: $(pkglibexec_PROGRAMS)
 	$(MKDIR_P) plugins
-	for l in `./src/plugins/munin-plugins-c$(EXEEXT) listplugins`; do \
+	for l in `cd src/plugins/p && ls -1 *.c | cut -d. -f1`; do \
 		test -L plugins/$$l$(EXEEXT) || $(LN_S) ../src/plugins/munin-plugins-c$(EXEEXT) plugins/$$l$(EXEEXT); \
 	done
 
