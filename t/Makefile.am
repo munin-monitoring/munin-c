@@ -8,5 +8,5 @@
 include $(top_srcdir)/common.am
 
 sbin_PROGRAMS = ok_plugin nb_env
-ok_plugin_SOURCES = ok_plugin.c common.c
-nb_env_SOURCES = nb_env.c common.c
+ok_plugin_SOURCES = ok_plugin.c common.c common.h
+nb_env_SOURCES = nb_env.c common.c common.h
