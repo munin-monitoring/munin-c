@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Steve Schnepp <steve.schnepp@pwkg.org> - All rights reserved.
+ * Copyright (C) 2013 Steve Schnepp <steve.schnepp@pwkf.org> - All rights reserved.
  *
  * This copyrighted material is made available to anyone wishing to use,
  * modify, copy, or redistribute it subject to the terms and conditions
