@@ -660,6 +660,10 @@ static int handle_connection()
 				}
 #endif // LEGACY_FETCH
 				execl(cmdline, arg, cmd, NULL);
+
+				// If we are here the execl() failed, bailing out with an error
+				printf("# execl failed\n");
+				exit(EXIT_FAILURE);
 			}
 
 			waitpid(pid, NULL, 0);
