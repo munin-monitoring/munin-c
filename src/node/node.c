@@ -461,97 +461,92 @@ static struct s_plugin_conf *parse_plugin_conf(FILE * f,
 /* Setting user configured vars */
 static void setenvvars_conf(char *current_plugin_name)
 {
+	struct s_plugin_conf pconf;
+	pconf.size = 0;
+
+	/* default is nobody:nobody */
+	{
+		struct passwd *pswd = getpwnam("nobody");
+		if (pswd == NULL) {
+			perror("getpwnam(\"nobody\") error");
+			abort();
+		}
+		pconf.uid = pswd->pw_uid;
+	}
+	{
+		struct group *grp = getgrnam("nogroup");
+		if (grp == NULL) {
+			perror("getgrnam(\"nogroup\") error");
+			abort();
+		}
+		pconf.gid = grp->gr_gid;
+	}
+
 	/* TODO - add plugin conf parsing */
 	DIR *dirp = opendir(pluginconf_dir);
 	if (dirp == NULL) {
-		printf("# Cannot open plugin config dir '%s'\n",
-		       pluginconf_dir);
-		return;
-	}
+		printf("# Cannot open plugin config dir '%s'\n", pluginconf_dir);
+	} else {
+		struct dirent *dp;
+		while ((dp = readdir(dirp)) != NULL) {
+			char cmdline[LINE_MAX];
+			char *plugin_filename = dp->d_name;;
 
-	{
-		struct s_plugin_conf pconf;
-		pconf.size = 0;
-
-		/* default is nobody:nobody */
-		{
-			struct passwd *pswd = getpwnam("nobody");
-			if (pswd == NULL) {
-				perror("getpwnam(\"nobody\") error");
-				abort();
+			if (plugin_filename[0] == '.') {
+				/* No dotted plugin */
+				continue;
 			}
-			pconf.uid = pswd->pw_uid;
-		}
-		{
-			struct group *grp = getgrnam("nogroup");
-			if (grp == NULL) {
-				perror("getgrnam(\"nogroup\") error");
-				abort();
-			}
-			pconf.gid = grp->gr_gid;
-		}
 
-		{
-			struct dirent *dp;
-			while ((dp = readdir(dirp)) != NULL) {
-				char cmdline[LINE_MAX];
-				char *plugin_filename = dp->d_name;;
-
-				if (plugin_filename[0] == '.') {
-					/* No dotted plugin */
+			snprintf(cmdline, LINE_MAX, "%s/%s",
+				 pluginconf_dir, plugin_filename);
+			{
+				FILE *f = fopen(cmdline, "r");
+				if (f == NULL) {
+					/* Ignore open failures */
 					continue;
 				}
 
-				snprintf(cmdline, LINE_MAX, "%s/%s",
-					 pluginconf_dir, plugin_filename);
-				{
-					FILE *f = fopen(cmdline, "r");
-					if (f == NULL) {
-						/* Ignore open failures */
-						continue;
-					}
+				parse_plugin_conf(f,
+						  current_plugin_name,
+						  &pconf);
 
-					parse_plugin_conf(f,
-							  current_plugin_name,
-							  &pconf);
-
-					fclose(f);
-				}
-			}
-
-			/* Set env after whole parsing */
-			{
-				size_t i;
-				for (i = 0; i < pconf.size; i++) {
-					struct s_env *env = pconf.env + i;
-					putenv(env->buffer);
-				}
-			}
-
-			/* setuid/gid */
-			if (geteuid() == 0) {
-				/* We *are* root */
-				int ret_val;
-				ret_val = setgid(pconf.gid);
-				if ((ret_val != 0)
-				    || (getgid() != pconf.gid)) {
-					perror
-					    ("gid not changed by setgid");
-					abort();
-				}
-
-				/* Change UID *after* GID, otherwise cannot change anymore */
-				ret_val = setuid(pconf.uid);
-				if ((ret_val != 0)
-				    || (getuid() != pconf.uid)) {
-					perror
-					    ("uid not changed by setuid");
-					abort();
-				}
+				fclose(f);
 			}
 		}
+
+		closedir(dirp);
 	}
-	closedir(dirp);
+
+	/* Set env after whole parsing */
+	{
+		size_t i;
+		for (i = 0; i < pconf.size; i++) {
+			struct s_env *env = pconf.env + i;
+			putenv(env->buffer);
+		}
+	}
+
+	/* setuid/gid */
+	if (geteuid() == 0) {
+		/* We *are* root */
+		int ret_val;
+		ret_val = setgid(pconf.gid);
+		if ((ret_val != 0)
+		    || (getgid() != pconf.gid)) {
+			perror
+			    ("gid not changed by setgid");
+			abort();
+		}
+
+		/* Change UID *after* GID, otherwise cannot change anymore */
+		ret_val = setuid(pconf.uid);
+		if ((ret_val != 0)
+		    || (getuid() != pconf.uid)) {
+			perror
+			    ("uid not changed by setuid");
+			abort();
+		}
+}
 }
 
 static int handle_connection()
