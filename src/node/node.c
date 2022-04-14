@@ -737,8 +737,11 @@ pid_t acquire(char *plugin_name, char *plugin_filename)
 {
 	/* continue in background */
 	pid_t child = fork();
-	if (child)
+	if (child) {
+		// Sleep for 20ms. Ease scheduling
+		usleep(20 * 1000);
 		return child;
+	}
 
 	setenvvars_munin();
 	setenvvars_conf(plugin_name);
