@@ -27,9 +27,9 @@ CC_CHECK_CFLAGS_APPEND([-Wall -Wextra -Werror -pedantic -Wno-format])
 
 AC_MSG_CHECKING([whether to enable LTO])
 AC_ARG_WITH(lto,
-	    [  --with-lto     enable LTO) @<:@yes@:>@],
+	    [  --with-lto              enable LTO) @<:@no@:>@],
     with_lto=$withval,
-    with_lto=yes)
+    with_lto=no)
 AC_MSG_RESULT($with_lto)
 if test "$with_lto" = "yes"; then
   CC_CHECK_CFLAGS_APPEND([-flto])
@@ -38,9 +38,9 @@ fi
 
 AC_MSG_CHECKING([whether to optimize for size])
 AC_ARG_WITH(optimize_size,
-	    [  --with-Os     enable -Os) @<:@yes@:>@],
+	    [  --with-size-optim       enable -Os) @<:@no@:>@],
     with_optimize_size=$withval,
-    with_optimize_size=yes)
+    with_optimize_size=no)
 AC_MSG_RESULT($with_optimize_size)
 if test "$with_optimize_size" = "yes"; then
   CC_CHECK_CFLAGS_APPEND([-Os])
@@ -50,7 +50,7 @@ AC_CHECK_HEADERS([mntent.h sys/vfs.h])
 
 AC_MSG_CHECKING([whether to enable legacy "fetch"])
 AC_ARG_WITH(legacy_fetch,
-	    [  --with-legacy-fetch     enable legacy fetch which does not add "fetch") @<:@yes@:>@],
+	    [  --with-legacy-fetch     enable legacy fetch which does not add the "fetch" argument on plugin execution) @<:@yes@:>@],
     with_legacy_fetch=$withval,
     with_legacy_fetch=yes)
 AC_MSG_RESULT($with_legacy_fetch)
@@ -60,7 +60,7 @@ fi
 
 AC_MSG_CHECKING([whether to exit on vfork errors])
 AC_ARG_WITH(exit_vfork_error,
-	    [  --with-exit-vfork-error  exit on vfork errors @<:@no@:>@],
+	    [  --with-exit-vfork-error exit on vfork errors @<:@no@:>@],
     with_exit_vfork_error=$withval,
     with_exit_vfork_error=no)
 AC_MSG_RESULT($with_exit_vfork_error)
