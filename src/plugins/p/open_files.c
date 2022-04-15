@@ -40,7 +40,8 @@ int open_files(int argc, char **argv)
 			     "max.info The maximum supported number of open "
 			     "files. Tune by modifying " FS_FILE_NR ".");
 			printf("used.warning %lu\nused.critical %lu\n",
-			       (unsigned long) (avail * 0.92), (unsigned long) (avail * 0.98));
+			       (unsigned long) (avail * 0.92),
+			       (unsigned long) (avail * 0.98));
 			return 0;
 		}
 		if (!strcmp(argv[1], "autoconf"))

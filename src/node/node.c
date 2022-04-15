@@ -663,7 +663,7 @@ static int handle_connection()
 				if (strcmp(cmd, "fetch") == 0) {
 					cmd = NULL;
 				}
-#endif // LEGACY_FETCH
+#endif				// LEGACY_FETCH
 				execl(cmdline, arg, cmd, NULL);
 			}
 
