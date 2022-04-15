@@ -23,7 +23,7 @@ int load(int argc, char **argv)
 	if (argc > 1) {
 		if (!strcmp(argv[1], "config")) {
 			puts("graph_title Load average\n"
-			     "graph_args --base 1000 -l 0\n"
+			     "graph_args --base 1000 -l 0 -u 1\n"
 			     "graph_vlabel load\n"
 			     "graph_scale no\n"
 			     "graph_category system\n" "load.label load");
