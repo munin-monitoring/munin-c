@@ -4,4 +4,4 @@ int emit_config();
 int emit_fetch();
 
 /* This is the common main function */
-int main(int argc, const char* argv[]);
+int main(int argc, const char *argv[]);

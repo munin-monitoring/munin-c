@@ -485,7 +485,8 @@ static void setenvvars_conf(char *current_plugin_name)
 	/* TODO - add plugin conf parsing */
 	DIR *dirp = opendir(pluginconf_dir);
 	if (dirp == NULL) {
-		printf("# Cannot open plugin config dir '%s'\n", pluginconf_dir);
+		printf("# Cannot open plugin config dir '%s'\n",
+		       pluginconf_dir);
 	} else {
 		struct dirent *dp;
 		while ((dp = readdir(dirp)) != NULL) {
@@ -533,8 +534,7 @@ static void setenvvars_conf(char *current_plugin_name)
 		ret_val = setgid(pconf.gid);
 		if ((ret_val != 0)
 		    || (getgid() != pconf.gid)) {
-			perror
-			    ("gid not changed by setgid");
+			perror("gid not changed by setgid");
 			abort();
 		}
 
@@ -542,11 +542,10 @@ static void setenvvars_conf(char *current_plugin_name)
 		ret_val = setuid(pconf.uid);
 		if ((ret_val != 0)
 		    || (getuid() != pconf.uid)) {
-			perror
-			    ("uid not changed by setuid");
+			perror("uid not changed by setuid");
 			abort();
 		}
-}
+	}
 }
 
 static int handle_connection()
@@ -658,7 +657,7 @@ static int handle_connection()
 				if (strcmp(cmd, "fetch") == 0) {
 					cmd = NULL;
 				}
-#endif // LEGACY_FETCH
+#endif				// LEGACY_FETCH
 				execl(cmdline, arg, cmd, NULL);
 
 				// If we are here the execl() failed, bailing out with an error

@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 				perror("vfork failed in " __FILE__);
 #ifdef INETD_EXIT_VFORK_ERROR
 				return 1;
-#endif // INETD_EXIT_VFORK_ERROR
+#endif				// INETD_EXIT_VFORK_ERROR
 			}
 		}
 	}
