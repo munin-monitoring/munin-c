@@ -16,6 +16,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: install indent
+      run: sudo apt-get -y install indent
+    - name: enforce code style - C files
+      run: find . -iname "*.c" -exec indent -kr -i8 {} \;
+    - name: enforce code style - H files
+      run: find . -iname "*.h" -exec indent -kr -i8 {} \;
+    - name: check code style
+      run: git diff --quiet
     - name: autoconf
       run: autoreconf -i -I m4
     - name: configure
