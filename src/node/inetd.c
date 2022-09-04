@@ -19,7 +19,7 @@
 #include <unistd.h>
 #include <signal.h>
 
-#if !(defined(HAVE_WORKING_VFORK) || defined(S_SPLINT_S))
+#if !(defined(HAVE_WORKING_VFORK) || defined(S_SPLINT_S)) || defined(__APPLE__)
 #define vfork fork
 #endif
 
