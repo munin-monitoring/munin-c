@@ -2,7 +2,7 @@ MANCENTER="Munin C Documentation"
 
 .pod.1:
 	$(AM_V_GEN)pod2man --section=1 --release=$(VERSION) --center=$(MANCENTER) $< > $@
-	sed -i -e 's#@@pkglibexecdir@@#$(pkglibexecdir)#' -e 's#@@CONFDIR@@#$(sysconfdir)#' $@
+	sed -i '' -e 's#@@pkglibexecdir@@#$(pkglibexecdir)#' -e 's#@@CONFDIR@@#$(sysconfdir)#' $@
 
 SUFFIXES = .1 .pod
 
