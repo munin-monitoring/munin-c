@@ -17,13 +17,29 @@ AM_MAINTAINER_MODE([enable])
 
 AC_CANONICAL_HOST
 case $host in
-	*bsd* | *darwin* )
-		SYS_API='sysctl' ;;
+	*bsd* )
+		SYS_API='bsd'
+		DF_API='bsd'
+		LOAD_API='bsd'
+		;;
+	*darwin* )
+		# macOS (Darwin/XNU) is mostly-BSD-compatible, but has some deviations.
+		SYS_API='darwin'
+		DF_API='bsd'
+		LOAD_API='bsd'
+		LDFLAGS+='-framework CoreFoundation -framework IOKit'
+		;;
 	*)
-		SYS_API='proc' ;;
+		# Linux takes APIs from a variety of sources.
+		SYS_API='proc'
+		DF_API='sunos'
+		LOAD_API='bsd'
+		;;
 esac
 
 AC_SUBST([SYS_API])
+AC_SUBST([DF_API])
+AC_SUBST([LOAD_API])
 
 AC_PROG_CC
 AC_PROG_CC_C_O

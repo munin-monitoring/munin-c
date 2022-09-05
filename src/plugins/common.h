@@ -15,6 +15,9 @@
  * @returns a success state to be passed on as the return value from main */
 int writeyes(void);
 
+/** Indicates that the plugin cannot produce output on the current platform. */
+int unsupported(int argc, char **argv);
+
 /** Answer an autoconf request by checking the readability of the given file.
  */
 int autoconf_check_readable(const char *);
