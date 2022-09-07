@@ -11,8 +11,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <sys/types.h>
+#include <sys/resource.h>
 #include <sys/sysctl.h>
+#include <sys/types.h>
 #include "common.h"
 #include "plugins.h"
 

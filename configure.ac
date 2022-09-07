@@ -19,27 +19,64 @@ AC_CANONICAL_HOST
 case $host in
 	*bsd* )
 		SYS_API='bsd'
+
 		DF_API='bsd'
+		ENTROPY_API='unsupported'
+		FW_PACKETS_API='unsupported'
+		IF_ERR_API='unsupported'
+		INTERRUPTS_API='unsupported'
+		IOSTAT_API='unsupported'
 		LOAD_API='bsd'
+		OPEN_INODES_API='unsupported'
+
+		LDFLAGS='-lkvm'
 		;;
+
 	*darwin* )
-		# macOS (Darwin/XNU) is mostly-BSD-compatible, but has some deviations.
 		SYS_API='darwin'
+
+		# macOS (Darwin/XNU) is mostly-BSD-compatible, but has some deviations.
 		DF_API='bsd'
+		ENTROPY_API='unsupported'
+		FW_PACKETS_API='darwin'
+		IF_ERR_API='darwin'
+		INTERRUPTS_API='unsupported'
+		IOSTAT_API='darwin'
 		LOAD_API='bsd'
-		LDFLAGS+='-framework CoreFoundation -framework IOKit'
+		OPEN_INODES_API='unsupported'
+
+		LDFLAGS='-framework CoreFoundation -framework IOKit'
 		;;
+
 	*)
-		# Linux takes APIs from a variety of sources.
 		SYS_API='proc'
+
+		# Linux takes APIs from a variety of sources.
 		DF_API='sunos'
-		LOAD_API='bsd'
+		ENTROPY_API='proc'
+		FW_PACKETS_API='proc'
+		IF_ERR_API='proc'
+		INTERRUPTS_API='proc'
+		IOSTAT_API='proc'
+		LOAD_API='proc'
+		OPEN_INODES_API='proc'
+
+		LDFLAGS=''
 		;;
 esac
 
 AC_SUBST([SYS_API])
+
 AC_SUBST([DF_API])
+AC_SUBST([ENTROPY_API])
+AC_SUBST([FW_PACKETS_API])
+AC_SUBST([IF_ERR_API])
+AC_SUBST([INTERRUPTS_API])
+AC_SUBST([IOSTAT_API])
 AC_SUBST([LOAD_API])
+AC_SUBST([OPEN_INODES_API])
+
+AC_SUBST([LDFLAGS])
 
 AC_PROG_CC
 AC_PROG_CC_C_O
