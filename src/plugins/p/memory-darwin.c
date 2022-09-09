@@ -42,7 +42,7 @@ int memory(int argc, char **argv) {
 				 "other.label Other\n"
 				 "other.draw STACK\n"
 
-				 "free.label free\n"
+				 "free.label Free\n"
 				 "free.draw STACK\n"
 				 "free.info Available for immediate use.");
 
@@ -75,8 +75,10 @@ int memory(int argc, char **argv) {
 	printf("active.value %lu\n", stats.active_count * pagesize);
 	printf("inactive.value %lu\n", stats.inactive_count * pagesize);
 	printf("speculative.value %lu\n", stats.speculative_count * pagesize);
-	printf("other.value %lu\n", ((int64_t)totalPages - stats.wire_count - stats.active_count - stats.inactive_count - stats.free_count) * pagesize);
-	printf("free.value %lu\n", (stats.free_count - stats.speculative_count) * pagesize);
+
+	int64_t freePages = stats.free_count - stats.speculative_count;
+	printf("other.value %lu\n", ((int64_t)totalPages - stats.wire_count - stats.active_count - stats.inactive_count - freePages) * pagesize);
+	printf("free.value %lu\n", freePages * pagesize);
 
 	return 0;
 }
