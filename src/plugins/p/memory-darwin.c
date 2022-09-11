@@ -77,7 +77,7 @@ int memory(int argc, char **argv) {
 	printf("speculative.value %lu\n", stats.speculative_count * pagesize);
 
 	int64_t freePages = stats.free_count - stats.speculative_count;
-	printf("other.value %lu\n", ((int64_t)totalPages - stats.wire_count - stats.active_count - stats.inactive_count - freePages) * pagesize);
+	printf("other.value %lu\n", MAX(0, (int64_t)totalPages - stats.wire_count - stats.active_count - stats.inactive_count - freePages) * pagesize);
 	printf("free.value %lu\n", freePages * pagesize);
 
 	return 0;
