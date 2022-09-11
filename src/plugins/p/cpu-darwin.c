@@ -9,6 +9,7 @@
 #include <mach/mach_host.h>
 #include <string.h>
 #include <stdio.h>
+#include <sys/sysctl.h>
 #include "common.h"
 #include "plugins.h"
 
@@ -24,21 +25,25 @@ int cpu(int argc, char **argv) {
 				 "graph_period second\n"
 
 				 "system.label system\n"
+				 "system.min 0\n"
 				 "system.type DERIVE\n"
 				 "system.draw AREA\n"
 				 "system.info CPU time spent by the kernel in system activities\n"
 
 				 "user.label user\n"
+				 "user.min 0\n"
 				 "user.type DERIVE\n"
 				 "user.draw STACK\n"
 				 "user.info CPU time spent by normal programs and daemons\n"
 
 				 "nice.label nice\n"
+				 "nice.min 0\n"
 				 "nice.type DERIVE\n"
 				 "nice.draw STACK\n"
 				 "nice.info CPU time spent by nice(1)d programs\n"
 
 				 "idle.label idle\n"
+				 "idle.min 0\n"
 				 "idle.type DERIVE\n"
 				 "idle.draw STACK\n"
 				 "idle.info Idle CPU time");
@@ -49,6 +54,12 @@ int cpu(int argc, char **argv) {
 			return writeyes();
 	}
 
+	unsigned int cpuCount;
+	size_t len = sizeof(cpuCount);
+	if (sysctlbyname("hw.ncpu", &cpuCount, &len, NULL, 0) < 0)  {
+		return fail("sysctlbyname");
+	}
+
 	host_t host = mach_host_self();
 	host_cpu_load_info_data_t li;
 	mach_msg_type_number_t count = HOST_CPU_LOAD_INFO_COUNT;
@@ -56,10 +67,10 @@ int cpu(int argc, char **argv) {
 		return fail("host_statistics");
 	}
 
-	printf("system.value %lu\n", li.cpu_ticks[CPU_STATE_SYSTEM]);
-	printf("user.value %lu\n",   li.cpu_ticks[CPU_STATE_USER]);
-	printf("nice.value %lu\n",   li.cpu_ticks[CPU_STATE_NICE]);
-	printf("idle.value %lu\n",   li.cpu_ticks[CPU_STATE_IDLE]);
+	printf("system.value %lu\n", li.cpu_ticks[CPU_STATE_SYSTEM] / cpuCount);
+	printf("user.value %lu\n",   li.cpu_ticks[CPU_STATE_USER]   / cpuCount);
+	printf("nice.value %lu\n",   li.cpu_ticks[CPU_STATE_NICE]   / cpuCount);
+	printf("idle.value %lu\n",   li.cpu_ticks[CPU_STATE_IDLE]   / cpuCount);
 
 	return 0;
 }
