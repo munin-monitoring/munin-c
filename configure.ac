@@ -38,7 +38,7 @@ fi
 
 AC_MSG_CHECKING([whether to optimize for size])
 AC_ARG_WITH(optimize_size,
-	    [  --with-size-optim       enable -Os) @<:@no@:>@],
+	    [  --with-optimize-size    enable -Os) @<:@no@:>@],
     with_optimize_size=$withval,
     with_optimize_size=no)
 AC_MSG_RESULT($with_optimize_size)
