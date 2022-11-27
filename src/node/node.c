@@ -324,7 +324,7 @@ struct s_env {
 	char buffer[MAX_ENV_BUF_SZ];
 };
 
-#define MAX_ENV_NB 256
+#define MAX_ENV_NB 64
 struct s_plugin_conf {
 	uid_t uid;
 	gid_t gid;
