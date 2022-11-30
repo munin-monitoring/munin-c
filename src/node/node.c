@@ -326,8 +326,8 @@ struct s_env {
 
 #define MAX_ENV_NB 256
 struct s_plugin_conf {
-	uid_t uid;
-	gid_t gid;
+	char user[MAX_ENV_BUF_SZ];
+	char group[MAX_ENV_BUF_SZ];
 	size_t size;
 	struct s_env env[MAX_ENV_NB];
 };
@@ -434,19 +434,23 @@ static struct s_plugin_conf *parse_plugin_conf(FILE * f,
 			assert(value != NULL);
 
 			if (0 == strcmp(key, "user")) {
-				struct passwd *pswd = getpwnam(value);
-				if (pswd == NULL) {
-					perror("getpwnam() error");
+				if (strlen(value) >= sizeof(conf->user)) {
+					fprintf(stderr,
+						"user name too long (%d >= %d)\n",
+						(int) strlen(value),
+						(int) sizeof(conf->user));
 					abort();
 				}
-				conf->uid = pswd->pw_uid;
+				strcpy(conf->user, value);
 			} else if (0 == strcmp(key, "group")) {
-				struct group *grp = getgrnam(value);
-				if (grp == NULL) {
-					perror("getgrnam() error");
+				if (strlen(value) >= sizeof(conf->group)) {
+					fprintf(stderr,
+						"group name too long (%d >= %d)\n",
+						(int) strlen(value),
+						(int) sizeof(conf->group));
 					abort();
 				}
-				conf->gid = grp->gr_gid;
+				strcpy(conf->group, value);
 			} else if (0 ==
 				   strncmp(key, "env.", strlen("env."))) {
 				char *env_key = key + strlen("env.");
@@ -463,24 +467,9 @@ static void setenvvars_conf(char *current_plugin_name)
 {
 	struct s_plugin_conf pconf;
 	pconf.size = 0;
-
-	/* default is nobody:nobody */
-	{
-		struct passwd *pswd = getpwnam("nobody");
-		if (pswd == NULL) {
-			perror("getpwnam(\"nobody\") error");
-			abort();
-		}
-		pconf.uid = pswd->pw_uid;
-	}
-	{
-		struct group *grp = getgrnam("nogroup");
-		if (grp == NULL) {
-			perror("getgrnam(\"nogroup\") error");
-			abort();
-		}
-		pconf.gid = grp->gr_gid;
-	}
+	/* default is nobody:nogroup */
+	strcpy(pconf.user, "nobody");
+	strcpy(pconf.group, "nogroup");
 
 	/* TODO - add plugin conf parsing */
 	DIR *dirp = opendir(pluginconf_dir);
@@ -531,17 +520,31 @@ static void setenvvars_conf(char *current_plugin_name)
 	if (geteuid() == 0) {
 		/* We *are* root */
 		int ret_val;
-		ret_val = setgid(pconf.gid);
+		struct group *grp;
+		struct passwd *pswd;
+
+		pswd = getpwnam(pconf.user);
+		if (pswd == NULL) {
+			perror("getpwnam() error");
+			abort();
+		}
+		grp = getgrnam(pconf.group);
+		if (grp == NULL) {
+			perror("getgrnam() error");
+			abort();
+		}
+
+		ret_val = setgid(grp->gr_gid);
 		if ((ret_val != 0)
-		    || (getgid() != pconf.gid)) {
+		    || (getgid() != grp->gr_gid)) {
 			perror("gid not changed by setgid");
 			abort();
 		}
 
 		/* Change UID *after* GID, otherwise cannot change anymore */
-		ret_val = setuid(pconf.uid);
+		ret_val = setuid(pswd->pw_uid);
 		if ((ret_val != 0)
-		    || (getuid() != pconf.uid)) {
+		    || (getuid() != pswd->pw_uid)) {
 			perror("uid not changed by setuid");
 			abort();
 		}
