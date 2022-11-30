@@ -435,15 +435,19 @@ static struct s_plugin_conf *parse_plugin_conf(FILE * f,
 
 			if (0 == strcmp(key, "user")) {
 				if (strlen(value) >= sizeof(conf->user)) {
-					fprintf(stderr, "user name too long (%d >= %d)\n",
-					        (int)strlen(value), (int)sizeof(conf->user));
+					fprintf(stderr,
+						"user name too long (%d >= %d)\n",
+						(int) strlen(value),
+						(int) sizeof(conf->user));
 					abort();
 				}
 				strcpy(conf->user, value);
 			} else if (0 == strcmp(key, "group")) {
 				if (strlen(value) >= sizeof(conf->group)) {
-					fprintf(stderr, "group name too long (%d >= %d)\n",
-					        (int)strlen(value), (int)sizeof(conf->group));
+					fprintf(stderr,
+						"group name too long (%d >= %d)\n",
+						(int) strlen(value),
+						(int) sizeof(conf->group));
 					abort();
 				}
 				strcpy(conf->group, value);
