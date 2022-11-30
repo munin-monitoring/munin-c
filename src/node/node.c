@@ -326,8 +326,8 @@ struct s_env {
 
 #define MAX_ENV_NB 256
 struct s_plugin_conf {
-	char user[128];
-	char group[128];
+	char user[MAX_ENV_BUF_SZ];
+	char group[MAX_ENV_BUF_SZ];
 	size_t size;
 	struct s_env env[MAX_ENV_NB];
 };
