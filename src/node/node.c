@@ -338,6 +338,12 @@ static void set_value(struct s_plugin_conf *conf, const char *key,
 	struct s_env *env = NULL;
 	struct s_env **nextp = &conf->env_head;
 
+	if (key_len + strlen(value) + 1 >= MAX_ENV_BUF_SZ) {
+		fprintf(stderr, "env var key+value too long: %.30s...\n",
+			key);
+		abort();
+	}
+
 	/* Search for the corresponding env */
 	for (; *nextp != NULL; nextp = &(*nextp)->next) {
 		env = *nextp;
