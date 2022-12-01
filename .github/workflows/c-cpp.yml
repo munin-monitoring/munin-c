@@ -15,22 +15,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
+
     - name: install indent
       run: sudo apt-get -y install indent
-    - name: enforce code style - C files
-      run: find . -iname "*.c" -exec indent -kr -i8 {} \;
-    - name: enforce code style - H files
-      run: find . -iname "*.h" -exec indent -kr -i8 {} \;
+
+    - name: enforce code style
+      run: find . -iname "*.[ch]" -exec indent -kr -i8 {} \;
+
     - name: check code style
-      run: git diff --quiet
+      run: git diff --exit-code
+
     - name: autoconf
       run: autoreconf -i -I m4
+
     - name: configure
       run: ./configure
+
     - name: make
       run: make
+
     - name: make check
       run: make check
+
     - name: make distcheck
       run: make distcheck
