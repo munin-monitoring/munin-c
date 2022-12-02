@@ -319,24 +319,27 @@ char *trim( /*@null@ */ char *s)
 
 #define MAX_ENV_BUF_SZ 256
 struct s_env {
-	struct s_env *next;
 	/* buffer will hold a C string : "KEY=VALUE", use the key_len to know where the "=" is */
 	size_t key_len;
 	char buffer[MAX_ENV_BUF_SZ];
 };
 
+#define MAX_ENV_NB 256
 struct s_plugin_conf {
 	char user[MAX_ENV_BUF_SZ];
 	char group[MAX_ENV_BUF_SZ];
-	struct s_env *env_head;
+
+	/* pointer to array of env vars */
+	size_t size;
+	size_t used;
+	struct s_env *env;
 };
 
 static void set_value(struct s_plugin_conf *conf, const char *key,
 		      const char *value)
 {
+	size_t i;
 	size_t key_len = strlen(key);
-	struct s_env *env = NULL;
-	struct s_env **nextp = &conf->env_head;
 
 	if (key_len + strlen(value) + 1 >= MAX_ENV_BUF_SZ) {
 		fprintf(stderr, "env var key+value too long: %.30s...\n",
@@ -344,9 +347,10 @@ static void set_value(struct s_plugin_conf *conf, const char *key,
 		abort();
 	}
 
+	struct s_env *dst_env = NULL;
 	/* Search for the corresponding env */
-	for (; *nextp != NULL; nextp = &(*nextp)->next) {
-		env = *nextp;
+	for (i = 0; i < conf->used; i++) {
+		struct s_env *env = conf->env + i;
 
 		if (key_len != env->key_len)
 			continue;
@@ -356,19 +360,37 @@ static void set_value(struct s_plugin_conf *conf, const char *key,
 			continue;
 
 		/* Found the key */
-		break;
+		dst_env = env;
 	}
 
-	if (*nextp == NULL) {
+	if (dst_env == NULL) {
 		/* Allocate one */
-		env = xmalloc(sizeof(struct s_env));
-		env->next = NULL;
-		env->key_len = key_len;
-		*nextp = env;
+		if (conf->used == MAX_ENV_NB) {
+			fprintf(stderr, "ran out of internal env space\n");
+			abort();
+		}
+		if (conf->used == conf->size) {
+			conf->size = conf->size * 3 / 2;
+			if (conf->size == 0)
+				conf->size = 4;
+			if (conf->size > MAX_ENV_NB)
+				conf->size = MAX_ENV_NB;
+
+			conf->env =
+			    realloc(conf->env,
+				    sizeof(struct s_env) * conf->size);
+			if (conf->env == NULL)
+				oom_handler();
+		}
+
+		/* ptr arithmetic is done with int, not with size_t */
+		dst_env = conf->env + (int) conf->used;
+		conf->used++;
 	}
 
 	/* Save the environment in setenv() format */
-	snprintf(env->buffer, MAX_ENV_BUF_SZ, "%s=%s", key, value);
+	dst_env->key_len = key_len;
+	snprintf(dst_env->buffer, MAX_ENV_BUF_SZ, "%s=%s", key, value);
 }
 
 static void end_before_first(char *s, char c)
@@ -464,7 +486,9 @@ static struct s_plugin_conf *parse_plugin_conf(FILE * f,
 static void setenvvars_conf(char *current_plugin_name)
 {
 	struct s_plugin_conf pconf;
-	pconf.env_head = NULL;
+	pconf.size = 0;
+	pconf.used = 0;
+	pconf.env = NULL;
 	/* default is nobody:nogroup */
 	strcpy(pconf.user, "nobody");
 	strcpy(pconf.group, "nogroup");
@@ -507,13 +531,12 @@ static void setenvvars_conf(char *current_plugin_name)
 
 	/* Set env after whole parsing */
 	{
-		struct s_env *env = pconf.env_head;
-		while (env != NULL) {
+		size_t i;
+		for (i = 0; i < pconf.used; i++) {
+			struct s_env *env = pconf.env + i;
 			putenv(env->buffer);
-			env = env->next;
 		}
-		/* don't free env allocations, putenv() stores reference to argument */
-		/* only allocated in the child just before execl() or exit() anyway */
+		/* Cannot free pconf.env array because putenv() keeps references to it */
 	}
 
 	/* setuid/gid */
