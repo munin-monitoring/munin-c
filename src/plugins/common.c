@@ -22,6 +22,16 @@ int writeyes(void)
 	return 0;
 }
 
+int unsupported(int argc, char **argv)
+{
+	if (argc > 1) {
+		if (!strcmp(argv[1], "autoconf"))
+			puts("no");
+	}
+
+	return 0;
+}
+
 int autoconf_check_readable(const char *path)
 {
 	if (0 == access(path, R_OK))
