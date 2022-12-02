@@ -328,8 +328,11 @@ struct s_env {
 struct s_plugin_conf {
 	char user[MAX_ENV_BUF_SZ];
 	char group[MAX_ENV_BUF_SZ];
+
+	/* pointer to array of env vars */
 	size_t size;
-	struct s_env env[MAX_ENV_NB];
+	size_t used;
+	struct s_env *env;
 };
 
 static void set_value(struct s_plugin_conf *conf, const char *key,
@@ -338,16 +341,22 @@ static void set_value(struct s_plugin_conf *conf, const char *key,
 	size_t i;
 	size_t key_len = strlen(key);
 
+	if (key_len + strlen(value) + 1 >= MAX_ENV_BUF_SZ) {
+		fprintf(stderr, "env var key+value too long: %.30s...\n",
+			key);
+		abort();
+	}
+
 	struct s_env *dst_env = NULL;
 	/* Search for the corresponding env */
-	for (i = 0; i < conf->size; i++) {
+	for (i = 0; i < conf->used; i++) {
 		struct s_env *env = conf->env + i;
 
 		if (key_len != env->key_len)
 			continue;
 
 		/* this cmp works since keys have the same length */
-		if (strncmp(key, env->buffer, env->key_len) != 0)
+		if (memcmp(key, env->buffer, env->key_len) != 0)
 			continue;
 
 		/* Found the key */
@@ -356,16 +365,27 @@ static void set_value(struct s_plugin_conf *conf, const char *key,
 
 	if (dst_env == NULL) {
 		/* Allocate one */
-		if (conf->size == MAX_ENV_NB) {
+		if (conf->used == MAX_ENV_NB) {
 			fprintf(stderr, "ran out of internal env space\n");
 			abort();
 		}
+		if (conf->used == conf->size) {
+			conf->size = conf->size * 3 / 2;
+			if (conf->size == 0)
+				conf->size = 4;
+			if (conf->size > MAX_ENV_NB)
+				conf->size = MAX_ENV_NB;
+
+			conf->env =
+			    realloc(conf->env,
+				    sizeof(struct s_env) * conf->size);
+			if (conf->env == NULL)
+				oom_handler();
+		}
 
 		/* ptr arithmetic is done with int, not with size_t */
-		dst_env = conf->env;
-		dst_env += (int) conf->size;
-
-		conf->size++;
+		dst_env = conf->env + (int) conf->used;
+		conf->used++;
 	}
 
 	/* Save the environment in setenv() format */
@@ -467,6 +487,8 @@ static void setenvvars_conf(char *current_plugin_name)
 {
 	struct s_plugin_conf pconf;
 	pconf.size = 0;
+	pconf.used = 0;
+	pconf.env = NULL;
 	/* default is nobody:nogroup */
 	strcpy(pconf.user, "nobody");
 	strcpy(pconf.group, "nogroup");
@@ -510,10 +532,11 @@ static void setenvvars_conf(char *current_plugin_name)
 	/* Set env after whole parsing */
 	{
 		size_t i;
-		for (i = 0; i < pconf.size; i++) {
+		for (i = 0; i < pconf.used; i++) {
 			struct s_env *env = pconf.env + i;
 			putenv(env->buffer);
 		}
+		/* Cannot free pconf.env array because putenv() keeps references to it */
 	}
 
 	/* setuid/gid */
