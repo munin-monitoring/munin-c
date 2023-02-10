@@ -15,6 +15,7 @@ int entropy(int argc, char **argv);
 int external_(int argc, char **argv);
 int forks(int argc, char **argv);
 int fw_packets(int argc, char **argv);
+int if_(int argc, char **argv);
 int if_err_(int argc, char **argv);
 int interrupts(int argc, char **argv);
 int iostat(int argc, char **argv);

@@ -21,6 +21,7 @@ munin_plugins_c_SOURCES = \
 	p/external_.c \
 	p/forks.c \
 	p/fw_packets.c \
+	p/if_.c \
 	p/if_err_.c \
 	p/interrupts.c \
 	p/iostat.c \
